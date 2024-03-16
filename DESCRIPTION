@@ -8,7 +8,7 @@ Authors@R: c(
   person("Narayanaswamy", "Balakrishnan", email = "bala@mcmaster.ca", role = "aut"))
 Maintainer: Taban Baghfalaki <t.baghfalaki@gmail.com>
 URL: https://github.com/tbaghfalaki/UHJM
-Description: Run a Gibbs sampler for hurdle models. The package includes the longitudinal zero-inflated hurdle models. The longitudinal zero-inflated models include Poisson, generalized Poisson, and negative binomial distributions. The primary focus of this package is to estimate joint models for zero-inflated longitudinal measurements and time-to-event data under Poisson, generalized Poisson, and negative binomial distributions. The function "ZIJM" considers joint modeling with a proportional hazard sub-model and a piecewise constant baseline hazard by treating the current value as the association between the two sub-models. The function "ZISRE" involves joint modeling with a Weibull sub-model by incorporating a shared random effects model.
+Description: Perform a Gibbs sampler for hurdle joint models focusing on estimating joint models for zero-inflated longitudinal measurements and time-to-event data. This versatile package accommodates various distributional assumptions, including Gaussian, Gamma, inverse Gaussian, Weibull, exponential, beta, Poisson, negative binomial, logarithmic, Bell, generalized Poisson, and binomial. These models, as described in Ganjali et al. (2024), are implemented through two key functions: "ZIJM" for joint modeling with a proportional hazard sub-model and a piecewise constant baseline hazard, and "ZISRE" for joint modeling with a Weibull sub-model incorporating a shared random effects model.
 License: GPL (>= 2.0)
 Encoding: UTF-8
 LazyData: true
