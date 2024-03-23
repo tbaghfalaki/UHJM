@@ -57,7 +57,7 @@ ZIJMCV(
 
 \item{K}{Number of nodes and weights for calculating Gaussian quadrature}
 
-\item{family}{Family objects provide a convenient way to specify the details of the models. The families include "Poisson", negative binomial (by "NB") and generalized Poisson (by "GP").}
+\item{family}{Family objects provide a convenient way to specify the details of the models. They cover various distributions like "Gaussian", "Exponential", "Weibull", "Gamma", "Beta", "inverse.gaussian", "Poisson", "NB", "Logarithmic", "Bell", "GP", and "Binomial". Specifically, "NB" and "GP" are tailored for hurdle negative binomial and hurdle generalized Poisson joint models, respectively, while the others are utilized for the corresponding models based on their names.}
 }
 \value{
 \itemize{
@@ -77,54 +77,88 @@ ZIJMCV(
 \item gamma_pi the association parameter for linear predictor of the current value of the probability
 \item gamma_lambda the association parameter for linear predictor of the current value of the rate
 \item h the parameters of the piecewise constant baseline hazard
-\item r the over-dispersion parameter of the negative binomial model
-\item phiz the dispersion parameter of the generalized Poisson model
 }
 }
 \description{
-Fits zero-inflated hurdle joint modeling under Poisson, negative binomial, and generalized Poisson distributions.
+Fits zero-inflated hurdle joint modeling with a proportional hazard sub-model and a piecewise constant baseline hazard, considering associations based on the current values. This function accommodates various distributional assumptions, including Gaussian, Gamma, inverse Gaussian, Weibull, exponential, beta, Poisson, negative binomial, logarithmic, Bell, generalized Poisson, and binomial.
 }
 \details{
 Function using 'JAGS' software to estimate the hurdle joint modeling
 }
 \examples{
 library(survival)
-data(long.data)
-data(surv.data)
+
 
 \donttest{
-ZIJMCV(
+  data(long_data_nb)
+  data(surv_data_nb)
+
+Z1 <- ZIJMCV(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
   formSurv = survival::Surv(survtime, death) ~ w1,
-  dataLong = long.data, dataSurv = surv.data,
+  dataLong = long_data_nb, dataSurv = surv_data_nb,
   obstime = "obstime", id = "id",
   n.chains = 1,
-  n.iter = 200, n.burnin = 100, n.thin = 1, K = 15, family = "Poisson"
+  n.iter = 100, n.burnin = 50, n.thin = 1, K = 15, family = "Poisson"
 )
 
 
-ZIJMCV(
+Z2 <- ZIJMCV(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
   formSurv = Surv(survtime, death) ~ w1,
-  dataLong = long.data, dataSurv = surv.data,
+  dataLong = long_data_nb, dataSurv = surv_data_nb,
   obstime = "obstime", id = "id",
   n.chains = 2,
-  n.iter = 200, n.burnin = 100, n.thin = 1, K = 15, family = "GP"
+  n.iter = 100, n.burnin = 50, n.thin = 1, K = 15, family = "NB"
 )
 
 
 
-ZIJMCV(
+Z3 <- ZIJMCV(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
   formSurv = Surv(survtime, death) ~ w1,
-  dataLong = long.data, dataSurv = surv.data,
+  dataLong = long_data_nb, dataSurv = surv_data_nb,
   obstime = "obstime", id = "id",
   n.chains = 1,
-  n.iter = 200, n.burnin = 100, n.thin = 1, K = 15, family = "NB"
+  n.iter = 100, n.burnin = 50, n.thin = 1, K = 15, family = "GP"
 )
+
+
+
+Z4 <- ZIJMCV(
+  FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
+  FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
+  formSurv = Surv(survtime, death) ~ w1,
+  dataLong = long_data_nb, dataSurv = surv_data_nb,
+  obstime = "obstime", id = "id",
+  n.chains = 2,
+  n.iter = 100, n.burnin = 50, n.thin = 1, K = 15, family = "Bell"
+)
+
+
+Z5 <- ZIJMCV(
+  FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
+  FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
+  formSurv = Surv(survtime, death) ~ w1,
+  dataLong = long_data_nb, dataSurv = surv_data_nb,
+  obstime = "obstime", id = "id",
+  n.chains = 2,
+  n.iter = 100, n.burnin = 50, n.thin = 1, K = 15, family = "Logarithmic"
+)
+
+Z6 <- ZIJMCV(
+  FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
+  FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
+  formSurv = Surv(survtime, death) ~ w1,
+  dataLong = long_data_nb, dataSurv = surv_data_nb,
+  obstime = "obstime", id = "id",
+  n.chains = 2,
+  n.iter = 100, n.burnin = 50, n.thin = 1, K = 15, family = "binomial"
+)
+
 }
 }
 \author{
