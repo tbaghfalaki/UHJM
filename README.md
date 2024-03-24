@@ -1,7 +1,7 @@
 ## Unified Zero-Inflated Hurdle Joint Modeling
 Performing a Gibbs sampler for hurdle joint models involves estimating joint models for zero-inflated longitudinal measurements and time-to-event data. This versatile package accommodates various distributional assumptions, including Gaussian, Gamma, inverse Gaussian, Weibull, exponential, beta, Poisson, negative binomial, logarithmic, Bell, generalized Poisson, and binomial. As described in Ganjali et al. (2024), these models are implemented through two key functions:
 
-- "ZIJM" facilitates joint modeling with a proportional hazard sub-model and a piecewise constant baseline hazard, considering associations based on the current values.
+- "ZIJMCV" facilitates joint modeling with a proportional hazard sub-model and a piecewise constant baseline hazard, considering associations based on the current values.
 - "ZISRE" enables joint modeling with a Weibull sub-model by incorporating a shared random effects model.
 
 
