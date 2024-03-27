@@ -2,36 +2,50 @@ library(survival)
 
 
 \donttest{
-  data(long_data_nb)
-  data(surv_data_nb)
+  data(long_data_p)
+  data(surv_data_p)
 
 Z1 <- ZIJMCV(
-  FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
-  FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
-  formSurv = survival::Surv(survtime, death) ~ w1,
-  dataLong = long_data_nb, dataSurv = surv_data_nb,
+  FixedY = Y1 ~ obstime + x1 + x2 , RandomY = ~obstime, GroupY = ~id,
+  FixedZ = ~ obstime + x1, RandomZ = ~obstime, GroupZ = ~id,
+  formSurv = survival::Surv(survtime, death) ~ w1+w2,
+  dataLong = long_data_p, dataSurv = surv_data_p,
   obstime = "obstime", id = "id",
-  n.chains = 1,
-  n.iter = 100, n.burnin = 50, n.thin = 1, K = 15, family = "Poisson"
+  n.chains = 2,
+  n.iter = 1000, n.burnin = 500, n.thin = 1, K = 15, family = "Poisson"
 )
 
 
+
 Z2 <- ZIJMCV(
-  FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
-  FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
-  formSurv = Surv(survtime, death) ~ w1,
-  dataLong = long_data_nb, dataSurv = surv_data_nb,
+  FixedY = Y1 ~ obstime + x1 + x2 , RandomY = ~obstime, GroupY = ~id,
+  FixedZ = ~ obstime + x1, RandomZ = ~obstime, GroupZ = ~id,
+  formSurv = survival::Surv(survtime, death) ~ w1+w2,
+  dataLong = long_data_p, dataSurv = surv_data_p,
   obstime = "obstime", id = "id",
   n.chains = 2,
   n.iter = 100, n.burnin = 50, n.thin = 1, K = 15, family = "NB"
 )
 
+data(long_data_nb)
+data(surv_data_nb)
+
+Z2 <- ZIJMCV(
+  FixedY = Y1 ~ obstime + x1 + x2 , RandomY = ~obstime, GroupY = ~id,
+  FixedZ = ~ obstime + x1, RandomZ = ~obstime, GroupZ = ~id,
+  formSurv = Surv(survtime, death) ~ w1+w2,
+  dataLong = long_data_nb, dataSurv = surv_data_nb,
+  obstime = "obstime", id = "id", n.chains = 2,
+  n.iter = 1000, n.burnin = 500, n.thin = 1, K = 15, family = "NB"
+)
+
+
 
 
 Z3 <- ZIJMCV(
-  FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
-  FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
-  formSurv = Surv(survtime, death) ~ w1,
+  FixedY = Y1 ~ obstime + x1 + x2 , RandomY = ~obstime, GroupY = ~id,
+  FixedZ = ~ obstime + x1, RandomZ = ~obstime, GroupZ = ~id,
+  formSurv = Surv(survtime, death) ~ w1+w2,
   dataLong = long_data_nb, dataSurv = surv_data_nb,
   obstime = "obstime", id = "id",
   n.chains = 1,
@@ -41,9 +55,9 @@ Z3 <- ZIJMCV(
 
 
 Z4 <- ZIJMCV(
-  FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
-  FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
-  formSurv = Surv(survtime, death) ~ w1,
+  FixedY = Y1 ~ obstime + x1 + x2 , RandomY = ~obstime, GroupY = ~id,
+  FixedZ = ~ obstime + x1, RandomZ = ~obstime, GroupZ = ~id,
+  formSurv = Surv(survtime, death) ~ w1+w2,
   dataLong = long_data_nb, dataSurv = surv_data_nb,
   obstime = "obstime", id = "id",
   n.chains = 2,
@@ -52,9 +66,9 @@ Z4 <- ZIJMCV(
 
 
 Z5 <- ZIJMCV(
-  FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
-  FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
-  formSurv = Surv(survtime, death) ~ w1,
+  FixedY = Y1 ~ obstime + x1 + x2 , RandomY = ~obstime, GroupY = ~id,
+  FixedZ = ~ obstime + x1, RandomZ = ~obstime, GroupZ = ~id,
+  formSurv = Surv(survtime, death) ~ w1+w2,
   dataLong = long_data_nb, dataSurv = surv_data_nb,
   obstime = "obstime", id = "id",
   n.chains = 2,
@@ -62,13 +76,31 @@ Z5 <- ZIJMCV(
 )
 
 Z6 <- ZIJMCV(
-  FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
-  FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
-  formSurv = Surv(survtime, death) ~ w1,
+  FixedY = Y1 ~ obstime + x1 + x2 , RandomY = ~obstime, GroupY = ~id,
+  FixedZ = ~ obstime + x1, RandomZ = ~obstime, GroupZ = ~id,
+  formSurv = Surv(survtime, death) ~ w1+w2,
   dataLong = long_data_nb, dataSurv = surv_data_nb,
   obstime = "obstime", id = "id",
   n.chains = 2,
   n.iter = 100, n.burnin = 50, n.thin = 1, K = 15, family = "binomial"
 )
+
+}
+
+
+
+\donttest{
+  data(long_data_n)
+  data(surv_data_n)
+
+  Z1 <- ZIJMCV(
+    FixedY = Y1 ~ obstime + x1 + x2 , RandomY = ~obstime, GroupY = ~id,
+    FixedZ = ~ obstime + x1, RandomZ = ~obstime, GroupZ = ~id,
+    formSurv = survival::Surv(survtime, death) ~ w1+w2,
+    dataLong = long_data_n, dataSurv = surv_data_n,
+    obstime = "obstime", id = "id",
+    n.chains = 2,
+    n.iter = 1000, n.burnin = 500, n.thin = 1, K = 15, family = "Gaussian"
+  )
 
 }

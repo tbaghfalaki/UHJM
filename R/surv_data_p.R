@@ -3,7 +3,7 @@
 #' Simulated survival data were generated in which "survtime" follows a survival time with a censoring indicator called "death" and a continuous covariate, "w1".
 #'
 #'
-#' @name surv_data_nb
+#' @name surv_data_p
 #' @format A data frame which contains id, survtime, death, w1.
 #' \describe{
 #'   \item{id}{patients identifier}
@@ -13,6 +13,6 @@
 #'   \item{w2}{a binary covariate}
 #' }
 #' @seealso \code{\link{UHJM}}
-"surv_data_nb"
+"surv_data_p"
 
 
