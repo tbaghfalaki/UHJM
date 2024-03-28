@@ -5203,7 +5203,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phi", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phis", "h")
 
 
       d.jags <- list(
@@ -5312,16 +5312,16 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         D11 <- sim1$mean$Sigmaa
         D22 <- sim1$mean$Sigmab
 
-        names(sim1$mean$phi) <-
-          names(sim1$sd$phi) <-
-          names(sim1$q2.5$phi) <-
-          names(sim1$q97.5$phi) <-
-          names(sim1$Rhat$phi) <- "Dispersion"
+        names(sim1$mean$phis) <-
+          names(sim1$sd$phis) <-
+          names(sim1$q2.5$phis) <-
+          names(sim1$q97.5$phis) <-
+          names(sim1$Rhat$phis) <- "Dispersion"
 
 
         MM <- rbind(
           cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
-          cbind(sim1$mean$phi, sim1$sd$phi, sim1$q2.5$phi, sim1$q97.5$phi, sim1$Rhat$phi)
+          cbind(sim1$mean$phis, sim1$sd$phis, sim1$q2.5$phis, sim1$q97.5$phis, sim1$Rhat$phis)
         )
 
         colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
@@ -5403,15 +5403,15 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         D11 <- sim1$mean$Sigmaa
         D22 <- sim1$mean$Sigmab
 
-        names(sim1$mean$phi) <-
-          names(sim1$sd$phi) <-
-          names(sim1$q2.5$phi) <-
-          names(sim1$q97.5$phi)  <- "Dispersion"
+        names(sim1$mean$phis) <-
+          names(sim1$sd$phis) <-
+          names(sim1$q2.5$phis) <-
+          names(sim1$q97.5$phis)  <- "Dispersion"
 
 
         MM <- rbind(
           cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
-          cbind(sim1$mean$phi, sim1$sd$phi, sim1$q2.5$phi, sim1$q97.5$phi)
+          cbind(sim1$mean$phis, sim1$sd$phis, sim1$q2.5$phis, sim1$q97.5$phis)
         )
 
         colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
