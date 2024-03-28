@@ -127,11 +127,10 @@ ZIJMCV <- function(FixedY, RandomY, GroupY, FixedZ, RandomZ, GroupZ, formSurv, d
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
+ll[i] <- (1-z[i])*(logdensity.beta(y[i],as[i], bs[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
 
-ll[i] <- (1-z[i])*(logdensity.beta(y[i],a[i], b[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
-
-    a[i]<-mu[i]*phi1
-    b[i]<-(1-mu[i])*phi1
+    as[i]<-mu[i]*phi1
+    bs[i]<-(1-mu[i])*phi1
       logit(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
       logit(muz[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],1:Nb2],Z2[i,])
 
@@ -206,7 +205,7 @@ gamma_pi~dnorm(0,0.001)
 
 
  phi1~dgamma(.1,.1)
-  phi<-1/phi1
+  phis<-1/phi1
 
 }"
 
@@ -220,10 +219,10 @@ Beta <- "model{
     phi[i]<-  - ll[i]+KF1
 
 
-ll[i] <- (1-z[i])*(logdensity.beta(y[i],a[i], b[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
+ll[i] <- (1-z[i])*(logdensity.beta(y[i],as[i], bs[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
 
-    a[i]<-mu[i]*phi1
-    b[i]<-(1-mu[i])*phi1
+    as[i]<-mu[i]*phi1
+    bs[i]<-(1-mu[i])*phi1
       logit(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
       logit(muz[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],1:Nb2],Z2[i,])
 
@@ -297,7 +296,7 @@ for(l in 1:NbetaS){
 
 
  phi1~dgamma(.1,.1)
-  phi<-1/phi1
+  phis<-1/phi1
 
 }"
 
@@ -2236,6 +2235,8 @@ for(l in 1:NbetaS){
   if (is.matrix(XS) == FALSE) {
 
     if (family == "Beta") {
+      y[y==1]=0.9999
+
       model.file <- textConnection(Beta1)
 
       Nbeta1 <- dim(X1)[2]
@@ -2254,7 +2255,7 @@ for(l in 1:NbetaS){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phi", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phis", "h")
 
 
       d.jags <- list(
@@ -2290,7 +2291,7 @@ for(l in 1:NbetaS){
         gamma_lambda = sim1$sims.list$gamma_lambda,
         gamma_pi = sim1$sims.list$gamma_pi,
         h = sim1$sims.list$h,
-        phi= sim1$sims.list$phi
+        phi= sim1$sims.list$phis
       )
 
 
@@ -2359,11 +2360,11 @@ for(l in 1:NbetaS){
           colnames(sim1$q97.5$Sigmab) <-
           colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
 
-        names(sim1$mean$phi) <-
-          names(sim1$sd$phi) <-
-          names(sim1$q2.5$phi) <-
-          names(sim1$q97.5$phi) <-
-          names(sim1$Rhat$phi) <- "Dispersion"
+        names(sim1$mean$phis) <-
+          names(sim1$sd$phis) <-
+          names(sim1$q2.5$phis) <-
+          names(sim1$q97.5$phis) <-
+          names(sim1$Rhat$phis) <- "Dispersion"
 
         ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
         colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
@@ -2374,7 +2375,7 @@ for(l in 1:NbetaS){
 
         MM <- rbind(
           cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
-          cbind(sim1$mean$phi, sim1$sd$phi, sim1$q2.5$phi, sim1$q97.5$phi, sim1$Rhat$phi)
+          cbind(sim1$mean$phis, sim1$sd$phis, sim1$q2.5$phis, sim1$q97.5$phis, sim1$Rhat$phis)
         )
 
         colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
@@ -2456,14 +2457,14 @@ for(l in 1:NbetaS){
         D11 <- sim1$mean$Sigmaa
         D22 <- sim1$mean$Sigmab
 
-        names(sim1$mean$phi) <-
-          names(sim1$sd$phi) <-
-          names(sim1$q2.5$phi) <-
-          names(sim1$q97.5$phi) <- "Dispersion"
+        names(sim1$mean$phis) <-
+          names(sim1$sd$phis) <-
+          names(sim1$q2.5$phis) <-
+          names(sim1$q97.5$phis) <- "Dispersion"
 
         MM <- rbind(
           cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
-          cbind(sim1$mean$phi, sim1$sd$phi, sim1$q2.5$phi, sim1$q97.5$phi)
+          cbind(sim1$mean$phis, sim1$sd$phis, sim1$q2.5$phis, sim1$q97.5$phis)
         )
         colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
 
@@ -5181,6 +5182,8 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
   } else {
 
     if (family == "Beta") {
+      y[y==1]=0.9999
+
       model.file <- textConnection(Beta)
 
       Nbeta1 <- dim(X1)[2]

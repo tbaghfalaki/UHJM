@@ -149,4 +149,15 @@ Z6 <- ZIJMCV(
       n.chains = 2,
       n.iter = 1000, n.burnin = 500, n.thin = 1, K = 15, family = "Gamma"
     )
+
+
+    Z4 <- ZIJMCV(
+      FixedY = Y1 ~ obstime + x1 + x2 , RandomY = ~obstime, GroupY = ~id,
+      FixedZ = ~ obstime + x1, RandomZ = ~obstime, GroupZ = ~id,
+      formSurv = survival::Surv(survtime, death) ~ w1+w2,
+      dataLong = long_data_b, dataSurv = surv_data_b,
+      obstime = "obstime", id = "id",
+      n.chains = 2,
+      n.iter = 1000, n.burnin = 500, n.thin = 1, K = 15, family = "Beta"
+    )
   }
