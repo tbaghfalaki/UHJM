@@ -188,7 +188,32 @@ Z6 <- ZIJMCV(
     n.iter = 1000, n.burnin = 500, n.thin = 1, K = 15, family = "Gaussian"
   )
 
-}
+  data(long_data_e)
+  data(surv_data_e)
+
+  Z2 <- ZIJMCV(
+    FixedY = Y1 ~ obstime + x1 + x2 , RandomY = ~obstime, GroupY = ~id,
+    FixedZ = ~ obstime + x1, RandomZ = ~obstime, GroupZ = ~id,
+    formSurv = survival::Surv(survtime, death) ~ w1,
+    dataLong = long_data_e, dataSurv = surv_data_e,
+    obstime = "obstime", id = "id",
+    n.chains = 2,
+    n.iter = 100, n.burnin = 50, n.thin = 1, K = 15, family = "inverse.gaussian"
+  )
+
+
+
+    Z2 <- ZIJMCV(
+    FixedY = Y1 ~ obstime + x1 + x2 , RandomY = ~obstime, GroupY = ~id,
+    FixedZ = ~ obstime + x1, RandomZ = ~obstime, GroupZ = ~id,
+    formSurv = survival::Surv(survtime, death) ~ w1+w2,
+    dataLong = long_data_e, dataSurv = surv_data_e,
+    obstime = "obstime", id = "id",
+    n.chains = 2,
+    n.iter = 1000, n.burnin = 500, n.thin = 1, K = 15, family = "Exponential"
+  )
+
+  }
 }
 \author{
 Taban Baghfalaki \email{t.baghfalaki@gmail.com}, Mojtaba Ganjali \email{m-ganjali@sbu.ac.ir}
