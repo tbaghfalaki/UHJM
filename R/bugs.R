@@ -1,4 +1,4 @@
-Weibull1 <- "model{
+Beta1 <- "model{
 
 
   for(i in 1:n){
@@ -6,12 +6,14 @@ Weibull1 <- "model{
     phi[i]<-  - ll[i]+KF1
 
 
- ll[i] <- (1-z[i])*(logdensity.weib(y[i],kappa, mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
+ll[i] <- (1-z[i])*(logdensity.beta(y[i],a[i], b[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
 
-
-
-      log(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+    a[i]<-mu[i]*phi1
+    b[i]<-(1-mu[i])*phi1
+      logit(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
       logit(muz[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],1:Nb2],Z2[i,])
+
+
 
 
 
@@ -81,25 +83,30 @@ gamma_pi~dnorm(0,0.001)
     betaS~dnorm(0,0.001)
 
 
-  kappa~dgamma(.1,.1)
-
+ phi1~dgamma(.1,.1)
+  phi<-1/phi1
 
 }"
 
 
 
-Weibull <- "model{
+Beta <- "model{
 
 
   for(i in 1:n){
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
- ll[i] <- (1-z[i])*(logdensity.weib(y[i],kappa, mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
 
+ll[i] <- (1-z[i])*(logdensity.beta(y[i],a[i], b[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
 
-      log(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+    a[i]<-mu[i]*phi1
+    b[i]<-(1-mu[i])*phi1
+      logit(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
       logit(muz[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],1:Nb2],Z2[i,])
+
+
+
 
 
     a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
@@ -167,8 +174,8 @@ for(l in 1:NbetaS){
   }
 
 
-  kappa~dgamma(.1,.1)
-
+ phi1~dgamma(.1,.1)
+  phi<-1/phi1
 
 }"
 
