@@ -11,8 +11,8 @@ Z1 <- ZIJMCV(
   formSurv = survival::Surv(survtime, death) ~ w1+w2,
   dataLong = long_data_p, dataSurv = surv_data_p,
   obstime = "obstime", id = "id",
-  n.chains = 1,
-  n.iter = 1000, n.burnin = 500, n.thin = 1, K = 15, family = "Poisson"
+  n.chains = 2,
+  n.iter = 10000, n.burnin = 5000, n.thin = 1, K = 15, family = "Poisson"
 )
 
 
@@ -108,7 +108,7 @@ Z6 <- ZIJMCV(
   Z1 <- ZIJMCV(
     FixedY = Y1 ~ obstime + x1 + x2 , RandomY = ~obstime, GroupY = ~id,
     FixedZ = ~ obstime + x1, RandomZ = ~obstime, GroupZ = ~id,
-    formSurv = survival::Surv(survtime, death) ~ w1+w2,
+    formSurv = survival::Surv(survtime, death) ~ w1 + w2,
     dataLong = long_data_n, dataSurv = surv_data_n,
     obstime = "obstime", id = "id",
     n.chains = 2,
@@ -125,7 +125,7 @@ Z6 <- ZIJMCV(
     dataLong = long_data_e, dataSurv = surv_data_e,
     obstime = "obstime", id = "id",
     n.chains = 2,
-    n.iter = 100, n.burnin = 50, n.thin = 1, K = 15, family = "inverse.gaussian"
+    n.iter = 1000, n.burnin = 500, n.thin = 1, K = 15, family = "inverse.gaussian"
   )
 
 
@@ -137,7 +137,7 @@ Z6 <- ZIJMCV(
     dataLong = long_data_e, dataSurv = surv_data_e,
     obstime = "obstime", id = "id",
     n.chains = 2,
-    n.iter = 1000, n.burnin = 500, n.thin = 1, K = 15, family = "Exponential"
+    n.iter = 10000, n.burnin = 5000, n.thin = 1, K = 15, family = "Exponential"
   )
 
 

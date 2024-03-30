@@ -1521,11 +1521,12 @@ gamma_pi~dnorm(0,0.001)
     phi[i]<-  - ll[i]+KF1
 
 
-     ll[i]<-z[i]*log(pi[i]) +(1-z[i])*(log(1-pi[i])+logdensity.pois(y[i], lambda[i])-log(1-exp(-lambda[i])))
-
+     #ll[i]<-z[i]*log(pi[i]) +(1-z[i])*(log(1-pi[i])+logdensity.pois(y[i], lambda[i])-log(1-exp(-lambda[i])))
+ ll[i]<-(1-z[i])*(y[i]*log(lambda[i])-lambda[i] - loggam(y[i]+1)-log(1-exp(-lambda[i])))+z[i]*log(muz[i])+
+(1-z[i])*log(1-muz[i])
 
       log(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
-      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],1:Nb2],Z2[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],1:Nb2],Z2[i,])
 
     a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
     b[i,1:Nb2]~dmnorm(mub2[],Omegab[,])
@@ -1759,10 +1760,15 @@ for(l in 1:NbetaS){
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
-     ll[i]<-z[i]*log(pi[i]) +(1-z[i])*(log(1-pi[i])+logdensity.pois(y[i], lambda[i])-log(1-exp(-lambda[i])))
+    # ll[i]<-z[i]*log(pi[i]) +(1-z[i])*(log(1-pi[i])+logdensity.pois(y[i], lambda[i])-log(1-exp(-lambda[i])))
+
+
+ ll[i]<-(1-z[i])*(y[i]*log(lambda[i])-lambda[i] - loggam(y[i]+1)-log(1-exp(-lambda[i])))+z[i]*log(muz[i])+
+(1-z[i])*log(1-muz[i])
+
 
       log(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
-      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],1:Nb2],Z2[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],1:Nb2],Z2[i,])
 
     a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
     b[i,1:Nb2]~dmnorm(mub2[],Omegab[,])
