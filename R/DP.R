@@ -18,7 +18,6 @@
 #' @param n.thin integer specifying the thinning of the chains; default is 1.
 #'
 #'
-#'
 #' @importFrom stats quantile rnorm model.frame model.matrix
 #'
 #' @return
@@ -30,7 +29,7 @@
 #'
 #' @author Taban Baghfalaki \email{t.baghfalaki@gmail.com}
 #'
-#' @example inst/exampleVSJM.R
+#' @example inst/exampleDP1.R
 #'
 #' @md
 #' @export
@@ -1631,28 +1630,22 @@ Bellwcb <- "model{
 }"
 
 ############################
-########
 tmp <- dataSurv[all.vars(formSurv)]
 Time <- tmp[all.vars(formSurv)][, 1] # matrix of observed time such as Time=min(Tevent,Tcens)
-CR <- tmp[all.vars(formSurv)][, 2] # vector of event indicator (delta)
+death <- tmp[all.vars(formSurv)][, 2] # vector of event indicator (delta)
 nTime <- length(Time) # number of subject having Time
 # design matrice
-suppressWarnings({
-  mfZ <- stats::model.frame(formSurv, data = tmp, na.action = NULL)
-})
-XS <- stats::model.matrix(formSurv, mfZ, na.action = NULL)[, -1]
-
-glq <- statmod::gauss.quad(15, kind = "legendre")
+mfZ <- stats::model.frame(formSurv, data = tmp)
+XS <- stats::model.matrix(formSurv, mfZ)[, -1]
+########  Gauss-Legendre quadrature (15 points)  ########
+K=15
+glq <- statmod::gauss.quad(K, kind = "legendre")
 xk <- glq$nodes # Nodes
 wk <- glq$weights # Weights
 K <- length(xk) # K-points
 ################
 
-
-
 data_Long_s <- dataLong[dataLong$obstime <= s, ]
-
-
 data_long <- data_Long_s[unique(c(
   all.vars(GroupY), all.vars(FixedY), all.vars(RandomY),
   all.vars(GroupZ), all.vars(FixedZ), all.vars(RandomZ)
@@ -1662,7 +1655,12 @@ mfX <- stats::model.frame(FixedY, data = data_long)
 X1 <- stats::model.matrix(FixedY, mfX)
 mfU <- stats::model.frame(RandomY, data = data_long)
 Z1 <- stats::model.matrix(RandomY, mfU)
-id_prim <- as.integer(data_long[id][, 1])
+#id_prim <- as.integer(data_long[id][, 1])
+
+id <- as.integer(data_long[all.vars(GroupY)][, 1])
+
+M <- table(id)
+id_prim <- rep(1:length(M), M)
 
 mfX2 <- stats::model.frame(FixedZ, data = data_long)
 X2 <- stats::model.matrix(FixedZ, mfX2)
@@ -1819,7 +1817,7 @@ if (family == "Gamma") {
     betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
     sigma1=1/sigma,
     h=h,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
     indtime1 = indtime1, indtime2 = indtime2,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
     Xv1 = Xv1, Xv2 = Xv2,
@@ -1891,7 +1889,7 @@ if (family == "Weibull") {
     betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
     kappa=kappa,
     h=h,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
     indtime1 = indtime1, indtime2 = indtime2,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
     Xv1 = Xv1, Xv2 = Xv2,
@@ -1956,7 +1954,7 @@ if (family == "Exponential") {
   d.jags <- list(
     betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
     h=h,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
     indtime1 = indtime1, indtime2 = indtime2,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
     Xv1 = Xv1, Xv2 = Xv2,
@@ -2025,7 +2023,7 @@ if (family == "inverse.gaussian") {
   d.jags <- list(
     betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
     h=h,lambda=1/sigma,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
     indtime1 = indtime1, indtime2 = indtime2,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
     Xv1 = Xv1, Xv2 = Xv2,
@@ -2093,7 +2091,7 @@ if (family == "Poisson") {
   d.jags <- list(
     betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
     h=h,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
     indtime1 = indtime1, indtime2 = indtime2,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
     Xv1 = Xv1, Xv2 = Xv2,
@@ -2155,7 +2153,7 @@ if (family == "Logarithmic") {
   d.jags <- list(
     betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
     h=h,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
     indtime1 = indtime1, indtime2 = indtime2,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
     Xv1 = Xv1, Xv2 = Xv2,
@@ -2220,7 +2218,7 @@ if (family == "binomial") {
   d.jags <- list(
     betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
     h=h,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
     indtime1 = indtime1, indtime2 = indtime2,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
     Xv1 = Xv1, Xv2 = Xv2,
@@ -2297,7 +2295,7 @@ if (family == "Bell") {
   d.jags <- list(
     betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
     h=h,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
     indtime1 = indtime1, indtime2 = indtime2,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
     Xv1 = Xv1, Xv2 = Xv2,
@@ -2362,7 +2360,7 @@ if (family == "Gaussian") {
   d.jags <- list(
     betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
     h=h,tau=1/sigma,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time,
+    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2),
     death = death, KF1 = 100000, KF2 = 100000,
     indtime1 = indtime1, indtime2 = indtime2,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
@@ -2429,7 +2427,7 @@ if (family == "NB") {
   d.jags <- list(
     betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
     h=h,r=r,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
     indtime1 = indtime1, indtime2 = indtime2,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
     Xv1 = Xv1, Xv2 = Xv2,
@@ -2491,7 +2489,7 @@ if (family == "GP") {
   d.jags <- list(
     betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
     h=h,phiz=phiz,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
     indtime1 = indtime1, indtime2 = indtime2,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
     Xv1 = Xv1, Xv2 = Xv2,
@@ -2518,380 +2516,79 @@ if (family == "GP") {
   a_sim=sim1$sims.list$a
   b_sim=sim1$sims.list$b
 }
+a=a_hat
+b=b_hat
 #######################
 ################################
 ############################################
+step <- function(x) {
+  z <- 0
+  if (x >= 0) (z <- 1)
+  z
+}
+inprod=function(a,b){
+  z=a%*%b
+  ;z
+}
+Alpha0=Alpha1=Surv_d=c()
+chaz=matrix(0,n2,K)
+for(k in 1:n2){
 
+  if (is.matrix(XS) == FALSE) {
+    Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+      gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
+  }else{
+    Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+      gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
 
-
-
-
-
-
-
-
-
-
-  X <- Z <- Xv <- Zv <- Nb <- list()
-  indB <- indtime <- list()
-
-  bhat_mean <- bhat_chain <- list()
-  for (j in c(1:nmark)[apply(I_alpha, 2, max) > 0]) {
-    if (model[[j]] == "intercept") {
-      data_long <- data_Long_s[unique(c(all.vars(formGroup[[j]]), all.vars(formFixed[[j]]), all.vars(formRandom[[j]])))]
-      y <- data_long[all.vars(formFixed[[j]])][, 1]
-      # data_long <- data_long[is.na(y) == FALSE, ]
-      # y <- data_long[all.vars(formFixed[[j]])][, 1]
-
-      mfX <- stats::model.frame(formFixed[[j]], data = data_long, na.action = NULL)
-      X[[j]] <- stats::model.matrix(formFixed[[j]], mfX, na.action = NULL)
-      mfU <- stats::model.frame(formRandom[[j]], data = data_long, na.action = NULL)
-      id <- as.integer(data_long[all.vars(formGroup[[j]])][, 1])
-      n2 <- length(unique(id))
-      n <- length(id)
-
-      M <- table(id)
-      id2 <- rep(1:length(M), M)
-
-      Obstime <- Obstime
-      Xvtime <- cbind(id, X[[j]][, colnames(X[[j]]) %in% setdiff(colnames(X[[j]]), Obstime)])
-      Xv[[j]] <- Xvtime[!duplicated(Xvtime), -1] ### X of data without time and id replications
-
-      indB[[j]] <- 1:dim(X[[j]])[2]
-      indtime[[j]] <- indB[[j]][colnames(X[[j]]) %in% Obstime] # index of time
-    }
-    ####
-    if (model[[j]] == "linear") {
-      data_long <- data_Long_s[unique(c(all.vars(formGroup[[j]]), all.vars(formFixed[[j]]), all.vars(formRandom[[j]])))]
-      y <- data_long[all.vars(formFixed[[j]])][, 1]
-      # data_long <- data_long[is.na(y) == FALSE, ]
-      # y <- data_long[all.vars(formFixed[[j]])][, 1]
-
-      mfX <- stats::model.frame(formFixed[[j]], data = data_long, na.action = NULL)
-      X[[j]] <- stats::model.matrix(formFixed[[j]], mfX, na.action = NULL)
-      mfU <- stats::model.frame(formRandom[[j]], data = data_long, na.action = NULL)
-      Z[[j]] <- stats::model.matrix(formRandom[[j]], mfU, na.action = NULL)
-      id <- as.integer(data_long[all.vars(formGroup[[j]])][, 1])
-      n <- length(id)
-      M <- table(id)
-      id2 <- rep(1:length(M), M)
-      n2 <- length(unique(id))
-      Nb[[j]] <- dim(Z[[j]])[2]
-      Obstime <- Obstime
-      Xvtime <- cbind(id, X[[j]][, colnames(X[[j]]) %in% setdiff(colnames(X[[j]]), Obstime)])
-      Xv[[j]] <- Xvtime[!duplicated(Xvtime), -1]
-
-      indB[[j]] <- 1:dim(X[[j]])[2]
-      indtime[[j]] <- indB[[j]][colnames(X[[j]]) %in% Obstime] # index of time
-    }
-    #############
-    if (model[[j]] == "quadratic") {
-      data_long <- data_Long_s[unique(c(all.vars(formGroup[[j]]), all.vars(formFixed[[j]]), all.vars(formRandom[[j]])))]
-      y <- data_long[all.vars(formFixed[[j]])][, 1]
-      # data_long <- data_long[is.na(y) == FALSE, ]
-      # y <- data_long[all.vars(formFixed[[j]])][, 1]
-
-
-      mfX <- stats::model.frame(formFixed[[j]], data = data_long, na.action = NULL)
-      X[[j]] <- stats::model.matrix(formFixed[[j]], mfX, na.action = NULL)
-      mfU <- stats::model.frame(formRandom[[j]], data = data_long, na.action = NULL)
-      Z[[j]] <- stats::model.matrix(formRandom[[j]], mfU, na.action = NULL)
-
-
-      colnamesmfX <- colnames(X[[j]])
-      colnamesmfU <- colnames(Z[[j]])
-      Obstime <- Obstime
-
-      Xtime2 <- mfX[, Obstime]^2
-
-      X[[j]] <- cbind(X[[j]], Xtime2)
-      colnames(X[[j]]) <- c(colnamesmfX, "obstime2")
-      Z[[j]] <- cbind(Z[[j]], Xtime2)
-      colnames(Z[[j]]) <- c(colnamesmfU, "obstime2")
-      Obstime2 <- "obstime2"
-
-      id <- as.integer(data_long[all.vars(formGroup[[j]])][, 1])
-      M <- table(id)
-      id2 <- rep(1:length(M), M)
-
-      n <- length(id)
-      n2 <- length(unique(id))
-      Nb[[j]] <- dim(Z[[j]])[2]
-
-      Obstime2n <- c(Obstime, Obstime2)
-      Xvtime <- cbind(id, X[[j]][, colnames(X[[j]]) %in% setdiff(colnames(X[[j]]), Obstime2n)])
-      Xv[[j]] <- Xvtime[!duplicated(Xvtime), -1] ### X of data without time and id replications
-
-
-      indB[[j]] <- 1:dim(X[[j]])[2]
-      indtime[[j]] <- indB[[j]][colnames(X[[j]]) %in% Obstime2n] # index of time
-    }
-    # }
-
-
-
-
-
-
-    ########  BUGS code  ########
-    M1 <- table(id)
-    NbetasS <- dim(XS)[2]
-
-
-    if (model[[j]] == "intercept") {
-      i.jags <- function() {
-        list(
-          b = rep(0, n2)
-        )
-      }
-    } else {
-      i.jags <- function() {
-        list(
-          b = matrix(0, n2, Nb[[j]])
-        )
-      }
-    }
-    parameters <- c("b")
-    ###############################
-    betaL <- object$sim_step1[[j]]$PMean$beta
-    betaS <- object$sim_step1[[j]]$PMean$gamma
-    gamma1 <- object$sim_step1[[j]]$PMean$alpha
-    sigma1 <- object$sim_step1[[j]]$PMean$sigma
-    Sigma <- object$sim_step1[[j]]$PMean$Sigma
-    h <- object$sim_step1[[j]]$PMean$h
-    #### Data
-
-
-    NbetasS <- dim(XS)[2]
-
-    if (is.matrix(Xv[[j]]) == FALSE) {
-      if (model[[j]] == "intercept") {
-        model_fileLb_last <- textConnection(model_fileI1b)
-        d.jags <- list(
-          betaL = betaL, betaS = betaS,
-          gamma1 = gamma1, sigma1 = sigma1,
-          Sigma = Sigma, h = h,
-          n = n, Time = rep(s, n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
-          X = X[[j]], id = id2, indtime = indtime[[j]],
-          CR = CR, zeros = rep(0, n2),
-          s = peice, xk = xk, wk = wk, K = K, KK = KK
-        )
-      }
-
-      if (model[[j]] == "linear") {
-        model_fileLb_last <- textConnection(model_fileL1b)
-        d.jags <- list(
-          betaL = betaL, betaS = betaS,
-          gamma1 = gamma1, sigma1 = sigma1,
-          Sigma = Sigma, h = h,
-          n = n, Time = rep(s, n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
-          X = X[[j]], Z = Z[[j]], id = id2, indtime = indtime[[j]],
-          CR = CR, mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
-          s = peice, xk = xk, wk = wk, K = K, KK = KK
-        )
-      }
-      if (model[[j]] == "quadratic") {
-        model_fileLb_last <- textConnection(model_fileQ1b)
-        d.jags <- list(
-          betaL = betaL, betaS = betaS,
-          gamma1 = gamma1, sigma1 = sigma1,
-          Sigma = Sigma, h = h,
-          n = n, Time = rep(s, n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
-          X = X[[j]], Z = Z[[j]], id = id2, indtime = indtime[[j]],
-          CR = CR, mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
-          s = peice, xk = xk, wk = wk, K = K, KK = KK
-        )
-      }
-    } else {
-      if (model[[j]] == "intercept") {
-        model_fileLb_last <- textConnection(model_fileIb)
-        d.jags <- list(
-          betaL = betaL, betaS = betaS,
-          gamma1 = gamma1, sigma1 = sigma1,
-          Sigma = Sigma, h = h,
-          n = n, Time = rep(s, n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
-          X = X[[j]], id = id2, Xv = Xv[[j]], indtime = indtime[[j]], nindtime = c(1:dim(X[[j]])[2])[-indtime[[j]]],
-          CR = CR, zeros = rep(0, n2),
-          s = peice, xk = xk, wk = wk, K = K, KK = KK
-        )
-      }
-      if (model[[j]] == "linear") {
-        model_fileLb_last <- textConnection(model_fileLb)
-        d.jags <- list(
-          betaL = betaL, betaS = betaS,
-          gamma1 = gamma1, sigma1 = sigma1,
-          Sigma = Sigma, h = h,
-          n = n, Time = rep(s, n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
-          X = X[[j]], Z = Z[[j]], id = id2, Xv = Xv[[j]], indtime = indtime[[j]], nindtime = c(1:dim(X[[j]])[2])[-indtime[[j]]],
-          CR = CR, mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
-          s = peice, xk = xk, wk = wk, K = K, KK = KK
-        )
-      }
-      if (model[[j]] == "quadratic") {
-        model_fileLb_last <- textConnection(model_fileQb)
-        d.jags <- list(
-          betaL = betaL, betaS = betaS,
-          gamma1 = gamma1, sigma1 = sigma1,
-          Sigma = Sigma, h = h,
-          n = n, Time = rep(s, n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
-          X = X[[j]], Z = Z[[j]], id = id2, Xv = Xv[[j]], indtime = indtime[[j]],
-          nindtime = c(1:dim(X[[j]])[2])[-indtime[[j]]],
-          CR = CR, mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
-          s = peice, xk = xk, wk = wk, K = K, KK = KK
-        )
-      }
-    }
-    sim1 <- jagsUI::jags(
-      data = d.jags,
-      inits = i.jags,
-      parameters.to.save = parameters,
-      model.file = model_fileLb_last,
-      n.chains = n.chains,
-      parallel = FALSE,
-      n.adapt = FALSE,
-      n.iter = n.iter,
-      n.burnin = n.burnin,
-      n.thin = n.thin,
-      DIC = TRUE
-    )
-
-    bhat_mean[[j]] <- sim1$mean$b
-    bhat_chain[[j]] <- sim1$sims.list$b
   }
 
-  ################################### ???
-  n2 <- dim(dataSurv)[1]
-  sigma <- c()
-  betaL <- b <- list()
-  for (j in c(1:nmark)[apply(I_alpha, 2, max) > 0]) {
-    betaL[[j]] <- object$sim_step1[[j]]$PMean$beta
-    sigma <- append(sigma, object$sim_step1[[j]]$PMean$sigma)
-    b[[j]] <- bhat_mean[[j]]
-  }
-  indtime <- nindtime <- list()
-  for (j in c(1:nmark)[apply(I_alpha, 2, max) > 0]) {
-    indB <- 1:dim(X[[j]])[2]
-    if (model[[j]] == "quadratic") {
-      indtime[[j]] <- indB[colnames(X[[j]]) %in% c(Obstime, Obstime2)]
-    } else {
-      indtime[[j]] <- indB[colnames(X[[j]]) %in% Obstime]
-    }
-    nindtime[[j]] <- c(1:dim(X[[j]])[2])[-indtime[[j]]]
-  }
-  LP1 <- LP2 <- LP3 <- matrix(0, n2, nmark)
-  for (i in 1:n2) {
-    for (j in c(1:nmark)[apply(I_alpha, 2, max) > 0]) {
-      if (is.matrix(Xv[[j]]) == TRUE) {
-        if (model[[j]] == "intercept") {
-          LP1[i, j] <- betaL[[j]][nindtime[[j]]] %*% Xv[[j]][i, ] + b[[j]][i]
-        } else {
-          LP1[i, j] <- betaL[[j]][nindtime[[j]]] %*% Xv[[j]][i, ] + b[[j]][i, 1]
-        }
-      } else {
-        if (model[[j]] == "intercept") {
-          LP1[i, j] <- betaL[[j]][nindtime[[j]]] + b[[j]][i]
-        } else {
-          LP1[i, j] <- betaL[[j]][nindtime[[j]]] + b[[j]][i, 1]
-        }
-      }
-      if (model[[j]] == "intercept") {
-        LP2[i, j] <- betaL[[j]][indtime[[j]][1]]
-      } else {
-        LP2[i, j] <- betaL[[j]][indtime[[j]][1]] + b[[j]][i, 2]
-      }
-      LP3[i, j] <- 0
+
+  Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
 
 
-      if (model[[j]] == "quadratic") (LP3[i, j] <- betaL[[j]][indtime[[j]][2]] + b[[j]][i, 3])
-    }
+  xk11=wk11=c()
+
+  for(j in 1:K){
+    # Scaling Gauss-Kronrod/Legendre quadrature
+    xk11[j]<-(xk[j]+1)/2*s
+    wk11[j]<- wk[j]*s/2
+    #  Hazard function at Gauss-Kronrod/Legendre nodes
+    chaz[k,j]<-  ((h[1]*step(peice[1]-xk11[j]))+
+                    (h[2]*step(xk11[j]-peice[1])*step(peice[2]-xk11[j]))+
+                    (h[3]*step(xk11[j]-peice[2])*step(peice[3]-xk11[j]))+
+                    (h[4]*step(xk11[j]-peice[3])*step(peice[4]-xk11[j]))+
+                    (h[5]*step(xk11[j]-peice[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[j])
+
   }
 
-  ########################### $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-  betaS <- object2$Estimation$Survival_model$gamma$Est
-  alpha <- object2$Estimation$Survival_model$alpha$Est
-  h <- object2$Estimation$Survival_model$lambda$Est
-  ########################### $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+  Surv_d[k]<- exp(-inprod(wk11,chaz[k,]))
+}
+########
+Surv_n=c()
+chaz=matrix(0,n2,K)
+for(k in 1:n2){
 
 
-  step <- function(x) {
-    z <- rep(0, length(x))
-    for (k in 1:length(x)) {
-      if (x[k] >= 0) (z[k] <- 1)
-    }
-    z
+  xk11=wk11=c()
+
+  for(j in 1:K){
+    # Scaling Gauss-Kronrod/Legendre quadrature
+    xk11[j]<-(xk[j]+1)/2*(s+Dt)
+    wk11[j]<- wk[j]*(s+Dt)/2
+    #  Hazard function at Gauss-Kronrod/Legendre nodes
+    chaz[k,j]<-  ((h[1]*step(peice[1]-xk11[j]))+
+                    (h[2]*step(xk11[j]-peice[1])*step(peice[2]-xk11[j]))+
+                    (h[3]*step(xk11[j]-peice[2])*step(peice[3]-xk11[j]))+
+                    (h[4]*step(xk11[j]-peice[3])*step(peice[4]-xk11[j]))+
+                    (h[5]*step(xk11[j]-peice[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[j])
   }
 
-  Alpha0 <- Alpha1 <- Alpha2 <- matrix(0, n2, C)
-  DP <- c()
+  Surv_n[k]<- exp(-inprod(wk11,chaz[k,]))
+}
 
-  for (k in 1:n2) {
-    for (l in 1:C) {
-      Alpha0[k, l] <- betaS[l, ] %*% XS[k, ] + alpha[l, ] %*% LP1[k, ]
-      Alpha1[k, l] <- alpha[l, ] %*% LP2[k, ]
-      Alpha2[k, l] <- alpha[l, ] %*% LP3[k, ]
-    }
-
-
-
-    HazardL <- function(tpoint, l) {
-      hh <- ((h[1, l] * step(peice[1] - tpoint)) +
-               (h[2, l] * step(tpoint - peice[1]) * step(peice[2] - tpoint)) +
-               (h[3, l] * step(tpoint - peice[2]) * step(peice[3] - tpoint)) +
-               (h[4, l] * step(tpoint - peice[3]) * step(peice[4] - tpoint)) +
-               (h[5, l] * step(tpoint - peice[4]))) *
-        exp(Alpha0[k, l] + Alpha1[k, l] * tpoint + Alpha2[k, l] * (tpoint^2))
-      hh
-    }
-
-
-
-    CHazard <- function(upoint) {
-      Out <- c()
-      for (l in 1:C) {
-        Out[l] <- integrate(HazardL, lower = 0, upper = upoint, l = l)$value
-      }
-      Out
-    }
-
-    DENOM <- exp(-sum(CHazard(s)))
-    ########
-
-    NUM1 <- function(upoint) {
-      hh_cause_main <- ((h[1, cause_main] * step(peice[1] - upoint)) +
-                          (h[2, cause_main] * step(upoint - peice[1]) * step(peice[2] - upoint)) +
-                          (h[3, cause_main] * step(upoint - peice[2]) * step(peice[3] - upoint)) +
-                          (h[4, cause_main] * step(upoint - peice[3]) * step(peice[4] - upoint)) +
-                          (h[5, cause_main] * step(upoint - peice[4]))) *
-        exp(Alpha0[k, cause_main] + Alpha1[k, cause_main] * upoint + Alpha2[k, cause_main] * (upoint^2))
-
-      Out <- c()
-      for (l in 1:C) {
-        Out[l] <- integrate(HazardL, lower = 0, upper = upoint, l = l)$value
-      }
-
-
-      AA <- exp(-sum(Out)) * hh_cause_main
-      AA
-    }
-
-    ####
-    xk1 <- wk1 <- c()
-    for (j in 1:K) {
-      # Scaling Gauss-Kronrod/Legendre quadrature
-      xk1[j] <- (xk[j] + 1) / 2 * Dt + s
-      wk1[j] <- wk[j] * Dt / 2
-    }
-
-
-    NUM00 <- c()
-    for (j in 1:K) {
-      NUM00[j] <- NUM1(xk1[j])
-    }
-    NUM <- NUM00 %*% wk1
-
-    DENOM[DENOM == 0] <- 0.00000001
-    DP[k] <- NUM / (DENOM)
-  }
+DP=1-Surv_n/Surv_d
   #####################
   DP_last <- cbind(unique(id), DP)
   colnames(DP_last) <- c("id", "est")

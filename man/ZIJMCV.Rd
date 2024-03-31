@@ -255,8 +255,12 @@ Z6 <- ZIJMCV(
       dataLong = long_data_b, dataSurv = surv_data_b,
       obstime = "obstime", id = "id",
       n.chains = 2,
-      n.iter = 100, n.burnin = 50, n.thin = 1, K = 15, family = "Beta"
+      n.iter = 1000, n.burnin = 500, n.thin = 1, K = 15, family = "Beta"
     )
+
+
+
+
   }
 }
 \author{

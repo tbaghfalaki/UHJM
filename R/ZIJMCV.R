@@ -63,7 +63,13 @@ ZIJMCV <- function(FixedY, RandomY, GroupY, FixedZ, RandomZ, GroupZ, formSurv, d
   X1 <- stats::model.matrix(FixedY, mfX)
   mfU <- stats::model.frame(RandomY, data = data_long)
   Z1 <- stats::model.matrix(RandomY, mfU)
-  id_prim <- as.integer(data_long[id][, 1])
+  #id_prim <- as.integer(data_long[id][, 1])
+
+  id <- as.integer(data_long[all.vars(GroupY)][, 1])
+
+  M <- table(id)
+  id_prim <- rep(1:length(M), M)
+
 
   mfX2 <- stats::model.frame(FixedZ, data = data_long)
   X2 <- stats::model.matrix(FixedZ, mfX2)
