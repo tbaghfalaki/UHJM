@@ -15,6 +15,8 @@ ZISRE(
   dataLong,
   dataSurv,
   n.chains = n.chains,
+  obstime = "obstime",
+  offset = NULL,
   n.iter = n.iter,
   n.burnin = n.burnin,
   n.thin = n.thin,
@@ -42,6 +44,10 @@ ZISRE(
 
 \item{n.chains}{the number of parallel chains for the model; default is 1.}
 
+\item{obstime}{the observed time in longitudinal data}
+
+\item{offset}{the offset or library size for discrete response. If offset=NULL, it is considered without an offset.}
+
 \item{n.iter}{integer specifying the total number of iterations; default is 1000.}
 
 \item{n.burnin}{integer specifying how many of n.iter to discard as burn-in ; default is 5000.}
@@ -55,9 +61,6 @@ ZISRE(
 \item mu.vect list of posterior mean for each parameter
 \item sd.vect list of standard error for each parameter
 \item 2.5\% list of posterior mode for each parameter
-\item 25\% list of posterior median for each parameter
-\item 50\% list of posterior median for each parameter
-\item 75\% list of posterior median for each parameter
 \item 97.5\% list of posterior median for each parameter
 \item Rhat Gelman and Rubin diagnostic for all parameter
 \item betaL1 the regression coefficients of rate of the hurdle model
@@ -84,6 +87,7 @@ Z1 <- ZISRE(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
   formSurv = Surv(survtime, death) ~ w1,
+  obstime="obstime", offset=NULL,
   dataLong = long_data_nb, dataSurv = surv_data_nb,
   n.chains = 2,
   n.iter = 200, n.burnin = 100, n.thin = 1, family = "Poisson"
@@ -94,6 +98,7 @@ Z2 <- ZISRE(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
   formSurv = Surv(survtime, death) ~ w1,
+  obstime="obstime", offset=NULL,
   dataLong = long_data_nb, dataSurv = surv_data_nb,
   n.chains = 2,
   n.iter = 200, n.burnin = 100, n.thin = 1, family = "NB"
@@ -103,6 +108,7 @@ Z3 <- ZISRE(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
   formSurv = Surv(survtime, death) ~ w1,
+  obstime="obstime", offset=NULL,
   dataLong = long_data_nb, dataSurv = surv_data_nb,
   n.chains = 2,
   n.iter = 200, n.burnin = 100, n.thin = 1, family = "GP"
@@ -113,6 +119,7 @@ Z4 <- ZISRE(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
   formSurv = Surv(survtime, death) ~ w1,
+  obstime="obstime", offset=NULL,
   dataLong = long_data_nb, dataSurv = surv_data_nb,
   n.chains = 2,
   n.iter = 200, n.burnin = 100, n.thin = 1, family = "Bell"
@@ -122,6 +129,7 @@ Z5 <- ZISRE(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
   formSurv = Surv(survtime, death) ~ w1,
+  obstime="obstime", offset=NULL,
   dataLong = long_data_nb, dataSurv = surv_data_nb,
   n.chains = 2,
   n.iter = 200, n.burnin = 100, n.thin = 1, family = "Logarithmic"
@@ -132,6 +140,7 @@ Z6 <- ZISRE(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
   formSurv = Surv(survtime, death) ~ w1,
+  obstime="obstime", offset=NULL,
   dataLong = long_data_nb, dataSurv = surv_data_nb,
   n.chains = 2,
   n.iter = 200, n.burnin = 100, n.thin = 1, family = "binomial"
@@ -150,6 +159,7 @@ Z1 <- ZISRE(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
   formSurv = Surv(survtime, death) ~ w1,
+  obstime="obstime", offset=NULL,
   dataLong = long_data_n, dataSurv = surv_data_n,
   n.chains = 2,
   n.iter = 200, n.burnin = 100, n.thin = 1, family = "Gaussian"
@@ -161,6 +171,7 @@ Z2 <- ZISRE(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
   formSurv = Surv(survtime, death) ~ w1,
+  obstime="obstime", offset=NULL,
   dataLong = long_data_b, dataSurv = surv_data_b,
   n.chains = 2,
   n.iter = 200, n.burnin = 100, n.thin = 1, family = "Beta"
@@ -172,6 +183,7 @@ Z3 <- ZISRE(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
   formSurv = Surv(survtime, death) ~ w1,
+  obstime="obstime", offset=NULL,
   dataLong = long_data_e, dataSurv = surv_data_e,
   n.chains = 2,
   n.iter = 200, n.burnin = 100, n.thin = 1, family = "Exponential"
@@ -182,6 +194,7 @@ Z4 <- ZISRE(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
   formSurv = Surv(survtime, death) ~ w1,
+  obstime="obstime", offset=NULL,
   dataLong = long_data_e, dataSurv = surv_data_e,
   n.chains = 2,
   n.iter = 200, n.burnin = 100, n.thin = 1, family = "Weibull"
@@ -191,6 +204,7 @@ Z5 <- ZISRE(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
   formSurv = Surv(survtime, death) ~ w1,
+  obstime="obstime", offset=NULL,
   dataLong = long_data_e, dataSurv = surv_data_e,
   n.chains = 2,
   n.iter = 200, n.burnin = 100, n.thin = 1, family = "Gamma"
@@ -201,6 +215,7 @@ Z6 <- ZISRE(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
   formSurv = Surv(survtime, death) ~ w1,
+  obstime="obstime", offset=NULL,
   dataLong = long_data_e, dataSurv = surv_data_e,
   n.chains = 2,
   n.iter = 200, n.burnin = 100, n.thin = 1, family = "inverse.gaussian"

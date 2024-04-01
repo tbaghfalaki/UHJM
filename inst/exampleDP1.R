@@ -36,12 +36,12 @@ rm(list=ls())
 )
 
 
-DD=DP(object=Z2, s = 0.1, t = 0.5, n.chains = 1, n.iter = 5000, n.burnin = 4000,
+DD=DP_CV(object=Z2, s = 0.5, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 1000,
         n.thin = 1, dataLong = dataLong_v, dataSurv = dataSurv_v)
 
 
   Criteria(
-    s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
+    s = 0.5, t = 0.5, Survt = dataSurv_v$survtime,
     CR = dataSurv_v$death, P = DD$DP$est, cause = 1
   )$Cri
 
@@ -52,6 +52,7 @@ DD=DP(object=Z2, s = 0.1, t = 0.5, n.chains = 1, n.iter = 5000, n.burnin = 4000,
 
 
 \donttest{
+  rm(list=ls())
   INDTRAIN <- sample(surv_data_n$id, 0.7 * (dim(surv_data_n)[1]))
   INDVALID <- surv_data_n$id[-INDTRAIN]
   dataLong_t <- subset(
@@ -84,7 +85,7 @@ DD=DP(object=Z2, s = 0.1, t = 0.5, n.chains = 1, n.iter = 5000, n.burnin = 4000,
   )
 
 
-  DD=DP(object=Z1, s = 0.5, t = 0.5, n.chains = 1, n.iter = 1000, n.burnin = 500,
+  DD=DP_CV(object=Z1, s = 0.5, t = 0.5, n.chains = 1, n.iter = 1000, n.burnin = 500,
         n.thin = 1, dataLong = dataLong_v, dataSurv = dataSurv_v)
 
 

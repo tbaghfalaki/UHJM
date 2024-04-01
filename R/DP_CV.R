@@ -34,7 +34,7 @@
 #' @md
 #' @export
 
-DP <- function(object, s = s, t = t, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
+DP_CV <- function(object, s = s, t = t, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
                n.thin = max(1, floor((n.iter - n.burnin) / 1000)), dataLong, dataSurv) {
   Dt <- t
   KK <- 1000000
@@ -1759,7 +1759,7 @@ if (family == "Beta") {
     n.iter = n.iter,
     n.burnin = n.burnin,
     n.thin = n.thin,
-    DIC = TRUE
+    DIC = FALSE
   )
 
 
@@ -1836,7 +1836,7 @@ if (family == "Gamma") {
     n.iter = n.iter,
     n.burnin = n.burnin,
     n.thin = n.thin,
-    DIC = TRUE
+    DIC = FALSE
   )
 
 
@@ -1908,7 +1908,7 @@ if (family == "Weibull") {
     n.iter = n.iter,
     n.burnin = n.burnin,
     n.thin = n.thin,
-    DIC = TRUE
+    DIC = FALSE
   )
 
 
@@ -1973,7 +1973,7 @@ if (family == "Exponential") {
     n.iter = n.iter,
     n.burnin = n.burnin,
     n.thin = n.thin,
-    DIC = TRUE
+    DIC = FALSE
   )
 
 
@@ -2042,7 +2042,7 @@ if (family == "inverse.gaussian") {
     n.iter = n.iter,
     n.burnin = n.burnin,
     n.thin = n.thin,
-    DIC = TRUE
+    DIC = FALSE
   )
 
   a_hat=sim1$mean$a
@@ -2110,7 +2110,7 @@ if (family == "Poisson") {
     n.iter = n.iter,
     n.burnin = n.burnin,
     n.thin = n.thin,
-    DIC = TRUE
+    DIC = FALSE
   )
 
   a_hat=sim1$mean$a
@@ -2172,7 +2172,7 @@ if (family == "Logarithmic") {
     n.iter = n.iter,
     n.burnin = n.burnin,
     n.thin = n.thin,
-    DIC = TRUE
+    DIC = FALSE
   )
 
 
@@ -2237,7 +2237,7 @@ if (family == "binomial") {
     n.iter = n.iter,
     n.burnin = n.burnin,
     n.thin = n.thin,
-    DIC = TRUE
+    DIC = FALSE
   )
 
 
@@ -2314,7 +2314,7 @@ if (family == "Bell") {
     n.iter = n.iter,
     n.burnin = n.burnin,
     n.thin = n.thin,
-    DIC = TRUE
+    DIC = FALSE
   )
 
 
@@ -2381,7 +2381,7 @@ if (family == "Gaussian") {
     n.iter = n.iter,
     n.burnin = n.burnin,
     n.thin = n.thin,
-    DIC = TRUE
+    DIC = FALSE
   )
 
 
@@ -2446,7 +2446,7 @@ if (family == "NB") {
     n.iter = n.iter,
     n.burnin = n.burnin,
     n.thin = n.thin,
-    DIC = TRUE
+    DIC = FALSE
   )
 
   a_hat=sim1$mean$a
@@ -2508,7 +2508,7 @@ if (family == "GP") {
     n.iter = n.iter,
     n.burnin = n.burnin,
     n.thin = n.thin,
-    DIC = TRUE
+    DIC = FALSE
   )
   a_hat=sim1$mean$a
   b_hat=sim1$mean$b
@@ -2587,7 +2587,7 @@ for(k in 1:n2){
 
   Surv_n[k]<- exp(-inprod(wk11,chaz[k,]))
 }
-
+Surv_d[Surv_d==0]=0.000001
 DP=1-Surv_n/Surv_d
   #####################
   DP_last <- cbind(unique(id), DP)
