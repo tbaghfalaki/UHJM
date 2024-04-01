@@ -107,6 +107,114 @@ if(length(offset)==0){
     if (death[i] == 0) ((surt.cen[i] <- Time[i]) & (Time[i] <- NA))
   }
   ###########
+  Bell_mean <- "model{
+
+
+    for(i in 1:n){
+      zeros[i]~dpois(phi[i])
+      phi[i]<-  - ll[i]+K
+
+       ll[i]<-(1-z[i])*(y[i]*log(theta[i])+1-exp(theta[i])+C[i]-(log(1-exp(1-exp(theta[i])))))+z[i]*log(muz[i])+
+(1-z[i])*log(1-muz[i])
+
+     log(theta1[i]) <- offset[i]+inprod(betaL1[],X1[i,])+inprod(b[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],(Nb1+1):(Nb1+Nb2)],Z2[i,])
+
+
+for(jj in 1:10){
+
+tab[i,jj]=pow(-jj,(jj-1))/exp(logfact(jj))*pow(theta1[i],jj)
+}
+
+theta[i]<-sum(tab[i,])
+    }
+
+for(k in 1:n2){
+    Time[k] ~ dweib(p,mut[k])
+    is.censored[k]~dinterval(Time[k],surt.cen[k])
+    log(mut[k])<-inprod(betaS[],XS[k,])+inprod(gamma[],b[k,])
+    b[k,1:(Nb1+Nb2)]~dmnorm(mub[],Omega[,])
+   }
+    for(l in 1:NbetaS){
+  betaS[l]~dnorm(0,0.001)
+  }
+
+  p~ dgamma(0.1,0.1)
+    for(l in 1:Nbeta1){
+      betaL1[l]~dnorm(0,0.001)
+    }
+
+    for(l in 1:Nbeta2){
+      betaL2[l]~dnorm(0,0.001)
+    }
+
+
+    Sigma[1:(Nb1+Nb2),1:(Nb1+Nb2)]<-inverse(Omega[,])
+  Omega[1:(Nb1+Nb2),1:(Nb1+Nb2)]~dwish(V[,],(Nb1+Nb2))
+
+
+   for(k in 1:(Nb1+Nb2)){
+gamma[k]~dnorm(0,0.001)
+}
+
+  }"
+###########
+Bellwc_mean <- "model{
+
+
+    for(i in 1:n){
+      zeros[i]~dpois(phi[i])
+      phi[i]<-  - ll[i]+K
+
+       ll[i]<-(1-z[i])*(y[i]*log(theta[i])+1-exp(theta[i])-(log(1-exp(1-exp(theta[i])))))+z[i]*log(muz[i])+
+(1-z[i])*log(1-muz[i])
+
+    log(theta1[i]) <- offset[i]+inprod(betaL1[],X1[i,])+inprod(b[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],(Nb1+1):(Nb1+Nb2)],Z2[i,])
+
+
+for(jj in 1:10){
+
+tab[i,jj]=pow(-jj,(jj-1))/exp(logfact(jj))*pow(theta1[i],jj)
+}
+
+theta[i]<-sum(tab[i,])
+    }
+
+for(k in 1:n2){
+    Time[k] ~ dweib(p,mut[k])
+    is.censored[k]~dinterval(Time[k],surt.cen[k])
+    log(mut[k])<-inprod(betaS[],XS[k,])+inprod(gamma[],b[k,])
+    b[k,1:(Nb1+Nb2)]~dmnorm(mub[],Omega[,])
+   }
+    for(l in 1:NbetaS){
+  betaS[l]~dnorm(0,0.001)
+  }
+
+  p~ dgamma(0.1,0.1)
+    for(l in 1:Nbeta1){
+      betaL1[l]~dnorm(0,0.001)
+    }
+
+    for(l in 1:Nbeta2){
+      betaL2[l]~dnorm(0,0.001)
+    }
+
+
+    Sigma[1:(Nb1+Nb2),1:(Nb1+Nb2)]<-inverse(Omega[,])
+  Omega[1:(Nb1+Nb2),1:(Nb1+Nb2)]~dwish(V[,],(Nb1+Nb2))
+
+
+   for(k in 1:(Nb1+Nb2)){
+gamma[k]~dnorm(0,0.001)
+}
+
+  }"
+
+
+
+
+  ##########
   NB <- "model{
 
   for(i in 1:n){
@@ -212,7 +320,7 @@ Bell <- "model{
      log(theta[i]) <- offset[i]+inprod(betaL1[],X1[i,])+inprod(b[id[i],1:Nb1],Z1[i,])
       logit(muz[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],(Nb1+1):(Nb1+Nb2)],Z2[i,])
 
-
+#theta1[i]<-theta[i]*exp(theta[i])
     }
 
 for(k in 1:n2){
