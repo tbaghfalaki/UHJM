@@ -16,3 +16,5 @@ importFrom("survival","Surv")
 importFrom("statmod","gauss.quad")
 importFrom("numbers","bell")
 importFrom("stats", "pweibull")
+importFrom("graphics", "abline", "axis", "lines", "mtext", "par")
+

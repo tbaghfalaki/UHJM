@@ -1752,10 +1752,10 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
 
       if (is.matrix(XS) == FALSE) {
-        model.file <- textConnection(NB1b)
+        model.file <- textConnection(Beta1b)
         betaS <- betaSs[ttt]
       } else {
-        model.file <- textConnection(NBb)
+        model.file <- textConnection(Betab)
         betaS <- betaSs[ttt,]
       }
 
@@ -1855,10 +1855,10 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
 
       if (is.matrix(XS) == FALSE) {
-        model.file <- textConnection(NB1b)
+        model.file <- textConnection(Gamma1b)
         betaS <- betaSs[ttt]
       } else {
-        model.file <- textConnection(NBb)
+        model.file <- textConnection(Gammab)
         betaS <- betaSs[ttt,]
       }
 
@@ -1956,10 +1956,10 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
 
       if (is.matrix(XS) == FALSE) {
-        model.file <- textConnection(NB1b)
+        model.file <- textConnection(Weibull1b)
         betaS <- betaSs[ttt]
       } else {
-        model.file <- textConnection(NBb)
+        model.file <- textConnection(Weibullb)
         betaS <- betaSs[ttt,]
       }
 
@@ -2053,10 +2053,10 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
 
       if (is.matrix(XS) == FALSE) {
-        model.file <- textConnection(NB1b)
+        model.file <- textConnection(Exp1b)
         betaS <- betaSs[ttt]
       } else {
-        model.file <- textConnection(NBb)
+        model.file <- textConnection(Expb)
         betaS <- betaSs[ttt,]
       }
 
@@ -2152,10 +2152,10 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
 
       if (is.matrix(XS) == FALSE) {
-        model.file <- textConnection(NB1b)
+        model.file <- textConnection(IGauss1b)
         betaS <- betaSs[ttt]
       } else {
-        model.file <- textConnection(NBb)
+        model.file <- textConnection(IGaussb)
         betaS <- betaSs[ttt,]
       }
 
@@ -2245,10 +2245,10 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
 
       if (is.matrix(XS) == FALSE) {
-        model.file <- textConnection(NB1b)
+        model.file <- textConnection(Poisson1b)
         betaS <- betaSs[ttt]
       } else {
-        model.file <- textConnection(NBb)
+        model.file <- textConnection(Poissonb)
         betaS <- betaSs[ttt,]
       }
 
@@ -2338,10 +2338,10 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
 
       if (is.matrix(XS) == FALSE) {
-        model.file <- textConnection(NB1b)
+        model.file <- textConnection(logar1b)
         betaS <- betaSs[ttt]
       } else {
-        model.file <- textConnection(NBb)
+        model.file <- textConnection(logarb)
         betaS <- betaSs[ttt,]
       }
 
@@ -2433,10 +2433,10 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
 
       if (is.matrix(XS) == FALSE) {
-        model.file <- textConnection(NB1b)
+        model.file <- textConnection(binomial1b)
         betaS <- betaSs[ttt]
       } else {
-        model.file <- textConnection(NBb)
+        model.file <- textConnection(binomialb)
         betaS <- betaSs[ttt,]
       }
 
@@ -2531,10 +2531,10 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
 
       if (is.matrix(XS) == FALSE) {
-        model.file <- textConnection(NB1b)
+        model.file <- textConnection(Bell1b)
         betaS <- betaSs[ttt]
       } else {
-        model.file <- textConnection(NBb)
+        model.file <- textConnection(Bellb)
         betaS <- betaSs[ttt,]
       }
 
@@ -2627,10 +2627,10 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
 
       if (is.matrix(XS) == FALSE) {
-        model.file <- textConnection(NB1b)
+        model.file <- textConnection(Gaussian1b)
         betaS <- betaSs[ttt]
       } else {
-        model.file <- textConnection(NBb)
+        model.file <- textConnection(Gaussianb)
         betaS <- betaSs[ttt,]
       }
 
@@ -2823,10 +2823,10 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
 
       if (is.matrix(XS) == FALSE) {
-        model.file <- textConnection(NB1b)
+        model.file <- textConnection(GP1b)
         betaS <- betaSs[ttt]
       } else {
-        model.file <- textConnection(NBb)
+        model.file <- textConnection(GPb)
         betaS <- betaSs[ttt,]
       }
 

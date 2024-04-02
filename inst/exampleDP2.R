@@ -42,8 +42,12 @@ rm(list=ls())
   )
 
 
-  DPplot2(Z1, s = 0.4, id_new=498, by=0.2,mi=5, n.chains = 1, n.iter = 200, n.burnin =100,
-          dataLong = dataLong_v, dataSurv = dataSurv_v)
+  DPplot2(Z1,
+  s = 0.4, id_new = 498, by = 0.2, mi = 5,
+  Marker_lab="Biomarker", Time_lab="Time (week)",
+  n.chains = 1, n.iter = 20, n.burnin = 10,
+  dataLong = dataLong_v, dataSurv = dataSurv_v
+)
 
   ########
 
