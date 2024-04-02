@@ -83,19 +83,16 @@ rm(list=ls())
     FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
     formSurv = Surv(survtime, death) ~ w1,
     dataLong = dataLong_t, dataSurv = dataSurv_t,
-    obstime="obstime", offset=NULL,
+    obstime = "obstime", offset = NULL,
     n.chains = 2,
     n.iter = 200, n.burnin = 100, n.thin = 1, family = "Exponential"
   )
 
 
-  DD=DP_SRE(Z1, s = 0.1, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 500,
-                     n.thin = 1, dataLong = dataLong_v, dataSurv = dataSurv_v)
-
-  Criteria(
-    s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
-    CR = dataSurv_v$death, P = DD$DP$est, cause = 1
-  )$Cri
+  DD <- DP_SRE(Z1,
+    s = 0.1, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 500,
+    n.thin = 1, dataLong = dataLong_v, dataSurv = dataSurv_v
+  )
 
 
   ########
@@ -127,7 +124,7 @@ rm(list=ls())
     FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
     FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
     formSurv = Surv(survtime, death) ~ w1,
-    obstime="obstime", offset=NULL,
+    obstime = "obstime", offset = NULL,
     dataLong = dataLong_t, dataSurv = dataSurv_t,
     n.chains = 2,
     n.iter = 200, n.burnin = 100, n.thin = 1, family = "Beta"
@@ -135,13 +132,11 @@ rm(list=ls())
 
 
 
-  DD=DP_SRE(Z1, s = 0.1, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 500,
-            n.thin = 1, dataLong = dataLong_v, dataSurv = dataSurv_v)
+  DD <- DP_SRE(Z1,
+    s = 0.1, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 500,
+    n.thin = 1, dataLong = dataLong_v, dataSurv = dataSurv_v
+  )
 
-  Criteria(
-    s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
-    CR = dataSurv_v$death, P = DD$DP$est, cause = 1
-  )$Cri
 
 
   ##################
@@ -173,21 +168,15 @@ rm(list=ls())
     FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
     formSurv = Surv(survtime, death) ~ w1,
     dataLong = dataLong_t, dataSurv = dataSurv_t,
-    obstime="obstime", offset=NULL,
+    obstime = "obstime", offset = NULL,
     n.chains = 2,
     n.iter = 200, n.burnin = 100, n.thin = 1, family = "Bell"
   )
 
-  DD=DP_SRE(Z2, s = 0.1, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 500,
-            n.thin = 1, dataLong = dataLong_v, dataSurv = dataSurv_v)
-
-  Criteria(
-    s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
-    CR = dataSurv_v$death, P = DD$DP$est, cause = 1
-  )$Cri
-
-
-
+  DD <- DP_SRE(Z2,
+    s = 0.1, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 500,
+    n.thin = 1, dataLong = dataLong_v, dataSurv = dataSurv_v
+  )
 
 }
 }
