@@ -2,7 +2,7 @@
 % Please edit documentation in R/DP_CV_CI.R
 \name{DP_CV_CI}
 \alias{DP_CV_CI}
-\title{Dynamic prediction}
+\title{Dynamic prediction with credible interval}
 \usage{
 DP_CV_CI(
   object,
@@ -48,7 +48,7 @@ DP_CV_CI(
 }
 }
 \description{
-Dynamic prediction for ZIJMCV
+Dynamic prediction for ZIJMCV with CI
 }
 \details{
 Estimate DP for joint modeling based on VS

@@ -35,7 +35,7 @@
 #' @md
 #' @export
 
-DP_SRE <- function(object, s = s, t = t, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
+DP_SRE_CI <- function(object, s = s, t = t, mi=10, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
                    n.thin = max(1, floor((n.iter - n.burnin) / 1000)), dataLong, dataSurv) {
   Dt <- t
   KK <- 1000000
@@ -409,8 +409,8 @@ for(k in 1:n2){
   ############################
 
   ################
-
-  data_Long_s <- dataLong[dataLong$obstime <= s, ]
+  time_new=dataLong["obstime"]
+  data_Long_s <- dataLong[time_new <= s, ]
   data_long <- data_Long_s[unique(c(
     all.vars(GroupY), all.vars(FixedY), all.vars(RandomY),
     all.vars(GroupZ), all.vars(FixedZ), all.vars(RandomZ)
@@ -480,7 +480,7 @@ for(k in 1:n2){
   }
   ########################################################################################
   if (family == "Exponential") {
-    model.file <- textConnection(Expb)
+
 
     Nb1 <- dim(Z1)[2]
     Nb2 <- dim(Z2)[2]
@@ -492,12 +492,28 @@ for(k in 1:n2){
 
     parameters <- c("b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
-    gamma <- apply(object$MCMC$gamma, 2, mean)
-    p <- mean(object$MCMC$p)
+    set.seed(9)
+    SAMPLE=sample(1:(length(object$MCMC$p)),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    betaSs <-   object$MCMC$beta3[SAMPLE,]
+    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    gammas <- object$MCMC$gamma[SAMPLE,]
+    ps <- object$MCMC$p[SAMPLE]
+
+
+    b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      betaS <-  betaSs[ttt,]
+      Sigma <- Sigmas[ttt,,]
+      gamma <- gammas[ttt,]
+      p <- ps[ttt]
+
+    model.file <- textConnection(Expb)
+
 
     d.jags <- list(
       betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omega = solve(Sigma), gamma = gamma,
@@ -523,11 +539,15 @@ for(k in 1:n2){
 
     b_hat <- sim1$mean$b
     b_sim <- sim1$sims.list$b
+
+    b_mcmc[[ttt]]=b_hat
+
+    }
+
   }
   ##
   #####
   if (family == "Beta") {
-    model.file <- textConnection(Betab)
     y[y == 1] <- 0.99999
 
     Nb1 <- dim(Z1)[2]
@@ -540,13 +560,31 @@ for(k in 1:n2){
 
     parameters <- c("b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
-    gamma <- apply(object$MCMC$gamma, 2, mean)
-    p <- mean(object$MCMC$p)
-    phi1 <- mean(object$MCMC$phi)
+
+    set.seed(9)
+    SAMPLE=sample(1:(length(object$MCMC$p)),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    betaSs <-   object$MCMC$beta3[SAMPLE,]
+    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    gammas <- object$MCMC$gamma[SAMPLE,]
+    ps <- object$MCMC$p[SAMPLE]
+    phi1s <- object$MCMC$phi[SAMPLE]
+
+    b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      betaS <-  betaSs[ttt,]
+      Sigma <- Sigmas[ttt,,]
+      gamma <- gammas[ttt,]
+      p <- ps[ttt]
+      phi1 <- phi1s[ttt]
+
+      model.file <- textConnection(Betab)
+
+
 
     d.jags <- list(
       betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omega = solve(Sigma), gamma = gamma,
@@ -572,10 +610,13 @@ for(k in 1:n2){
 
     b_hat <- sim1$mean$b
     b_sim <- sim1$sims.list$b
+
+    b_mcmc[[ttt]]=b_hat
+
+  }
   }
   ###
   if (family == "Weibull") {
-    model.file <- textConnection(Weibullb)
 
     Nb1 <- dim(Z1)[2]
     Nb2 <- dim(Z2)[2]
@@ -587,13 +628,29 @@ for(k in 1:n2){
 
     parameters <- c("b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
-    gamma <- apply(object$MCMC$gamma, 2, mean)
-    p <- mean(object$MCMC$p)
-    kappa <- mean(object$MCMC$kappa)
+    set.seed(9)
+    SAMPLE=sample(1:(length(object$MCMC$p)),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    betaSs <-   object$MCMC$beta3[SAMPLE,]
+    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    gammas <- object$MCMC$gamma[SAMPLE,]
+    ps <- object$MCMC$p[SAMPLE]
+    kappas <- object$MCMC$kappa[SAMPLE]
+
+    b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      betaS <-  betaSs[ttt,]
+      Sigma <- Sigmas[ttt,,]
+      gamma <- gammas[ttt,]
+      p <- ps[ttt]
+      kappa <- kappas[ttt]
+
+      model.file <- textConnection(Weibullb)
+
 
     d.jags <- list(
       betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omega = solve(Sigma), gamma = gamma,
@@ -619,10 +676,13 @@ for(k in 1:n2){
 
     b_hat <- sim1$mean$b
     b_sim <- sim1$sims.list$b
+
+    b_mcmc[[ttt]]=b_hat
+
+  }
   }
   ##
   if (family == "inverse.gaussian") {
-    model.file <- textConnection(IGaussb)
 
     Nb1 <- dim(Z1)[2]
     Nb2 <- dim(Z2)[2]
@@ -634,13 +694,32 @@ for(k in 1:n2){
 
     parameters <- c("b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
-    gamma <- apply(object$MCMC$gamma, 2, mean)
-    p <- mean(object$MCMC$p)
-    sigma <- mean(object$MCMC$sigma)
+
+
+    set.seed(9)
+    SAMPLE=sample(1:(length(object$MCMC$p)),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    betaSs <-   object$MCMC$beta3[SAMPLE,]
+    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    gammas <- object$MCMC$gamma[SAMPLE,]
+    ps <- object$MCMC$p[SAMPLE]
+    sigmas <- object$MCMC$sigma[SAMPLE]
+
+    b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      betaS <-  betaSs[ttt,]
+      Sigma <- Sigmas[ttt,,]
+      gamma <- gammas[ttt,]
+      p <- ps[ttt]
+      sigma <- sigmas[ttt]
+
+      model.file <- textConnection(IGaussb)
+
+
 
     d.jags <- list(
       betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omega = solve(Sigma), gamma = gamma,
@@ -666,10 +745,13 @@ for(k in 1:n2){
 
     b_hat <- sim1$mean$b
     b_sim <- sim1$sims.list$b
+
+    b_mcmc[[ttt]]=b_hat
+
+  }
   }
   ###
   if (family == "Gamma") {
-    model.file <- textConnection(Gammab)
 
     Nb1 <- dim(Z1)[2]
     Nb2 <- dim(Z2)[2]
@@ -681,13 +763,32 @@ for(k in 1:n2){
 
     parameters <- c("b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
-    gamma <- apply(object$MCMC$gamma, 2, mean)
-    p <- mean(object$MCMC$p)
-    sigma <- mean(object$MCMC$sigma)
+
+
+    set.seed(9)
+    SAMPLE=sample(1:(length(object$MCMC$p)),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    betaSs <-   object$MCMC$beta3[SAMPLE,]
+    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    gammas <- object$MCMC$gamma[SAMPLE,]
+    ps <- object$MCMC$p[SAMPLE]
+    sigmas <- object$MCMC$sigma[SAMPLE]
+
+    b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      betaS <-  betaSs[ttt,]
+      Sigma <- Sigmas[ttt,,]
+      gamma <- gammas[ttt,]
+      p <- ps[ttt]
+      sigma <- sigmas[ttt]
+
+      model.file <- textConnection(Gammab)
+
+
 
     d.jags <- list(
       betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omega = solve(Sigma), gamma = gamma,
@@ -713,10 +814,12 @@ for(k in 1:n2){
 
     b_hat <- sim1$mean$b
     b_sim <- sim1$sims.list$b
+    b_mcmc[[ttt]]=b_hat
+
+  }
   }
   ####
   if (family == "Gaussian") {
-    model.file <- textConnection(Gaussianb)
 
     Nb1 <- dim(Z1)[2]
     Nb2 <- dim(Z2)[2]
@@ -728,13 +831,29 @@ for(k in 1:n2){
 
     parameters <- c("b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
-    gamma <- apply(object$MCMC$gamma, 2, mean)
-    p <- mean(object$MCMC$p)
-    sigma <- mean(object$MCMC$sigma)
+
+    set.seed(9)
+    SAMPLE=sample(1:(length(object$MCMC$p)),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    betaSs <-   object$MCMC$beta3[SAMPLE,]
+    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    gammas <- object$MCMC$gamma[SAMPLE,]
+    ps <- object$MCMC$p[SAMPLE]
+    sigmas <- object$MCMC$sigma[SAMPLE]
+
+    b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      betaS <-  betaSs[ttt,]
+      Sigma <- Sigmas[ttt,,]
+      gamma <- gammas[ttt,]
+      p <- ps[ttt]
+      sigma <- sigmas[ttt]
+
+      model.file <- textConnection(Gaussianb)
 
     d.jags <- list(
       betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omega = solve(Sigma), gamma = gamma,
@@ -760,10 +879,13 @@ for(k in 1:n2){
 
     b_hat <- sim1$mean$b
     b_sim <- sim1$sims.list$b
+
+    b_mcmc[[ttt]]=b_hat
+
+  }
   }
 
   if (family == "Poisson") {
-    model.file <- textConnection(Poissonb)
 
     Nb1 <- dim(Z1)[2]
     Nb2 <- dim(Z2)[2]
@@ -775,13 +897,27 @@ for(k in 1:n2){
 
     parameters <- c("b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
-    gamma <- apply(object$MCMC$gamma, 2, mean)
-    p <- mean(object$MCMC$p)
 
+    set.seed(9)
+    SAMPLE=sample(1:(length(object$MCMC$p)),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    betaSs <-   object$MCMC$beta3[SAMPLE,]
+    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    gammas <- object$MCMC$gamma[SAMPLE,]
+    ps <- object$MCMC$p[SAMPLE]
+
+    b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      betaS <-  betaSs[ttt,]
+      Sigma <- Sigmas[ttt,,]
+      gamma <- gammas[ttt,]
+      p <- ps[ttt]
+
+      model.file <- textConnection(Poissonb)
 
     d.jags <- list(
       betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omega = solve(Sigma), gamma = gamma,
@@ -807,6 +943,9 @@ for(k in 1:n2){
 
     b_hat <- sim1$mean$b
     b_sim <- sim1$sims.list$b
+    b_mcmc[[ttt]]=b_hat
+
+  }
   }
   ####################### $$$$$$$$$$$$$
   if (family == "Bell") {
@@ -815,10 +954,7 @@ for(k in 1:n2){
       C[i] <- log(numbers::bell(y[i])) - lfactorial(y[i])
     }
 
-    model.file <- textConnection(Bellb)
-    if (is.infinite(numbers::bell(max(y))) == TRUE) {
-      model.file <- textConnection(Bellwcb)
-    }
+
 
 
     Nb1 <- dim(Z1)[2]
@@ -831,12 +967,30 @@ for(k in 1:n2){
 
     parameters <- c("b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
-    gamma <- apply(object$MCMC$gamma, 2, mean)
-    p <- mean(object$MCMC$p)
+
+    set.seed(9)
+    SAMPLE=sample(1:(length(object$MCMC$p)),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    betaSs <-   object$MCMC$beta3[SAMPLE,]
+    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    gammas <- object$MCMC$gamma[SAMPLE,]
+    ps <- object$MCMC$p[SAMPLE]
+
+    b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      betaS <-  betaSs[ttt,]
+      Sigma <- Sigmas[ttt,,]
+      gamma <- gammas[ttt,]
+      p <- ps[ttt]
+
+      model.file <- textConnection(Bellb)
+      if (is.infinite(numbers::bell(max(y))) == TRUE) {
+        model.file <- textConnection(Bellwcb)
+      }
 
     d.jags <- list(
       betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omega = solve(Sigma), gamma = gamma,
@@ -863,12 +1017,14 @@ for(k in 1:n2){
 
     b_hat <- sim1$mean$b
     b_sim <- sim1$sims.list$b
+    b_mcmc[[ttt]]=b_hat
+
+  }
   }
 
 
   ####################### $$$$$$$$$$$$$
   if (family == "Logarithmic") {
-    model.file <- textConnection(logarb)
 
     Nb1 <- dim(Z1)[2]
     Nb2 <- dim(Z2)[2]
@@ -880,12 +1036,26 @@ for(k in 1:n2){
 
     parameters <- c("b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
-    gamma <- apply(object$MCMC$gamma, 2, mean)
-    p <- mean(object$MCMC$p)
+    set.seed(9)
+    SAMPLE=sample(1:(length(object$MCMC$p)),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    betaSs <-   object$MCMC$beta3[SAMPLE,]
+    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    gammas <- object$MCMC$gamma[SAMPLE,]
+    ps <- object$MCMC$p[SAMPLE]
+
+    b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      betaS <-  betaSs[ttt,]
+      Sigma <- Sigmas[ttt,,]
+      gamma <- gammas[ttt,]
+      p <- ps[ttt]
+
+      model.file <- textConnection(logarb)
 
     d.jags <- list(
       betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omega = solve(Sigma), gamma = gamma,
@@ -911,10 +1081,12 @@ for(k in 1:n2){
 
     b_hat <- sim1$mean$b
     b_sim <- sim1$sims.list$b
+    b_mcmc[[ttt]]=b_hat
+
+  }
   }
 
   if (family == "binomial") {
-    model.file <- textConnection(binomialb)
 
     Nb1 <- dim(Z1)[2]
     Nb2 <- dim(Z2)[2]
@@ -926,12 +1098,26 @@ for(k in 1:n2){
 
     parameters <- c("b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
-    gamma <- apply(object$MCMC$gamma, 2, mean)
-    p <- mean(object$MCMC$p)
+    set.seed(9)
+    SAMPLE=sample(1:(length(object$MCMC$p)),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    betaSs <-   object$MCMC$beta3[SAMPLE,]
+    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    gammas <- object$MCMC$gamma[SAMPLE,]
+    ps <- object$MCMC$p[SAMPLE]
+
+    b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      betaS <-  betaSs[ttt,]
+      Sigma <- Sigmas[ttt,,]
+      gamma <- gammas[ttt,]
+      p <- ps[ttt]
+
+      model.file <- textConnection(binomialb)
 
     d.jags <- list(
       betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omega = solve(Sigma), gamma = gamma,
@@ -957,10 +1143,12 @@ for(k in 1:n2){
 
     b_hat <- sim1$mean$b
     b_sim <- sim1$sims.list$b
+    b_mcmc[[ttt]]=b_hat
+
+  }
   }
 
   if (family == "NB") {
-    model.file <- textConnection(NBb)
 
     Nb1 <- dim(Z1)[2]
     Nb2 <- dim(Z2)[2]
@@ -972,13 +1160,32 @@ for(k in 1:n2){
 
     parameters <- c("b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
-    gamma <- apply(object$MCMC$gamma, 2, mean)
-    p <- mean(object$MCMC$p)
-    r <- mean(object$MCMC$r)
+
+
+
+    set.seed(9)
+    SAMPLE=sample(1:(length(object$MCMC$p)),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    betaSs <-   object$MCMC$beta3[SAMPLE,]
+    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    gammas <- object$MCMC$gamma[SAMPLE,]
+    ps <- object$MCMC$p[SAMPLE]
+    rs <- object$MCMC$r[SAMPLE]
+
+    b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      betaS <-  betaSs[ttt,]
+      Sigma <- Sigmas[ttt,,]
+      gamma <- gammas[ttt,]
+      p <- ps[ttt]
+      r <- rs[ttt]
+
+      model.file <- textConnection(NBb)
+
 
     d.jags <- list(
       betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omega = solve(Sigma), gamma = gamma,
@@ -1005,12 +1212,14 @@ for(k in 1:n2){
 
     b_hat <- sim1$mean$b
     b_sim <- sim1$sims.list$b
+    b_mcmc[[ttt]]=b_hat
+
+  }
   }
 
   ############
 
   if (family == "GP") {
-    model.file <- textConnection(GPb)
     Nb1 <- dim(Z1)[2]
     Nb2 <- dim(Z2)[2]
     i.jags <- function() {
@@ -1021,13 +1230,30 @@ for(k in 1:n2){
 
     parameters <- c("b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
-    gamma <- apply(object$MCMC$gamma, 2, mean)
-    p <- mean(object$MCMC$p)
-    phiz <- mean(object$MCMC$r)
+
+
+    set.seed(9)
+    SAMPLE=sample(1:(length(object$MCMC$p)),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    betaSs <-   object$MCMC$beta3[SAMPLE,]
+    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    gammas <- object$MCMC$gamma[SAMPLE,]
+    ps <- object$MCMC$p[SAMPLE]
+    phizs <- object$MCMC$r[SAMPLE]
+
+    b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      betaS <-  betaSs[ttt,]
+      Sigma <- Sigmas[ttt,,]
+      gamma <- gammas[ttt,]
+      p <- ps[ttt]
+      phiz <- phizs[ttt]
+
+      model.file <- textConnection(GPb)
 
     d.jags <- list(
       betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omega = solve(Sigma), gamma = gamma,
@@ -1052,6 +1278,9 @@ for(k in 1:n2){
     )
     b_hat <- sim1$mean$b
     b_sim <- sim1$sims.list$b
+    b_mcmc[[ttt]]=b_hat
+
+  }
   }
 
   ###############################
@@ -1061,12 +1290,21 @@ for(k in 1:n2){
     z
   }
   ###############################
+
+  DP=matrix(0,mi,n2)
+  for(ttt in 1:mi){
+    b <- b_mcmc[[ttt]]
+
+
+    gamma <- gammas[ttt,]
+    betaS <- betaSs[ttt,]
+  r<-ps[ttt]
+
   b <- b_hat
   mut <- c()
   for (k in 1:n2) {
     mut[k] <- inprod(betaS[], XS[k, ]) + inprod(gamma[], b[k, ])
   }
-  r <- mean(object$MCMC$p)
 
 
   Num <- 1 - pweibull((s + Dt), r, exp(-mut / r))
@@ -1075,11 +1313,14 @@ for(k in 1:n2){
   Den[Den == 0] <- 0.0001
 
 
-  DP <- 1 - Num / Den
+
+  DP[ttt,]=1 - Num / Den
+  }
 
 
-  DP_last <- cbind(unique(id), DP)
-  colnames(DP_last) <- c("id", "est")
+  DP_last <- cbind(unique(id), apply(DP,2,mean), t(apply(DP,2,quantile,c(0.025,0.975))))
+  colnames(DP_last) <- c("id", "est","L","U")
+
   DP_last <- data.frame(DP_last)
 
   list(DP = DP_last, s = s, t = Dt)
