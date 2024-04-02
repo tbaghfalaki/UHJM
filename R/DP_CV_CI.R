@@ -1,7 +1,7 @@
-#'  Dynamic prediction
+#'  Dynamic prediction with credible interval
 #'
 #' @description
-#' Dynamic prediction for ZIJMCV
+#' Dynamic prediction for ZIJMCV with CI
 #'
 #'
 #' @details

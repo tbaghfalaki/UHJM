@@ -1,7 +1,7 @@
-#'  Dynamic prediction
+#'  Dynamic prediction with credible interval
 #'
 #' @description
-#' Dynamic prediction for ZISRE
+#' Dynamic prediction for ZISRE with CI
 #'
 #'
 #' @details
@@ -12,6 +12,7 @@
 #' @param dataSurv data set of observed survival variables.
 #' @param s the landmark time for prediction
 #' @param t the window of prediction for prediction
+#' @param mi the number of multiple imputation for Monte-Carlo approximation; default is 10.
 #' @param n.chains the number of parallel chains for the model; default is 1.
 #' @param n.iter integer specifying the total number of iterations; default is 1000.
 #' @param n.burnin integer specifying how many of n.iter to discard as burn-in ; default is 5000.
