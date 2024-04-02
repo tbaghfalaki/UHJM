@@ -12,6 +12,7 @@
 #' @param dataSurv data set of observed survival variables.
 #' @param s the landmark time for prediction
 #' @param t the window of prediction for prediction
+#' @param mi the number of multiple imputation for Monte-Carlo approximation; default is 10.
 #' @param n.chains the number of parallel chains for the model; default is 1.
 #' @param n.iter integer specifying the total number of iterations; default is 1000.
 #' @param n.burnin integer specifying how many of n.iter to discard as burn-in ; default is 5000.
@@ -34,7 +35,7 @@
 #' @md
 #' @export
 
-DP_CV <- function(object, s = s, t = t, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
+DP_CV_CI <- function(object, s = s, t = t, mi=10, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
                   n.thin = max(1, floor((n.iter - n.burnin) / 1000)), dataLong, dataSurv) {
   Dt <- t
   KK <- 1000000
@@ -1716,25 +1717,48 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
     }
 
     parameters <- c("a", "b")
-    # "betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phis", "h")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
-    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
-    gamma_pi <- mean(object$MCMC$gamma_pi)
-    gamma_lambda <- mean(object$MCMC$gamma_lambda)
-    phis <- mean(object$MCMC$phi)
-    h <- apply(object$MCMC$h, 2, mean)
+    set.seed(9)
+    SAMPLE=sample(1:(dim(object$MCMC$h)[1]),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
+    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+    gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
+    gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
+    phiss <- object$MCMC$phi[SAMPLE]
+    hs <- object$MCMC$h[SAMPLE,]
 
 
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(Beta1b)
-      betaS <- mean(object$MCMC$beta3)
+      betaSs <- object$MCMC$beta3[SAMPLE]
     } else {
       model.file <- textConnection(Betab)
-      betaS <- apply(object$MCMC$beta3, 2, mean)
+      betaSs <- object$MCMC$beta3[SAMPLE,]
     }
+    a_mcmc=b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      Sigmaa <- Sigmaas[ttt,,]
+      Sigmab <- Sigmabs[ttt,,]
+      gamma_pi <- gamma_pis[ttt]
+      gamma_lambda <- gamma_lambdas[ttt]
+      phis <- phiss[ttt]
+      h <- hs[ttt,]
+
+
+      if (is.matrix(XS) == FALSE) {
+        model.file <- textConnection(NB1b)
+        betaS <- betaSs[ttt]
+      } else {
+        model.file <- textConnection(NBb)
+        betaS <- betaSs[ttt,]
+      }
+
+
 
 
     d.jags <- list(
@@ -1762,13 +1786,20 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       DIC = FALSE
     )
 
-
-
     a_hat <- sim1$mean$a
     b_hat <- sim1$mean$b
 
     a_sim <- sim1$sims.list$a
     b_sim <- sim1$sims.list$b
+
+
+    a_mcmc[[ttt]]=a_hat
+    b_mcmc[[ttt]]=b_hat
+
+    }
+
+
+
   }
 
   if (family == "Gamma") {
@@ -1786,28 +1817,49 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     parameters <- c("a", "b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
-    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
-    gamma_pi <- mean(object$MCMC$gamma_pi)
-    gamma_lambda <- mean(object$MCMC$gamma_lambda)
-    sigma <- mean(object$MCMC$sigma)
-    h <- apply(object$MCMC$h, 2, mean)
+
+
+
+
+    set.seed(9)
+    SAMPLE=sample(1:(dim(object$MCMC$h)[1]),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
+    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+    gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
+    gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
+    sigmas <- object$MCMC$sigma[SAMPLE]
+    hs <- object$MCMC$h[SAMPLE,]
 
 
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(Gamma1b)
-      betaS <- mean(object$MCMC$beta3)
+      betaSs <- object$MCMC$beta3[SAMPLE]
     } else {
       model.file <- textConnection(Gammab)
-      betaS <- apply(object$MCMC$beta3, 2, mean)
+      betaSs <- object$MCMC$beta3[SAMPLE,]
     }
+    a_mcmc=b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      Sigmaa <- Sigmaas[ttt,,]
+      Sigmab <- Sigmabs[ttt,,]
+      gamma_pi <- gamma_pis[ttt]
+      gamma_lambda <- gamma_lambdas[ttt]
+      sigma <- sigmas[ttt]
+      h <- hs[ttt,]
 
 
-
-
-
+      if (is.matrix(XS) == FALSE) {
+        model.file <- textConnection(NB1b)
+        betaS <- betaSs[ttt]
+      } else {
+        model.file <- textConnection(NBb)
+        betaS <- betaSs[ttt,]
+      }
 
 
 
@@ -1845,6 +1897,12 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     a_sim <- sim1$sims.list$a
     b_sim <- sim1$sims.list$b
+
+
+    a_mcmc[[ttt]]=a_hat
+    b_mcmc[[ttt]]=b_hat
+
+    }
   }
 
   ####
@@ -1863,23 +1921,48 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     parameters <- c("a", "b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
-    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
-    gamma_pi <- mean(object$MCMC$gamma_pi)
-    gamma_lambda <- mean(object$MCMC$gamma_lambda)
-    kappa <- mean(object$MCMC$kappa)
-    h <- apply(object$MCMC$h, 2, mean)
+    set.seed(9)
+    SAMPLE=sample(1:(dim(object$MCMC$h)[1]),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
+    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+    gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
+    gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
+    kappas <- object$MCMC$kappa[SAMPLE]
+    hs <- object$MCMC$h[SAMPLE,]
 
 
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(Weibull1b)
-      betaS <- mean(object$MCMC$beta3)
+      betaSs <- object$MCMC$beta3[SAMPLE]
     } else {
       model.file <- textConnection(Weibullb)
-      betaS <- apply(object$MCMC$beta3, 2, mean)
+      betaSs <- object$MCMC$beta3[SAMPLE,]
     }
+
+    a_mcmc=b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      Sigmaa <- Sigmaas[ttt,,]
+      Sigmab <- Sigmabs[ttt,,]
+      gamma_pi <- gamma_pis[ttt]
+      gamma_lambda <- gamma_lambdas[ttt]
+      kappa <- kappas[ttt]
+      h <- hs[ttt,]
+
+
+      if (is.matrix(XS) == FALSE) {
+        model.file <- textConnection(NB1b)
+        betaS <- betaSs[ttt]
+      } else {
+        model.file <- textConnection(NBb)
+        betaS <- betaSs[ttt,]
+      }
+
+
 
 
     d.jags <- list(
@@ -1914,6 +1997,14 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     a_sim <- sim1$sims.list$a
     b_sim <- sim1$sims.list$b
+
+
+    a_mcmc[[ttt]]=a_hat
+    b_mcmc[[ttt]]=b_hat
+
+    }
+
+
   }
 
   if (family == "Exponential") {
@@ -1928,22 +2019,47 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     parameters <- c("a", "b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
-    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
-    gamma_pi <- mean(object$MCMC$gamma_pi)
-    gamma_lambda <- mean(object$MCMC$gamma_lambda)
-    h <- apply(object$MCMC$h, 2, mean)
+
+    set.seed(9)
+    SAMPLE=sample(1:(dim(object$MCMC$h)[1]),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
+    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+    gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
+    gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
+    hs <- object$MCMC$h[SAMPLE,]
 
 
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(Exp1b)
-      betaS <- mean(object$MCMC$beta3)
+      betaSs <- object$MCMC$beta3[SAMPLE]
     } else {
       model.file <- textConnection(Expb)
-      betaS <- apply(object$MCMC$beta3, 2, mean)
+      betaSs <- object$MCMC$beta3[SAMPLE,]
     }
+
+    a_mcmc=b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      Sigmaa <- Sigmaas[ttt,,]
+      Sigmab <- Sigmabs[ttt,,]
+      gamma_pi <- gamma_pis[ttt]
+      gamma_lambda <- gamma_lambdas[ttt]
+      h <- hs[ttt,]
+
+
+      if (is.matrix(XS) == FALSE) {
+        model.file <- textConnection(NB1b)
+        betaS <- betaSs[ttt]
+      } else {
+        model.file <- textConnection(NBb)
+        betaS <- betaSs[ttt,]
+      }
+
+
 
 
     d.jags <- list(
@@ -1977,6 +2093,12 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     a_sim <- sim1$sims.list$a
     b_sim <- sim1$sims.list$b
+
+
+    a_mcmc[[ttt]]=a_hat
+    b_mcmc[[ttt]]=b_hat
+
+    }
   }
 
 
@@ -1995,23 +2117,48 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     parameters <- c("a", "b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
-    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
-    gamma_pi <- mean(object$MCMC$gamma_pi)
-    gamma_lambda <- mean(object$MCMC$gamma_lambda)
-    h <- apply(object$MCMC$h, 2, mean)
-    sigma <- mean(object$MCMC$sigma)
+    set.seed(9)
+    SAMPLE=sample(1:(dim(object$MCMC$h)[1]),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
+    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+    gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
+    gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
+    sigmas <- object$MCMC$sigma[SAMPLE]
+    hs <- object$MCMC$h[SAMPLE,]
 
 
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(IGauss1b)
-      betaS <- mean(object$MCMC$beta3)
+      betaSs <- object$MCMC$beta3[SAMPLE]
     } else {
       model.file <- textConnection(IGaussb)
-      betaS <- apply(object$MCMC$beta3, 2, mean)
+      betaSs <- object$MCMC$beta3[SAMPLE,]
     }
+
+    a_mcmc=b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      Sigmaa <- Sigmaas[ttt,,]
+      Sigmab <- Sigmabs[ttt,,]
+      gamma_pi <- gamma_pis[ttt]
+      gamma_lambda <- gamma_lambdas[ttt]
+      sigma <- sigmas[ttt]
+      h <- hs[ttt,]
+
+
+      if (is.matrix(XS) == FALSE) {
+        model.file <- textConnection(NB1b)
+        betaS <- betaSs[ttt]
+      } else {
+        model.file <- textConnection(NBb)
+        betaS <- betaSs[ttt,]
+      }
+
+
 
 
     d.jags <- list(
@@ -2044,6 +2191,11 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     a_sim <- sim1$sims.list$a
     b_sim <- sim1$sims.list$b
+
+    a_mcmc[[ttt]]=a_hat
+    b_mcmc[[ttt]]=b_hat
+
+    }
   }
 
 
@@ -2059,22 +2211,47 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     parameters <- c("a", "b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
-    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
-    gamma_pi <- mean(object$MCMC$gamma_pi)
-    gamma_lambda <- mean(object$MCMC$gamma_lambda)
-    h <- apply(object$MCMC$h, 2, mean)
+    set.seed(9)
+    SAMPLE=sample(1:(dim(object$MCMC$h)[1]),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
+    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+    gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
+    gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
+    hs <- object$MCMC$h[SAMPLE,]
 
 
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(Poisson1b)
-      betaS <- mean(object$MCMC$beta3)
+      betaSs <- object$MCMC$beta3[SAMPLE]
     } else {
       model.file <- textConnection(Poissonb)
-      betaS <- apply(object$MCMC$beta3, 2, mean)
+      betaSs <- object$MCMC$beta3[SAMPLE,]
     }
+
+
+    a_mcmc=b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      Sigmaa <- Sigmaas[ttt,,]
+      Sigmab <- Sigmabs[ttt,,]
+      gamma_pi <- gamma_pis[ttt]
+      gamma_lambda <- gamma_lambdas[ttt]
+      h <- hs[ttt,]
+
+
+      if (is.matrix(XS) == FALSE) {
+        model.file <- textConnection(NB1b)
+        betaS <- betaSs[ttt]
+      } else {
+        model.file <- textConnection(NBb)
+        betaS <- betaSs[ttt,]
+      }
+
+
 
 
     d.jags <- list(
@@ -2107,6 +2284,12 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     a_sim <- sim1$sims.list$a
     b_sim <- sim1$sims.list$b
+
+
+    a_mcmc[[ttt]]=a_hat
+    b_mcmc[[ttt]]=b_hat
+
+    }
   }
   #################
   if (family == "Logarithmic") {
@@ -2121,22 +2304,47 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     parameters <- c("a", "b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
-    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
-    gamma_pi <- mean(object$MCMC$gamma_pi)
-    gamma_lambda <- mean(object$MCMC$gamma_lambda)
-    h <- apply(object$MCMC$h, 2, mean)
+    set.seed(9)
+    SAMPLE=sample(1:(dim(object$MCMC$h)[1]),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
+    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+    gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
+    gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
+    hs <- object$MCMC$h[SAMPLE,]
 
 
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(logar1b)
-      betaS <- mean(object$MCMC$beta3)
+      betaSs <- object$MCMC$beta3[SAMPLE]
     } else {
-      model.file <- textConnection(logarb)
-      betaS <- apply(object$MCMC$beta3, 2, mean)
+      model.file <- textConnection(logar1b)
+      betaSs <- object$MCMC$beta3[SAMPLE,]
     }
+
+
+    a_mcmc=b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      Sigmaa <- Sigmaas[ttt,,]
+      Sigmab <- Sigmabs[ttt,,]
+      gamma_pi <- gamma_pis[ttt]
+      gamma_lambda <- gamma_lambdas[ttt]
+      h <- hs[ttt,]
+
+
+      if (is.matrix(XS) == FALSE) {
+        model.file <- textConnection(NB1b)
+        betaS <- betaSs[ttt]
+      } else {
+        model.file <- textConnection(NBb)
+        betaS <- betaSs[ttt,]
+      }
+
+
 
 
     d.jags <- list(
@@ -2170,6 +2378,12 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     a_sim <- sim1$sims.list$a
     b_sim <- sim1$sims.list$b
+
+
+    a_mcmc[[ttt]]=a_hat
+    b_mcmc[[ttt]]=b_hat
+
+  }
   }
 
 
@@ -2185,22 +2399,47 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     parameters <- c("a", "b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
-    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
-    gamma_pi <- mean(object$MCMC$gamma_pi)
-    gamma_lambda <- mean(object$MCMC$gamma_lambda)
-    h <- apply(object$MCMC$h, 2, mean)
+    set.seed(9)
+    SAMPLE=sample(1:(dim(object$MCMC$h)[1]),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
+    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+    gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
+    gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
+    hs <- object$MCMC$h[SAMPLE,]
 
 
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(binomial1b)
-      betaS <- mean(object$MCMC$beta3)
+      betaSs <- object$MCMC$beta3[SAMPLE]
     } else {
       model.file <- textConnection(binomialb)
-      betaS <- apply(object$MCMC$beta3, 2, mean)
+      betaSs <- object$MCMC$beta3[SAMPLE,]
     }
+
+
+    a_mcmc=b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      Sigmaa <- Sigmaas[ttt,,]
+      Sigmab <- Sigmabs[ttt,,]
+      gamma_pi <- gamma_pis[ttt]
+      gamma_lambda <- gamma_lambdas[ttt]
+      h <- hs[ttt,]
+
+
+      if (is.matrix(XS) == FALSE) {
+        model.file <- textConnection(NB1b)
+        betaS <- betaSs[ttt]
+      } else {
+        model.file <- textConnection(NBb)
+        betaS <- betaSs[ttt,]
+      }
+
+
 
 
     d.jags <- list(
@@ -2234,6 +2473,10 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     a_sim <- sim1$sims.list$a
     b_sim <- sim1$sims.list$b
+    a_mcmc[[ttt]]=a_hat
+    b_mcmc[[ttt]]=b_hat
+
+  }
   }
   #################
   if (family == "Bell") {
@@ -2254,28 +2497,47 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     parameters <- c("a", "b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
-    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
-    gamma_pi <- mean(object$MCMC$gamma_pi)
-    gamma_lambda <- mean(object$MCMC$gamma_lambda)
-    h <- apply(object$MCMC$h, 2, mean)
+    set.seed(9)
+    SAMPLE=sample(1:(dim(object$MCMC$h)[1]),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
+    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+    gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
+    gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
+    hs <- object$MCMC$h[SAMPLE,]
 
 
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(Bell1b)
-      betaS <- mean(object$MCMC$beta3)
-      if (is.infinite(numbers::bell(max(y))) == TRUE) {
-        model.file <- textConnection(Bellwcb)
-      }
+      betaSs <- object$MCMC$beta3[SAMPLE]
     } else {
       model.file <- textConnection(Bellb)
-      betaS <- apply(object$MCMC$beta3, 2, mean)
-      if (is.infinite(numbers::bell(max(y))) == TRUE) {
-        model.file <- textConnection(Bellwcb)
-      }
+      betaSs <- object$MCMC$beta3[SAMPLE,]
     }
+
+
+    a_mcmc=b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      Sigmaa <- Sigmaas[ttt,,]
+      Sigmab <- Sigmabs[ttt,,]
+      gamma_pi <- gamma_pis[ttt]
+      gamma_lambda <- gamma_lambdas[ttt]
+      h <- hs[ttt,]
+
+
+      if (is.matrix(XS) == FALSE) {
+        model.file <- textConnection(NB1b)
+        betaS <- betaSs[ttt]
+      } else {
+        model.file <- textConnection(NBb)
+        betaS <- betaSs[ttt,]
+      }
+
+
 
 
     d.jags <- list(
@@ -2309,6 +2571,11 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     a_sim <- sim1$sims.list$a
     b_sim <- sim1$sims.list$b
+
+    a_mcmc[[ttt]]=a_hat
+    b_mcmc[[ttt]]=b_hat
+
+  }
   }
 
   #########################
@@ -2324,22 +2591,49 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     parameters <- c("a", "b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
-    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
-    gamma_pi <- mean(object$MCMC$gamma_pi)
-    gamma_lambda <- mean(object$MCMC$gamma_lambda)
-    h <- apply(object$MCMC$h, 2, mean)
-    sigma <- mean(object$MCMC$sigma)
+    set.seed(9)
+    SAMPLE=sample(1:(dim(object$MCMC$h)[1]),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
+    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+    gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
+    gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
+    sigmas <- object$MCMC$sigma[SAMPLE]
+    hs <- object$MCMC$h[SAMPLE,]
+
 
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(Gaussian1b)
-      betaS <- mean(object$MCMC$beta3)
+      betaSs <- object$MCMC$beta3[SAMPLE]
     } else {
       model.file <- textConnection(Gaussianb)
-      betaS <- apply(object$MCMC$beta3, 2, mean)
+      betaSs <- object$MCMC$beta3[SAMPLE,]
     }
+
+
+    a_mcmc=b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      Sigmaa <- Sigmaas[ttt,,]
+      Sigmab <- Sigmabs[ttt,,]
+      gamma_pi <- gamma_pis[ttt]
+      gamma_lambda <- gamma_lambdas[ttt]
+      sigma <- sigmas[ttt]
+      h <- hs[ttt,]
+
+
+      if (is.matrix(XS) == FALSE) {
+        model.file <- textConnection(NB1b)
+        betaS <- betaSs[ttt]
+      } else {
+        model.file <- textConnection(NBb)
+        betaS <- betaSs[ttt,]
+      }
+
+
 
 
     d.jags <- list(
@@ -2375,6 +2669,11 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     a_sim <- sim1$sims.list$a
     b_sim <- sim1$sims.list$b
+
+    a_mcmc[[ttt]]=a_hat
+    b_mcmc[[ttt]]=b_hat
+
+  }
   }
 
   if (family == "NB") {
@@ -2389,27 +2688,58 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     parameters <- c("a", "b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
-    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
-    gamma_pi <- mean(object$MCMC$gamma_pi)
-    gamma_lambda <- mean(object$MCMC$gamma_lambda)
-    h <- apply(object$MCMC$h, 2, mean)
-    r <- mean(object$MCMC$r)
+
+    set.seed(9)
+    SAMPLE=sample(1:(dim(object$MCMC$h)[1]),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
+    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+    gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
+    gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
+    rs <- object$MCMC$r[SAMPLE]
+    hs <- object$MCMC$h[SAMPLE,]
 
 
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(NB1b)
-      betaS <- mean(object$MCMC$beta3)
+      betaSs <- object$MCMC$beta3[SAMPLE]
     } else {
       model.file <- textConnection(NBb)
-      betaS <- apply(object$MCMC$beta3, 2, mean)
+      betaSs <- object$MCMC$beta3[SAMPLE,]
     }
 
 
+    a_mcmc=b_mcmc=list()
+    for(ttt in 1:mi){
+
+
+
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      Sigmaa <- Sigmaas[ttt,,]
+      Sigmab <- Sigmabs[ttt,,]
+      gamma_pi <- gamma_pis[ttt]
+      gamma_lambda <- gamma_lambdas[ttt]
+      r <- rs[ttt]
+      h <- hs[ttt,]
+
+
+      if (is.matrix(XS) == FALSE) {
+        model.file <- textConnection(NB1b)
+        betaS <- betaSs[ttt]
+      } else {
+        model.file <- textConnection(NBb)
+        betaS <- betaSs[ttt,]
+      }
+
+
+
+
     d.jags <- list(
-      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS,
+      Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
       h = h, r = r,
       n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
       indtime1 = indtime1, indtime2 = indtime2,
@@ -2438,6 +2768,11 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     a_sim <- sim1$sims.list$a
     b_sim <- sim1$sims.list$b
+
+    a_mcmc[[ttt]]=a_hat
+    b_mcmc[[ttt]]=b_hat
+
+  }
   }
 
   if (family == "GP") {
@@ -2452,22 +2787,48 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     parameters <- c("a", "b")
 
-    betaL1 <- apply(object$MCMC$beta1, 2, mean)
-    betaL2 <- apply(object$MCMC$beta2, 2, mean)
-    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
-    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
-    gamma_pi <- mean(object$MCMC$gamma_pi)
-    gamma_lambda <- mean(object$MCMC$gamma_lambda)
-    h <- apply(object$MCMC$h, 2, mean)
-    phiz <- mean(object$MCMC$phi)
+    set.seed(9)
+    SAMPLE=sample(1:(dim(object$MCMC$h)[1]),mi)
+    betaL1s <- object$MCMC$beta1[SAMPLE,]
+    betaL2s <- object$MCMC$beta2[SAMPLE,]
+    Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
+    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+    gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
+    gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
+    phizs <- object$MCMC$phi[SAMPLE]
+    hs <- object$MCMC$h[SAMPLE,]
+
 
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(GP1b)
-      betaS <- mean(object$MCMC$beta3)
+      betaSs <- object$MCMC$beta3[SAMPLE]
     } else {
       model.file <- textConnection(GPb)
-      betaS <- apply(object$MCMC$beta3, 2, mean)
+      betaSs <- object$MCMC$beta3[SAMPLE,]
     }
+
+
+    a_mcmc=b_mcmc=list()
+    for(ttt in 1:mi){
+
+      betaL1 <- betaL1s[ttt,]
+      betaL2 <- betaL2s[ttt,]
+      Sigmaa <- Sigmaas[ttt,,]
+      Sigmab <- Sigmabs[ttt,,]
+      gamma_pi <- gamma_pis[ttt]
+      gamma_lambda <- gamma_lambdas[ttt]
+      phiz <- phizs[ttt]
+      h <- hs[ttt,]
+
+
+      if (is.matrix(XS) == FALSE) {
+        model.file <- textConnection(NB1b)
+        betaS <- betaSs[ttt]
+      } else {
+        model.file <- textConnection(NBb)
+        betaS <- betaSs[ttt,]
+      }
+
 
 
     d.jags <- list(
@@ -2499,12 +2860,14 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     a_sim <- sim1$sims.list$a
     b_sim <- sim1$sims.list$b
+
+    a_mcmc[[ttt]]=a_hat
+    b_mcmc[[ttt]]=b_hat
+
   }
-  a <- a_hat
-  b <- b_hat
-  #######################
-  ################################
-  ############################################
+  }
+
+
   step <- function(x) {
     z <- 0
     if (x >= 0) (z <- 1)
@@ -2514,6 +2877,31 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
     z <- a %*% b
     z
   }
+  DP=matrix(0,mi,n2)
+  for(ttt in 1:mi){
+  a <- a_mcmc[[ttt]]
+  b <- b_mcmc[[ttt]]
+
+  betaL1 <- betaL1s[ttt,]
+  betaL2 <- betaL2s[ttt,]
+  Sigmaa <- Sigmaas[ttt,,]
+  Sigmab <- Sigmabs[ttt,,]
+  gamma_pi <- gamma_pis[ttt]
+  gamma_lambda <- gamma_lambdas[ttt]
+  h <- hs[ttt,]
+
+
+  if (is.matrix(XS) == FALSE) {
+    model.file <- textConnection(NB1b)
+    betaS <- betaSs[ttt]
+  } else {
+    model.file <- textConnection(NBb)
+    betaS <- betaSs[ttt,]
+  }
+  #######################
+  ################################
+  ############################################
+
   Alpha0 <- Alpha1 <- Surv_d <- c()
   chaz <- matrix(0, n2, K)
   for (k in 1:n2) {
@@ -2567,10 +2955,12 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
     Surv_n[k] <- exp(-inprod(wk11, chaz[k, ]))
   }
   Surv_d[Surv_d == 0] <- 0.000001
-  DP <- 1 - Surv_n / Surv_d
+  DP[ttt,] <- 1 - Surv_n / Surv_d
+
+  }
   #####################
-  DP_last <- cbind(unique(id), DP)
-  colnames(DP_last) <- c("id", "est")
+  DP_last <- cbind(unique(id), apply(DP,2,mean), t(apply(DP,2,quantile,c(0.025,0.975))))
+  colnames(DP_last) <- c("id", "est","L","U")
   DP_last <- data.frame(DP_last)
 
   list(DP = DP_last, s = s, t = Dt)

@@ -1,6 +1,7 @@
 export(ZIJMCV)
 export(ZISRE)
 export(DP_CV)
+export(DP_CV_CI)
 export(DP_SRE)
 importFrom("stats", "sd")
 importFrom("stats", "quantile")
