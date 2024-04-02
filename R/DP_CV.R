@@ -5,9 +5,9 @@
 #'
 #'
 #' @details
-#' Estimate DP for joint modeling based on VS
+#' Estimate DP for joint modeling based on ZIJMCV
 #'
-#' @param object an object inheriting from class VS
+#' @param object an object inheriting from class ZIJMCV
 #' @param dataLong data set of observed longitudinal variables.
 #' @param dataSurv data set of observed survival variables.
 #' @param s the landmark time for prediction

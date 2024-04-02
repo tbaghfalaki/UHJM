@@ -95,6 +95,9 @@ rm(list=ls())
   )
 
 
+  DPplot2(Z1, s = 0.4, id_new=498, by=0.2,mi=2, n.chains = 1, n.iter = 200, n.burnin =100,
+          dataLong = dataLong_v, dataSurv = dataSurv_v)
+
   ########
 
   set.seed(2)

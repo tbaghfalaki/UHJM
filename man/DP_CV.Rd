@@ -17,7 +17,7 @@ DP_CV(
 )
 }
 \arguments{
-\item{object}{an object inheriting from class VS}
+\item{object}{an object inheriting from class ZIJMCV}
 
 \item{s}{the landmark time for prediction}
 
@@ -48,7 +48,7 @@ DP_CV(
 Dynamic prediction for ZIJMCV
 }
 \details{
-Estimate DP for joint modeling based on VS
+Estimate DP for joint modeling based on ZIJMCV
 }
 \examples{
 library(survival)
@@ -93,6 +93,11 @@ rm(list=ls())
     object = Z2, s = 0.5, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 1000,
     n.thin = 1, dataLong = dataLong_v, dataSurv = dataSurv_v
   )
+
+
+  DPplot1(Z2, s = 0.4, id_new=498, by=0.2, n.chains = 1, n.iter = 200, n.burnin =100,
+          dataLong = dataLong_v, dataSurv = dataSurv_v)
+
 
 }
 

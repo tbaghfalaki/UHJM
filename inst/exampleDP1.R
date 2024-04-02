@@ -41,6 +41,11 @@ rm(list=ls())
     n.thin = 1, dataLong = dataLong_v, dataSurv = dataSurv_v
   )
 
+
+  DPplot1(Z2, s = 0.4, id_new=498, by=0.2,mi=5, n.chains = 1, n.iter = 200, n.burnin =100,
+          dataLong = dataLong_v, dataSurv = dataSurv_v)
+
+
 }
 
 

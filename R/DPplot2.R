@@ -1,13 +1,13 @@
 #'  Dynamic prediction plot for one individual
 #'
 #' @description
-#' Dynamic prediction plot for ZIJMCV
+#' Dynamic prediction plot for ZISRE
 #'
 #'
 #' @details
-#' Estimate DP for joint modeling based on ZIJMCV
+#' Estimate DP for joint modeling based on ZISRE
 #'
-#' @param object an object inheriting from class ZIJMCV
+#' @param object an object inheriting from class ZISRE
 #' @param dataLong data set of observed longitudinal variables.
 #' @param dataSurv data set of observed survival variables.
 #' @param s the landmark time for prediction
@@ -28,7 +28,7 @@
 #' @md
 #' @export
 #'
-DPplot1=function(object, s = s, id_new=id_new,  mi=mi, by=0.1, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
+DPplot2=function(object, s = s, id_new=id_new,  mi=mi, by=0.1, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
                  dataLong, dataSurv){
 
   time_new=dataLong["obstime"]
@@ -72,7 +72,7 @@ DPplot1=function(object, s = s, id_new=id_new,  mi=mi, by=0.1, n.chains = n.chai
   est_M=matrix(0,length(Dt),4)
 
 for(kk in 1:length(Dt)){
-  DD <- DP_CV_CI(
+  DD <- DP_SRE_CI(
     object = object, s = s, t = Dt[kk], mi=mi, n.chains = 1, n.iter = n.iter, n.burnin = n.burnin,
     n.thin = 1, dataLong = dataLong, dataSurv = dataSurv
   )
@@ -100,7 +100,7 @@ for(kk in 1:length(Dt)){
   abline(v=s, col="blue",lty=3)
 
   par(new = T)
-  plot(TT[,1:2], type="l", pch=16,col="purple3", xlab=NA, ylab=NA, cex=1,ylim=c(0,1))#axes=F,
+  plot(TT[,1:2], type="l", pch=16,col="purple3",  xlab=NA, ylab=NA, cex=1,ylim=c(0,1))
   lines(TT[,c(1,3)], type="l",col="purple3", lty=2,pch=16,  xlab=NA, ylab=NA, cex=1)
   lines(TT[,c(1,4)], type="l", col="purple3", lty=2, pch=16,  xlab=NA, ylab=NA, cex=1)
 
@@ -110,3 +110,4 @@ for(kk in 1:length(Dt)){
 
 
 }
+
