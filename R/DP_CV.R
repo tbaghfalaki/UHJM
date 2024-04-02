@@ -35,24 +35,24 @@
 #' @export
 
 DP_CV <- function(object, s = s, t = t, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
-               n.thin = max(1, floor((n.iter - n.burnin) / 1000)), dataLong, dataSurv) {
+                  n.thin = max(1, floor((n.iter - n.burnin) / 1000)), dataLong, dataSurv) {
   Dt <- t
   KK <- 1000000
 
   FixedY <- object$FixedY
-  FixedZ=object$FixedZ
-  RandomY=object$RandomY
-  RandomZ=object$RandomZ
+  FixedZ <- object$FixedZ
+  RandomY <- object$RandomY
+  RandomZ <- object$RandomZ
 
-  GroupY=object$GroupY
-  GroupZ=object$GroupZ
-  id=object$id
+  GroupY <- object$GroupY
+  GroupZ <- object$GroupZ
+  id <- object$id
   formSurv <- object$formSurv
   obstime <- object$obstime
   nmark <- object$nmark
   mu1 <- object$mu1
   peice <- object$peice
-  family=object$family
+  family <- object$family
   #######
 
   ########### univariate_jm_random_effect_estimation
@@ -120,7 +120,7 @@ phi1<-1/phis
 
 
 
-Betab <- "model{
+  Betab <- "model{
 
 
   for(i in 1:n){
@@ -187,7 +187,7 @@ phi1<-1/phis
 
 
 
-Gamma1b <- "model{
+  Gamma1b <- "model{
 
 
   for(i in 1:n){
@@ -255,7 +255,7 @@ ll[i] <- (1-z[i])*(logdensity.gamma(y[i],sigma1, mu1[i]))+z[i]*log(muz[i])+(1-z[
 
 
 
-Gammab <- "model{
+  Gammab <- "model{
 
 
   for(i in 1:n){
@@ -322,7 +322,7 @@ ll[i] <- (1-z[i])*(logdensity.gamma(y[i],sigma1, mu1[i]))+z[i]*log(muz[i])+(1-z[
 
 
 
-Weibull1b <- "model{
+  Weibull1b <- "model{
 
 
   for(i in 1:n){
@@ -391,7 +391,7 @@ Weibull1b <- "model{
 
 
 
-Weibullb <- "model{
+  Weibullb <- "model{
 
 
   for(i in 1:n){
@@ -454,7 +454,7 @@ Weibullb <- "model{
 
 
 
-Exp1b <- "model{
+  Exp1b <- "model{
 
 
   for(i in 1:n){
@@ -516,7 +516,7 @@ ll[i] <- (1-z[i])*(logdensity.exp(y[i],mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-m
 }"
 
 
-Expb <- "model{
+  Expb <- "model{
 
 
   for(i in 1:n){
@@ -581,7 +581,7 @@ ll[i] <- (1-z[i])*(logdensity.exp(y[i],mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-m
 
 
 
-IGauss1b <- "model{
+  IGauss1b <- "model{
 
 
   for(i in 1:n){
@@ -647,7 +647,7 @@ IGauss1b <- "model{
 }"
 
 
-IGaussb <- "model{
+  IGaussb <- "model{
 
 
   for(i in 1:n){
@@ -703,7 +703,7 @@ IGaussb <- "model{
 
 }"
 
-Gaussian1b <- "model{
+  Gaussian1b <- "model{
 
 
   for(i in 1:n){
@@ -763,7 +763,7 @@ ll[i] <- (1-z[i])*(logdensity.norm(y[i], mu[i],tau))+z[i]*log(muz[i])+
 }"
 
 
-Gaussianb <- "model{
+  Gaussianb <- "model{
 
 
   for(i in 1:n){
@@ -826,7 +826,7 @@ Gaussianb <- "model{
 
 
 
-logarb <- "model{
+  logarb <- "model{
 
 
   for(i in 1:n){
@@ -884,7 +884,7 @@ logarb <- "model{
 
 
 
-logar1b <- "model{
+  logar1b <- "model{
 
 
   for(i in 1:n){
@@ -942,7 +942,7 @@ logar1b <- "model{
 
 
 
-binomial1b <- "model{
+  binomial1b <- "model{
 
 m<-max(y)
   for(i in 1:n){
@@ -1001,7 +1001,7 @@ ll[i]<-(1-z[i])*(loggam(m+1)-loggam(y[i]+1)-loggam(m-y[i]+1)+y[i]*log(pi[i])+(m-
 }"
 
 
-binomialb <- "model{
+  binomialb <- "model{
 
 m<-max(y)
   for(i in 1:n){
@@ -1058,8 +1058,8 @@ m<-max(y)
 
 }"
 
-###########
-NB1b <- "model{
+  ###########
+  NB1b <- "model{
 
 
   for(i in 1:n){
@@ -1118,7 +1118,7 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 }"
 
 
-Poisson1b <- "model{
+  Poisson1b <- "model{
 
 
   for(i in 1:n){
@@ -1175,7 +1175,7 @@ Poisson1b <- "model{
 
 }"
 
-GP1b <- "model{
+  GP1b <- "model{
 
 
   for(i in 1:n){
@@ -1232,7 +1232,7 @@ GP1b <- "model{
 }"
 
 
-NBb <- "model{
+  NBb <- "model{
 
 
   for(i in 1:n){
@@ -1288,7 +1288,7 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 }"
 
 
-Poissonb <- "model{
+  Poissonb <- "model{
 
 
   for(i in 1:n){
@@ -1349,7 +1349,7 @@ Poissonb <- "model{
 
 }"
 
-GPb <- "model{
+  GPb <- "model{
 
 
   for(i in 1:n){
@@ -1404,7 +1404,7 @@ GPb <- "model{
 
 }"
 
-Bell1b <- "model{
+  Bell1b <- "model{
 
 
   for(i in 1:n){
@@ -1459,7 +1459,7 @@ Bell1b <- "model{
 }"
 
 
-Bellb <- "model{
+  Bellb <- "model{
 
 
   for(i in 1:n){
@@ -1520,7 +1520,7 @@ Bellb <- "model{
 
 
 
-Bell1wcb <- "model{
+  Bell1wcb <- "model{
 
 
   for(i in 1:n){
@@ -1575,7 +1575,7 @@ Bell1wcb <- "model{
 }"
 
 
-Bellwcb <- "model{
+  Bellwcb <- "model{
 
 
   for(i in 1:n){
@@ -1629,966 +1629,945 @@ Bellwcb <- "model{
 
 }"
 
-############################
-tmp <- dataSurv[all.vars(formSurv)]
-Time <- tmp[all.vars(formSurv)][, 1] # matrix of observed time such as Time=min(Tevent,Tcens)
-death <- tmp[all.vars(formSurv)][, 2] # vector of event indicator (delta)
-nTime <- length(Time) # number of subject having Time
-# design matrice
-mfZ <- stats::model.frame(formSurv, data = tmp)
-XS <- stats::model.matrix(formSurv, mfZ)[, -1]
-########  Gauss-Legendre quadrature (15 points)  ########
-K=15
-glq <- statmod::gauss.quad(K, kind = "legendre")
-xk <- glq$nodes # Nodes
-wk <- glq$weights # Weights
-K <- length(xk) # K-points
-################
+  ############################
+  tmp <- dataSurv[all.vars(formSurv)]
+  Time <- tmp[all.vars(formSurv)][, 1] # matrix of observed time such as Time=min(Tevent,Tcens)
+  death <- tmp[all.vars(formSurv)][, 2] # vector of event indicator (delta)
+  nTime <- length(Time) # number of subject having Time
+  # design matrice
+  mfZ <- stats::model.frame(formSurv, data = tmp)
+  XS <- stats::model.matrix(formSurv, mfZ)[, -1]
+  ########  Gauss-Legendre quadrature (15 points)  ########
+  K <- 15
+  glq <- statmod::gauss.quad(K, kind = "legendre")
+  xk <- glq$nodes # Nodes
+  wk <- glq$weights # Weights
+  K <- length(xk) # K-points
+  ################
 
-data_Long_s <- dataLong[dataLong$obstime <= s, ]
-data_long <- data_Long_s[unique(c(
-  all.vars(GroupY), all.vars(FixedY), all.vars(RandomY),
-  all.vars(GroupZ), all.vars(FixedZ), all.vars(RandomZ)
-))]
-y <- data_long[all.vars(FixedY)][, 1]
-mfX <- stats::model.frame(FixedY, data = data_long)
-X1 <- stats::model.matrix(FixedY, mfX)
-mfU <- stats::model.frame(RandomY, data = data_long)
-Z1 <- stats::model.matrix(RandomY, mfU)
-#id_prim <- as.integer(data_long[id][, 1])
+  data_Long_s <- dataLong[dataLong$obstime <= s, ]
+  data_long <- data_Long_s[unique(c(
+    all.vars(GroupY), all.vars(FixedY), all.vars(RandomY),
+    all.vars(GroupZ), all.vars(FixedZ), all.vars(RandomZ)
+  ))]
+  y <- data_long[all.vars(FixedY)][, 1]
+  mfX <- stats::model.frame(FixedY, data = data_long)
+  X1 <- stats::model.matrix(FixedY, mfX)
+  mfU <- stats::model.frame(RandomY, data = data_long)
+  Z1 <- stats::model.matrix(RandomY, mfU)
+  # id_prim <- as.integer(data_long[id][, 1])
 
-id <- as.integer(data_long[all.vars(GroupY)][, 1])
+  id <- as.integer(data_long[all.vars(GroupY)][, 1])
 
-M <- table(id)
-id_prim <- rep(1:length(M), M)
+  M <- table(id)
+  id_prim <- rep(1:length(M), M)
 
-mfX2 <- stats::model.frame(FixedZ, data = data_long)
-X2 <- stats::model.matrix(FixedZ, mfX2)
-mfU2 <- stats::model.frame(RandomZ, data = data_long)
-Z2 <- stats::model.matrix(RandomZ, mfU2)
+  mfX2 <- stats::model.frame(FixedZ, data = data_long)
+  X2 <- stats::model.matrix(FixedZ, mfX2)
+  mfU2 <- stats::model.frame(RandomZ, data = data_long)
+  Z2 <- stats::model.matrix(RandomZ, mfU2)
 
-n2 <- length(unique(id_prim))
+  n2 <- length(unique(id_prim))
 
-n <- length(dataLong[, 1])
-z <- rep(0, n)
-z[y == 0] <- 1
-## Number of patients and number of longitudinal observations per patient
-n1 <- length(y)
-Nbeta1 <- dim(X1)[2]
-Nbeta2 <- dim(X2)[2]
-
-
-
-
-Obstime <- obstime
-Xvtime1 <- cbind(id_prim, X1[, colnames(X1) %in% setdiff(colnames(X1), Obstime)])
-Xv1 <- Xvtime1[!duplicated(Xvtime1), -1] ### X of data without time and id replications
-
-indB1 <- 1:dim(X1)[2]
-indtime1 <- indB1[colnames(X1) %in% Obstime] # index of time
-
-
-Xvtime2 <- cbind(id_prim, X2[, colnames(X2) %in% setdiff(colnames(X2), Obstime)])
-Xv2 <- Xvtime2[!duplicated(Xvtime2), -1] ### X of data without time and id replications
-
-indB2 <- 1:dim(X2)[2]
-indtime2 <- indB2[colnames(X2) %in% Obstime] # index of time
-
-nindtime1 <- c(1:dim(X1)[2])[-indtime1]
-nindtime2 <- c(1:dim(X2)[2])[-indtime2]
-
-
-if (family == "Beta") {
-  y[y==1]=0.9999
-
-
+  n <- length(dataLong[, 1])
+  z <- rep(0, n)
+  z[y == 0] <- 1
+  ## Number of patients and number of longitudinal observations per patient
+  n1 <- length(y)
   Nbeta1 <- dim(X1)[2]
   Nbeta2 <- dim(X2)[2]
 
 
 
-  Nb1 <- dim(Z1)[2]
-  Nb2 <- dim(Z2)[2]
-  i.jags <- function() {
-    list(
-      a=matrix(0,nTime,Nb1),b=matrix(0,nTime,Nb1)
-    )
-  }
 
-  parameters <- c("a","b")
-  #"betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phis", "h")
+  Obstime <- obstime
+  Xvtime1 <- cbind(id_prim, X1[, colnames(X1) %in% setdiff(colnames(X1), Obstime)])
+  Xv1 <- Xvtime1[!duplicated(Xvtime1), -1] ### X of data without time and id replications
 
-  betaL1=apply(object$MCMC$beta1,2,mean)
-  betaL2=apply(object$MCMC$beta2,2,mean)
-  Sigmaa=apply(object$MCMC$Sigmaa,c(2,3),mean)
-  Sigmab=apply(object$MCMC$Sigmab,c(2,3),mean)
-  gamma_pi=mean(object$MCMC$gamma_pi)
-  gamma_lambda=mean(object$MCMC$gamma_lambda)
-  phis=mean(object$MCMC$phi)
-  h=apply(object$MCMC$h,2,mean)
+  indB1 <- 1:dim(X1)[2]
+  indtime1 <- indB1[colnames(X1) %in% Obstime] # index of time
 
 
-  if (is.matrix(XS) == FALSE) {
-    model.file <- textConnection(Beta1b)
-    betaS=mean(object$MCMC$beta3)
-  }else{
-    model.file <- textConnection(Betab)
-    betaS=apply(object$MCMC$beta3,2,mean)
-  }
+  Xvtime2 <- cbind(id_prim, X2[, colnames(X2) %in% setdiff(colnames(X2), Obstime)])
+  Xv2 <- Xvtime2[!duplicated(Xvtime2), -1] ### X of data without time and id replications
 
+  indB2 <- 1:dim(X2)[2]
+  indtime2 <- indB2[colnames(X2) %in% Obstime] # index of time
 
-  d.jags <- list(
-    betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,phis=phis,
-    h=h,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
-    indtime1 = indtime1, indtime2 = indtime2,
-    X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
-    Xv1 = Xv1, Xv2 = Xv2,
-    Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2),  id = id_prim,
-    XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-    s = peice, xk = xk, wk = wk, K = K
-  )
+  nindtime1 <- c(1:dim(X1)[2])[-indtime1]
+  nindtime2 <- c(1:dim(X2)[2])[-indtime2]
 
-  sim1 <- jagsUI::jags(
-    data = d.jags,
-    parameters.to.save = parameters,
-    model.file = model.file,
-    n.chains = n.chains,
-    parallel = FALSE,
-    n.adapt = FALSE,
-    n.iter = n.iter,
-    n.burnin = n.burnin,
-    n.thin = n.thin,
-    DIC = FALSE
-  )
 
+  if (family == "Beta") {
+    y[y == 1] <- 0.9999
 
 
-  a_hat=sim1$mean$a
-  b_hat=sim1$mean$b
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
 
-  a_sim=sim1$sims.list$a
-  b_sim=sim1$sims.list$b
 
-}
 
-if (family == "Gamma") {
-
-  Nbeta1 <- dim(X1)[2]
-  Nbeta2 <- dim(X2)[2]
-
-  Nb1 <- dim(Z1)[2]
-  Nb2 <- dim(Z2)[2]
-
-  i.jags <- function() {
-    list(
-      a=matrix(0,nTime,Nb1),b=matrix(0,nTime,Nb1)
-    )
-  }
-
-  parameters <- c("a","b")
-
-  betaL1=apply(object$MCMC$beta1,2,mean)
-  betaL2=apply(object$MCMC$beta2,2,mean)
-  Sigmaa=apply(object$MCMC$Sigmaa,c(2,3),mean)
-  Sigmab=apply(object$MCMC$Sigmab,c(2,3),mean)
-  gamma_pi=mean(object$MCMC$gamma_pi)
-  gamma_lambda=mean(object$MCMC$gamma_lambda)
-  sigma=mean(object$MCMC$sigma)
-  h=apply(object$MCMC$h,2,mean)
-
-
-  if (is.matrix(XS) == FALSE) {
-    model.file <- textConnection(Gamma1b)
-    betaS=mean(object$MCMC$beta3)
-  }else{
-    model.file <- textConnection(Gammab)
-    betaS=apply(object$MCMC$beta3,2,mean)
-  }
-
-
-
-
-
-
-
-
-  d.jags <- list(
-    betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
-    sigma1=1/sigma,
-    h=h,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
-    indtime1 = indtime1, indtime2 = indtime2,
-    X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
-    Xv1 = Xv1, Xv2 = Xv2,
-    Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2),   id = id_prim,
-    XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-    s = peice,   xk = xk, wk = wk, K = K
-  )
-
-  sim1 <- jagsUI::jags(
-    data = d.jags,
-    parameters.to.save = parameters,
-    model.file = model.file,
-    n.chains = n.chains,
-    parallel = FALSE,
-    n.adapt = FALSE,
-    n.iter = n.iter,
-    n.burnin = n.burnin,
-    n.thin = n.thin,
-    DIC = FALSE
-  )
-
-
-
-
-  a_hat=sim1$mean$a
-  b_hat=sim1$mean$b
-
-  a_sim=sim1$sims.list$a
-  b_sim=sim1$sims.list$b
-}
-
-####
-if (family == "Weibull") {
-
-  Nbeta1 <- dim(X1)[2]
-  Nbeta2 <- dim(X2)[2]
-
-  Nb1 <- dim(Z1)[2]
-  Nb2 <- dim(Z2)[2]
-
-  i.jags <- function() {
-    list(
-      a=matrix(0,nTime,Nb1),b=matrix(0,nTime,Nb1)
-    )
-  }
-
-  parameters <- c("a","b")
-
-  betaL1=apply(object$MCMC$beta1,2,mean)
-  betaL2=apply(object$MCMC$beta2,2,mean)
-  Sigmaa=apply(object$MCMC$Sigmaa,c(2,3),mean)
-  Sigmab=apply(object$MCMC$Sigmab,c(2,3),mean)
-  gamma_pi=mean(object$MCMC$gamma_pi)
-  gamma_lambda=mean(object$MCMC$gamma_lambda)
-  kappa=mean(object$MCMC$kappa)
-  h=apply(object$MCMC$h,2,mean)
-
-
-  if (is.matrix(XS) == FALSE) {
-    model.file <- textConnection(Weibull1b)
-    betaS=mean(object$MCMC$beta3)
-  }else{
-    model.file <- textConnection(Weibullb)
-    betaS=apply(object$MCMC$beta3,2,mean)
-  }
-
-
-  d.jags <- list(
-    betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
-    kappa=kappa,
-    h=h,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
-    indtime1 = indtime1, indtime2 = indtime2,
-    X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
-    Xv1 = Xv1, Xv2 = Xv2,
-    Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2),  id = id_prim,
-    XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-    s = peice,  xk = xk, wk = wk, K = K
-  )
-
-  sim1 <- jagsUI::jags(
-    data = d.jags,
-    parameters.to.save = parameters,
-    model.file = model.file,
-    n.chains = n.chains,
-    parallel = FALSE,
-    n.adapt = FALSE,
-    n.iter = n.iter,
-    n.burnin = n.burnin,
-    n.thin = n.thin,
-    DIC = FALSE
-  )
-
-
-  a_hat=sim1$mean$a
-  b_hat=sim1$mean$b
-
-  a_sim=sim1$sims.list$a
-  b_sim=sim1$sims.list$b
-
-}
-
-if (family == "Exponential") {
-
-  Nb1 <- dim(Z1)[2]
-  Nb2 <- dim(Z2)[2]
-
-  i.jags <- function() {
-    list(
-      a=matrix(0,nTime,Nb1),b=matrix(0,nTime,Nb1)
-    )
-  }
-
-  parameters <- c("a","b")
-
-  betaL1=apply(object$MCMC$beta1,2,mean)
-  betaL2=apply(object$MCMC$beta2,2,mean)
-  Sigmaa=apply(object$MCMC$Sigmaa,c(2,3),mean)
-  Sigmab=apply(object$MCMC$Sigmab,c(2,3),mean)
-  gamma_pi=mean(object$MCMC$gamma_pi)
-  gamma_lambda=mean(object$MCMC$gamma_lambda)
-  h=apply(object$MCMC$h,2,mean)
-
-
-  if (is.matrix(XS) == FALSE) {
-    model.file <- textConnection(Exp1b)
-    betaS=mean(object$MCMC$beta3)
-  }else{
-    model.file <- textConnection(Expb)
-    betaS=apply(object$MCMC$beta3,2,mean)
-  }
-
-
-  d.jags <- list(
-    betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
-    h=h,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
-    indtime1 = indtime1, indtime2 = indtime2,
-    X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
-    Xv1 = Xv1, Xv2 = Xv2,
-    Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2),  id = id_prim,
-    XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-    s = peice,  xk = xk, wk = wk, K = K
-  )
-
-  sim1 <- jagsUI::jags(
-    data = d.jags,
-    parameters.to.save = parameters,
-    model.file = model.file,
-    n.chains = n.chains,
-    parallel = FALSE,
-    n.adapt = FALSE,
-    n.iter = n.iter,
-    n.burnin = n.burnin,
-    n.thin = n.thin,
-    DIC = FALSE
-  )
-
-
-  a_hat=sim1$mean$a
-  b_hat=sim1$mean$b
-
-  a_sim=sim1$sims.list$a
-  b_sim=sim1$sims.list$b
-}
-
-
-
-
-
-if (family == "inverse.gaussian") {
-
-  Nb1 <- dim(Z1)[2]
-  Nb2 <- dim(Z2)[2]
-
-  i.jags <- function() {
-    list(
-      a=matrix(0,nTime,Nb1),b=matrix(0,nTime,Nb1)
-    )
-  }
-
-  parameters <- c("a","b")
-
-  betaL1=apply(object$MCMC$beta1,2,mean)
-  betaL2=apply(object$MCMC$beta2,2,mean)
-  Sigmaa=apply(object$MCMC$Sigmaa,c(2,3),mean)
-  Sigmab=apply(object$MCMC$Sigmab,c(2,3),mean)
-  gamma_pi=mean(object$MCMC$gamma_pi)
-  gamma_lambda=mean(object$MCMC$gamma_lambda)
-  h=apply(object$MCMC$h,2,mean)
-  sigma=mean(object$MCMC$sigma)
-
-
-  if (is.matrix(XS) == FALSE) {
-    model.file <- textConnection(IGauss1b)
-    betaS=mean(object$MCMC$beta3)
-  }else{
-    model.file <- textConnection(IGaussb)
-    betaS=apply(object$MCMC$beta3,2,mean)
-  }
-
-
-  d.jags <- list(
-    betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
-    h=h,lambda=1/sigma,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
-    indtime1 = indtime1, indtime2 = indtime2,
-    X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
-    Xv1 = Xv1, Xv2 = Xv2,
-    Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2),  id = id_prim,
-    XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-    s = peice,  xk = xk, wk = wk, K = K
-  )
-
-  sim1 <- jagsUI::jags(
-    data = d.jags,
-    parameters.to.save = parameters,
-    model.file = model.file,
-    n.chains = n.chains,
-    parallel = FALSE,
-    n.adapt = FALSE,
-    n.iter = n.iter,
-    n.burnin = n.burnin,
-    n.thin = n.thin,
-    DIC = FALSE
-  )
-
-  a_hat=sim1$mean$a
-  b_hat=sim1$mean$b
-
-  a_sim=sim1$sims.list$a
-  b_sim=sim1$sims.list$b
-
-
-
-
-}
-
-
-if (family == "Poisson") {
-
-  Nb1 <- dim(Z1)[2]
-  Nb2 <- dim(Z2)[2]
-
-  i.jags <- function() {
-    list(
-      a=matrix(0,nTime,Nb1),b=matrix(0,nTime,Nb1)
-    )
-  }
-
-  parameters <- c("a","b")
-
-  betaL1=apply(object$MCMC$beta1,2,mean)
-  betaL2=apply(object$MCMC$beta2,2,mean)
-  Sigmaa=apply(object$MCMC$Sigmaa,c(2,3),mean)
-  Sigmab=apply(object$MCMC$Sigmab,c(2,3),mean)
-  gamma_pi=mean(object$MCMC$gamma_pi)
-  gamma_lambda=mean(object$MCMC$gamma_lambda)
-  h=apply(object$MCMC$h,2,mean)
-
-
-  if (is.matrix(XS) == FALSE) {
-    model.file <- textConnection(Poisson1b)
-    betaS=mean(object$MCMC$beta3)
-  }else{
-    model.file <- textConnection(Poissonb)
-    betaS=apply(object$MCMC$beta3,2,mean)
-  }
-
-
-  d.jags <- list(
-    betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
-    h=h,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
-    indtime1 = indtime1, indtime2 = indtime2,
-    X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
-    Xv1 = Xv1, Xv2 = Xv2,
-    Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2),  id = id_prim,
-    XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-    s = peice,  xk = xk, wk = wk, K = K
-  )
-
-  sim1 <- jagsUI::jags(
-    data = d.jags,
-    parameters.to.save = parameters,
-    model.file = model.file,
-    n.chains = n.chains,
-    parallel = FALSE,
-    n.adapt = FALSE,
-    n.iter = n.iter,
-    n.burnin = n.burnin,
-    n.thin = n.thin,
-    DIC = FALSE
-  )
-
-  a_hat=sim1$mean$a
-  b_hat=sim1$mean$b
-
-  a_sim=sim1$sims.list$a
-  b_sim=sim1$sims.list$b
-}
-#################
-if (family == "Logarithmic") {
-  Nb1 <- dim(Z1)[2]
-  Nb2 <- dim(Z2)[2]
-
-  i.jags <- function() {
-    list(
-      a=matrix(0,nTime,Nb1),b=matrix(0,nTime,Nb1)
-    )
-  }
-
-  parameters <- c("a","b")
-
-  betaL1=apply(object$MCMC$beta1,2,mean)
-  betaL2=apply(object$MCMC$beta2,2,mean)
-  Sigmaa=apply(object$MCMC$Sigmaa,c(2,3),mean)
-  Sigmab=apply(object$MCMC$Sigmab,c(2,3),mean)
-  gamma_pi=mean(object$MCMC$gamma_pi)
-  gamma_lambda=mean(object$MCMC$gamma_lambda)
-  h=apply(object$MCMC$h,2,mean)
-
-
-  if (is.matrix(XS) == FALSE) {
-    model.file <- textConnection(Poisson1b)
-    betaS=mean(object$MCMC$beta3)
-  }else{
-    model.file <- textConnection(Poissonb)
-    betaS=apply(object$MCMC$beta3,2,mean)
-  }
-
-
-  d.jags <- list(
-    betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
-    h=h,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
-    indtime1 = indtime1, indtime2 = indtime2,
-    X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
-    Xv1 = Xv1, Xv2 = Xv2,
-    Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2),  id = id_prim,
-    XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-    s = peice,  xk = xk, wk = wk, K = K
-  )
-
-  sim1 <- jagsUI::jags(
-    data = d.jags,
-    parameters.to.save = parameters,
-    model.file = model.file,
-    n.chains = n.chains,
-    parallel = FALSE,
-    n.adapt = FALSE,
-    n.iter = n.iter,
-    n.burnin = n.burnin,
-    n.thin = n.thin,
-    DIC = FALSE
-  )
-
-
-  a_hat=sim1$mean$a
-  b_hat=sim1$mean$b
-
-  a_sim=sim1$sims.list$a
-  b_sim=sim1$sims.list$b
-}
-
-
-if (family == "binomial") {
-
-  Nb1 <- dim(Z1)[2]
-  Nb2 <- dim(Z2)[2]
-
-  i.jags <- function() {
-    list(
-      a=matrix(0,nTime,Nb1),b=matrix(0,nTime,Nb1)
-    )
-  }
-
-  parameters <- c("a","b")
-
-  betaL1=apply(object$MCMC$beta1,2,mean)
-  betaL2=apply(object$MCMC$beta2,2,mean)
-  Sigmaa=apply(object$MCMC$Sigmaa,c(2,3),mean)
-  Sigmab=apply(object$MCMC$Sigmab,c(2,3),mean)
-  gamma_pi=mean(object$MCMC$gamma_pi)
-  gamma_lambda=mean(object$MCMC$gamma_lambda)
-  h=apply(object$MCMC$h,2,mean)
-
-
-  if (is.matrix(XS) == FALSE) {
-    model.file <- textConnection(binomial1b)
-    betaS=mean(object$MCMC$beta3)
-  }else{
-    model.file <- textConnection(binomialb)
-    betaS=apply(object$MCMC$beta3,2,mean)
-  }
-
-
-  d.jags <- list(
-    betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
-    h=h,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
-    indtime1 = indtime1, indtime2 = indtime2,
-    X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
-    Xv1 = Xv1, Xv2 = Xv2,
-    Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2),  id = id_prim,
-    XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-    s = peice,  xk = xk, wk = wk, K = K
-  )
-
-  sim1 <- jagsUI::jags(
-    data = d.jags,
-    parameters.to.save = parameters,
-    model.file = model.file,
-    n.chains = n.chains,
-    parallel = FALSE,
-    n.adapt = FALSE,
-    n.iter = n.iter,
-    n.burnin = n.burnin,
-    n.thin = n.thin,
-    DIC = FALSE
-  )
-
-
-  a_hat=sim1$mean$a
-  b_hat=sim1$mean$b
-
-  a_sim=sim1$sims.list$a
-  b_sim=sim1$sims.list$b
-}
-#################
-if (family == "Bell") {
-
-
-  C <- c()
-  for (i in 1:length(y)) {
-    C[i] <- log(numbers::bell(y[i])) - lfactorial(y[i])
-  }
-
-
-  Nb1 <- dim(Z1)[2]
-  Nb2 <- dim(Z2)[2]
-
-  i.jags <- function() {
-    list(
-      a=matrix(0,nTime,Nb1),b=matrix(0,nTime,Nb1)
-    )
-  }
-
-  parameters <- c("a","b")
-
-  betaL1=apply(object$MCMC$beta1,2,mean)
-  betaL2=apply(object$MCMC$beta2,2,mean)
-  Sigmaa=apply(object$MCMC$Sigmaa,c(2,3),mean)
-  Sigmab=apply(object$MCMC$Sigmab,c(2,3),mean)
-  gamma_pi=mean(object$MCMC$gamma_pi)
-  gamma_lambda=mean(object$MCMC$gamma_lambda)
-  h=apply(object$MCMC$h,2,mean)
-
-
-  if (is.matrix(XS) == FALSE) {
-    model.file <- textConnection(Bell1b)
-    betaS=mean(object$MCMC$beta3)
-    if(is.infinite(numbers::bell(max(y)))==TRUE){
-      model.file <- textConnection(Bellwcb)
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        a = matrix(0, nTime, Nb1), b = matrix(0, nTime, Nb1)
+      )
     }
-  }else{
-    model.file <- textConnection(Bellb)
-    betaS=apply(object$MCMC$beta3,2,mean)
-    if(is.infinite(numbers::bell(max(y)))==TRUE){
-      model.file <- textConnection(Bellwcb)
+
+    parameters <- c("a", "b")
+    # "betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phis", "h")
+
+    betaL1 <- apply(object$MCMC$beta1, 2, mean)
+    betaL2 <- apply(object$MCMC$beta2, 2, mean)
+    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
+    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
+    gamma_pi <- mean(object$MCMC$gamma_pi)
+    gamma_lambda <- mean(object$MCMC$gamma_lambda)
+    phis <- mean(object$MCMC$phi)
+    h <- apply(object$MCMC$h, 2, mean)
+
+
+    if (is.matrix(XS) == FALSE) {
+      model.file <- textConnection(Beta1b)
+      betaS <- mean(object$MCMC$beta3)
+    } else {
+      model.file <- textConnection(Betab)
+      betaS <- apply(object$MCMC$beta3, 2, mean)
     }
-  }
 
 
-  d.jags <- list(
-    betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
-    h=h,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
-    indtime1 = indtime1, indtime2 = indtime2,
-    X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
-    Xv1 = Xv1, Xv2 = Xv2,
-    Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2),  id = id_prim,
-    XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-    s = peice,  xk = xk, wk = wk, K = K, C = C
-  )
-
-  sim1 <- jagsUI::jags(
-    data = d.jags,
-    parameters.to.save = parameters,
-    model.file = model.file,
-    n.chains = n.chains,
-    parallel = FALSE,
-    n.adapt = FALSE,
-    n.iter = n.iter,
-    n.burnin = n.burnin,
-    n.thin = n.thin,
-    DIC = FALSE
-  )
-
-
-  a_hat=sim1$mean$a
-  b_hat=sim1$mean$b
-
-  a_sim=sim1$sims.list$a
-  b_sim=sim1$sims.list$b
-}
-
-#########################
-if (family == "Gaussian") {
-
-  Nb1 <- dim(Z1)[2]
-  Nb2 <- dim(Z2)[2]
-
-  i.jags <- function() {
-    list(
-      a=matrix(0,nTime,Nb1),b=matrix(0,nTime,Nb1)
+    d.jags <- list(
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda, phis = phis,
+      h = h,
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, xk = xk, wk = wk, K = K
     )
-  }
 
-  parameters <- c("a","b")
-
-  betaL1=apply(object$MCMC$beta1,2,mean)
-  betaL2=apply(object$MCMC$beta2,2,mean)
-  Sigmaa=apply(object$MCMC$Sigmaa,c(2,3),mean)
-  Sigmab=apply(object$MCMC$Sigmab,c(2,3),mean)
-  gamma_pi=mean(object$MCMC$gamma_pi)
-  gamma_lambda=mean(object$MCMC$gamma_lambda)
-  h=apply(object$MCMC$h,2,mean)
-  sigma=mean(object$MCMC$sigma)
-
-  if (is.matrix(XS) == FALSE) {
-    model.file <- textConnection(Gaussian1b)
-    betaS=mean(object$MCMC$beta3)
-  }else{
-    model.file <- textConnection(Gaussianb)
-    betaS=apply(object$MCMC$beta3,2,mean)
-  }
-
-
-  d.jags <- list(
-    betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
-    h=h,tau=1/sigma,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2),
-    death = death, KF1 = 100000, KF2 = 100000,
-    indtime1 = indtime1, indtime2 = indtime2,
-    X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
-    Xv1 = Xv1, Xv2 = Xv2,
-    Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2),
-    id = id_prim,
-    XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-    s = peice,  xk = xk, wk = wk, K = K
-  )
-
-  sim1 <- jagsUI::jags(
-    data = d.jags,
-    parameters.to.save = parameters,
-    model.file = model.file,
-    n.chains = n.chains,
-    parallel = FALSE,
-    n.adapt = FALSE,
-    n.iter = n.iter,
-    n.burnin = n.burnin,
-    n.thin = n.thin,
-    DIC = FALSE
-  )
-
-
-  a_hat=sim1$mean$a
-  b_hat=sim1$mean$b
-
-  a_sim=sim1$sims.list$a
-  b_sim=sim1$sims.list$b
-}
-
-if (family == "NB") {
-
-  Nb1 <- dim(Z1)[2]
-  Nb2 <- dim(Z2)[2]
-
-  i.jags <- function() {
-    list(
-      a=matrix(0,nTime,Nb1),b=matrix(0,nTime,Nb1)
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = FALSE
     )
+
+
+
+    a_hat <- sim1$mean$a
+    b_hat <- sim1$mean$b
+
+    a_sim <- sim1$sims.list$a
+    b_sim <- sim1$sims.list$b
   }
 
-  parameters <- c("a","b")
+  if (family == "Gamma") {
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
 
-  betaL1=apply(object$MCMC$beta1,2,mean)
-  betaL2=apply(object$MCMC$beta2,2,mean)
-  Sigmaa=apply(object$MCMC$Sigmaa,c(2,3),mean)
-  Sigmab=apply(object$MCMC$Sigmab,c(2,3),mean)
-  gamma_pi=mean(object$MCMC$gamma_pi)
-  gamma_lambda=mean(object$MCMC$gamma_lambda)
-  h=apply(object$MCMC$h,2,mean)
-  r=mean(object$MCMC$r)
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+
+    i.jags <- function() {
+      list(
+        a = matrix(0, nTime, Nb1), b = matrix(0, nTime, Nb1)
+      )
+    }
+
+    parameters <- c("a", "b")
+
+    betaL1 <- apply(object$MCMC$beta1, 2, mean)
+    betaL2 <- apply(object$MCMC$beta2, 2, mean)
+    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
+    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
+    gamma_pi <- mean(object$MCMC$gamma_pi)
+    gamma_lambda <- mean(object$MCMC$gamma_lambda)
+    sigma <- mean(object$MCMC$sigma)
+    h <- apply(object$MCMC$h, 2, mean)
 
 
-  if (is.matrix(XS) == FALSE) {
-    model.file <- textConnection(NB1b)
-    betaS=mean(object$MCMC$beta3)
-  }else{
-    model.file <- textConnection(NBb)
-    betaS=apply(object$MCMC$beta3,2,mean)
-  }
+    if (is.matrix(XS) == FALSE) {
+      model.file <- textConnection(Gamma1b)
+      betaS <- mean(object$MCMC$beta3)
+    } else {
+      model.file <- textConnection(Gammab)
+      betaS <- apply(object$MCMC$beta3, 2, mean)
+    }
 
 
-  d.jags <- list(
-    betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
-    h=h,r=r,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
-    indtime1 = indtime1, indtime2 = indtime2,
-    X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
-    Xv1 = Xv1, Xv2 = Xv2,
-    Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2),  id = id_prim,
-    XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-    s = peice,  xk = xk, wk = wk, K = K
-  )
 
-  sim1 <- jagsUI::jags(
-    data = d.jags,
-    parameters.to.save = parameters,
-    model.file = model.file,
-    n.chains = n.chains,
-    parallel = FALSE,
-    n.adapt = FALSE,
-    n.iter = n.iter,
-    n.burnin = n.burnin,
-    n.thin = n.thin,
-    DIC = FALSE
-  )
 
-  a_hat=sim1$mean$a
-  b_hat=sim1$mean$b
 
-  a_sim=sim1$sims.list$a
-  b_sim=sim1$sims.list$b
-}
 
-if (family == "GP") {
-  Nb1 <- dim(Z1)[2]
-  Nb2 <- dim(Z2)[2]
 
-  i.jags <- function() {
-    list(
-      a=matrix(0,nTime,Nb1),b=matrix(0,nTime,Nb1)
+
+    d.jags <- list(
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      sigma1 = 1 / sigma,
+      h = h,
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, xk = xk, wk = wk, K = K
     )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = FALSE
+    )
+
+
+
+
+    a_hat <- sim1$mean$a
+    b_hat <- sim1$mean$b
+
+    a_sim <- sim1$sims.list$a
+    b_sim <- sim1$sims.list$b
   }
 
-  parameters <- c("a","b")
+  ####
+  if (family == "Weibull") {
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
 
-  betaL1=apply(object$MCMC$beta1,2,mean)
-  betaL2=apply(object$MCMC$beta2,2,mean)
-  Sigmaa=apply(object$MCMC$Sigmaa,c(2,3),mean)
-  Sigmab=apply(object$MCMC$Sigmab,c(2,3),mean)
-  gamma_pi=mean(object$MCMC$gamma_pi)
-  gamma_lambda=mean(object$MCMC$gamma_lambda)
-  h=apply(object$MCMC$h,2,mean)
-  phiz=mean(object$MCMC$phi)
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
 
-  if (is.matrix(XS) == FALSE) {
-    model.file <- textConnection(GP1b)
-    betaS=mean(object$MCMC$beta3)
-  }else{
-    model.file <- textConnection(GPb)
-    betaS=apply(object$MCMC$beta3,2,mean)
+    i.jags <- function() {
+      list(
+        a = matrix(0, nTime, Nb1), b = matrix(0, nTime, Nb1)
+      )
+    }
+
+    parameters <- c("a", "b")
+
+    betaL1 <- apply(object$MCMC$beta1, 2, mean)
+    betaL2 <- apply(object$MCMC$beta2, 2, mean)
+    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
+    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
+    gamma_pi <- mean(object$MCMC$gamma_pi)
+    gamma_lambda <- mean(object$MCMC$gamma_lambda)
+    kappa <- mean(object$MCMC$kappa)
+    h <- apply(object$MCMC$h, 2, mean)
+
+
+    if (is.matrix(XS) == FALSE) {
+      model.file <- textConnection(Weibull1b)
+      betaS <- mean(object$MCMC$beta3)
+    } else {
+      model.file <- textConnection(Weibullb)
+      betaS <- apply(object$MCMC$beta3, 2, mean)
+    }
+
+
+    d.jags <- list(
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      kappa = kappa,
+      h = h,
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = FALSE
+    )
+
+
+    a_hat <- sim1$mean$a
+    b_hat <- sim1$mean$b
+
+    a_sim <- sim1$sims.list$a
+    b_sim <- sim1$sims.list$b
+  }
+
+  if (family == "Exponential") {
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+
+    i.jags <- function() {
+      list(
+        a = matrix(0, nTime, Nb1), b = matrix(0, nTime, Nb1)
+      )
+    }
+
+    parameters <- c("a", "b")
+
+    betaL1 <- apply(object$MCMC$beta1, 2, mean)
+    betaL2 <- apply(object$MCMC$beta2, 2, mean)
+    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
+    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
+    gamma_pi <- mean(object$MCMC$gamma_pi)
+    gamma_lambda <- mean(object$MCMC$gamma_lambda)
+    h <- apply(object$MCMC$h, 2, mean)
+
+
+    if (is.matrix(XS) == FALSE) {
+      model.file <- textConnection(Exp1b)
+      betaS <- mean(object$MCMC$beta3)
+    } else {
+      model.file <- textConnection(Expb)
+      betaS <- apply(object$MCMC$beta3, 2, mean)
+    }
+
+
+    d.jags <- list(
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      h = h,
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = FALSE
+    )
+
+
+    a_hat <- sim1$mean$a
+    b_hat <- sim1$mean$b
+
+    a_sim <- sim1$sims.list$a
+    b_sim <- sim1$sims.list$b
   }
 
 
-  d.jags <- list(
-    betaL1=betaL1,betaL2=betaL2,betaS=betaS,Omegaa=solve(Sigmaa),Omegab=solve(Sigmab),gamma_pi=gamma_pi,gamma_lambda=gamma_lambda,
-    h=h,phiz=phiz,
-    n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s,n2), death = death, KF1 = 100000, KF2 = 100000,
-    indtime1 = indtime1, indtime2 = indtime2,
-    X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
-    Xv1 = Xv1, Xv2 = Xv2,
-    Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2),  id = id_prim,
-    XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-    s = peice,  xk = xk, wk = wk, K = K
-  )
 
-  sim1 <- jagsUI::jags(
-    data = d.jags,
-    parameters.to.save = parameters,
-    model.file = model.file,
-    n.chains = n.chains,
-    parallel = FALSE,
-    n.adapt = FALSE,
-    n.iter = n.iter,
-    n.burnin = n.burnin,
-    n.thin = n.thin,
-    DIC = FALSE
-  )
-  a_hat=sim1$mean$a
-  b_hat=sim1$mean$b
 
-  a_sim=sim1$sims.list$a
-  b_sim=sim1$sims.list$b
-}
-a=a_hat
-b=b_hat
-#######################
-################################
-############################################
-step <- function(x) {
-  z <- 0
-  if (x >= 0) (z <- 1)
-  z
-}
-inprod=function(a,b){
-  z=a%*%b
-  ;z
-}
-Alpha0=Alpha1=Surv_d=c()
-chaz=matrix(0,n2,K)
-for(k in 1:n2){
 
-  if (is.matrix(XS) == FALSE) {
-    Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
-      gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
-  }else{
-    Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
-      gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
+  if (family == "inverse.gaussian") {
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
 
+    i.jags <- function() {
+      list(
+        a = matrix(0, nTime, Nb1), b = matrix(0, nTime, Nb1)
+      )
+    }
+
+    parameters <- c("a", "b")
+
+    betaL1 <- apply(object$MCMC$beta1, 2, mean)
+    betaL2 <- apply(object$MCMC$beta2, 2, mean)
+    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
+    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
+    gamma_pi <- mean(object$MCMC$gamma_pi)
+    gamma_lambda <- mean(object$MCMC$gamma_lambda)
+    h <- apply(object$MCMC$h, 2, mean)
+    sigma <- mean(object$MCMC$sigma)
+
+
+    if (is.matrix(XS) == FALSE) {
+      model.file <- textConnection(IGauss1b)
+      betaS <- mean(object$MCMC$beta3)
+    } else {
+      model.file <- textConnection(IGaussb)
+      betaS <- apply(object$MCMC$beta3, 2, mean)
+    }
+
+
+    d.jags <- list(
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      h = h, lambda = 1 / sigma,
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = FALSE
+    )
+
+    a_hat <- sim1$mean$a
+    b_hat <- sim1$mean$b
+
+    a_sim <- sim1$sims.list$a
+    b_sim <- sim1$sims.list$b
   }
 
 
-  Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
+  if (family == "Poisson") {
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+
+    i.jags <- function() {
+      list(
+        a = matrix(0, nTime, Nb1), b = matrix(0, nTime, Nb1)
+      )
+    }
+
+    parameters <- c("a", "b")
+
+    betaL1 <- apply(object$MCMC$beta1, 2, mean)
+    betaL2 <- apply(object$MCMC$beta2, 2, mean)
+    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
+    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
+    gamma_pi <- mean(object$MCMC$gamma_pi)
+    gamma_lambda <- mean(object$MCMC$gamma_lambda)
+    h <- apply(object$MCMC$h, 2, mean)
 
 
-  xk11=wk11=c()
+    if (is.matrix(XS) == FALSE) {
+      model.file <- textConnection(Poisson1b)
+      betaS <- mean(object$MCMC$beta3)
+    } else {
+      model.file <- textConnection(Poissonb)
+      betaS <- apply(object$MCMC$beta3, 2, mean)
+    }
 
-  for(j in 1:K){
-    # Scaling Gauss-Kronrod/Legendre quadrature
-    xk11[j]<-(xk[j]+1)/2*s
-    wk11[j]<- wk[j]*s/2
-    #  Hazard function at Gauss-Kronrod/Legendre nodes
-    chaz[k,j]<-  ((h[1]*step(peice[1]-xk11[j]))+
-                    (h[2]*step(xk11[j]-peice[1])*step(peice[2]-xk11[j]))+
-                    (h[3]*step(xk11[j]-peice[2])*step(peice[3]-xk11[j]))+
-                    (h[4]*step(xk11[j]-peice[3])*step(peice[4]-xk11[j]))+
-                    (h[5]*step(xk11[j]-peice[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[j])
 
+    d.jags <- list(
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      h = h,
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = FALSE
+    )
+
+    a_hat <- sim1$mean$a
+    b_hat <- sim1$mean$b
+
+    a_sim <- sim1$sims.list$a
+    b_sim <- sim1$sims.list$b
+  }
+  #################
+  if (family == "Logarithmic") {
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+
+    i.jags <- function() {
+      list(
+        a = matrix(0, nTime, Nb1), b = matrix(0, nTime, Nb1)
+      )
+    }
+
+    parameters <- c("a", "b")
+
+    betaL1 <- apply(object$MCMC$beta1, 2, mean)
+    betaL2 <- apply(object$MCMC$beta2, 2, mean)
+    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
+    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
+    gamma_pi <- mean(object$MCMC$gamma_pi)
+    gamma_lambda <- mean(object$MCMC$gamma_lambda)
+    h <- apply(object$MCMC$h, 2, mean)
+
+
+    if (is.matrix(XS) == FALSE) {
+      model.file <- textConnection(Poisson1b)
+      betaS <- mean(object$MCMC$beta3)
+    } else {
+      model.file <- textConnection(Poissonb)
+      betaS <- apply(object$MCMC$beta3, 2, mean)
+    }
+
+
+    d.jags <- list(
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      h = h,
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = FALSE
+    )
+
+
+    a_hat <- sim1$mean$a
+    b_hat <- sim1$mean$b
+
+    a_sim <- sim1$sims.list$a
+    b_sim <- sim1$sims.list$b
   }
 
 
-  Surv_d[k]<- exp(-inprod(wk11,chaz[k,]))
-}
-########
-Surv_n=c()
-chaz=matrix(0,n2,K)
-for(k in 1:n2){
+  if (family == "binomial") {
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+
+    i.jags <- function() {
+      list(
+        a = matrix(0, nTime, Nb1), b = matrix(0, nTime, Nb1)
+      )
+    }
+
+    parameters <- c("a", "b")
+
+    betaL1 <- apply(object$MCMC$beta1, 2, mean)
+    betaL2 <- apply(object$MCMC$beta2, 2, mean)
+    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
+    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
+    gamma_pi <- mean(object$MCMC$gamma_pi)
+    gamma_lambda <- mean(object$MCMC$gamma_lambda)
+    h <- apply(object$MCMC$h, 2, mean)
 
 
-  xk11=wk11=c()
+    if (is.matrix(XS) == FALSE) {
+      model.file <- textConnection(binomial1b)
+      betaS <- mean(object$MCMC$beta3)
+    } else {
+      model.file <- textConnection(binomialb)
+      betaS <- apply(object$MCMC$beta3, 2, mean)
+    }
 
-  for(j in 1:K){
-    # Scaling Gauss-Kronrod/Legendre quadrature
-    xk11[j]<-(xk[j]+1)/2*(s+Dt)
-    wk11[j]<- wk[j]*(s+Dt)/2
-    #  Hazard function at Gauss-Kronrod/Legendre nodes
-    chaz[k,j]<-  ((h[1]*step(peice[1]-xk11[j]))+
-                    (h[2]*step(xk11[j]-peice[1])*step(peice[2]-xk11[j]))+
-                    (h[3]*step(xk11[j]-peice[2])*step(peice[3]-xk11[j]))+
-                    (h[4]*step(xk11[j]-peice[3])*step(peice[4]-xk11[j]))+
-                    (h[5]*step(xk11[j]-peice[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[j])
+
+    d.jags <- list(
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      h = h,
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = FALSE
+    )
+
+
+    a_hat <- sim1$mean$a
+    b_hat <- sim1$mean$b
+
+    a_sim <- sim1$sims.list$a
+    b_sim <- sim1$sims.list$b
+  }
+  #################
+  if (family == "Bell") {
+    C <- c()
+    for (i in 1:length(y)) {
+      C[i] <- log(numbers::bell(y[i])) - lfactorial(y[i])
+    }
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+
+    i.jags <- function() {
+      list(
+        a = matrix(0, nTime, Nb1), b = matrix(0, nTime, Nb1)
+      )
+    }
+
+    parameters <- c("a", "b")
+
+    betaL1 <- apply(object$MCMC$beta1, 2, mean)
+    betaL2 <- apply(object$MCMC$beta2, 2, mean)
+    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
+    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
+    gamma_pi <- mean(object$MCMC$gamma_pi)
+    gamma_lambda <- mean(object$MCMC$gamma_lambda)
+    h <- apply(object$MCMC$h, 2, mean)
+
+
+    if (is.matrix(XS) == FALSE) {
+      model.file <- textConnection(Bell1b)
+      betaS <- mean(object$MCMC$beta3)
+      if (is.infinite(numbers::bell(max(y))) == TRUE) {
+        model.file <- textConnection(Bellwcb)
+      }
+    } else {
+      model.file <- textConnection(Bellb)
+      betaS <- apply(object$MCMC$beta3, 2, mean)
+      if (is.infinite(numbers::bell(max(y))) == TRUE) {
+        model.file <- textConnection(Bellwcb)
+      }
+    }
+
+
+    d.jags <- list(
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      h = h,
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, xk = xk, wk = wk, K = K, C = C
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = FALSE
+    )
+
+
+    a_hat <- sim1$mean$a
+    b_hat <- sim1$mean$b
+
+    a_sim <- sim1$sims.list$a
+    b_sim <- sim1$sims.list$b
   }
 
-  Surv_n[k]<- exp(-inprod(wk11,chaz[k,]))
-}
-Surv_d[Surv_d==0]=0.000001
-DP=1-Surv_n/Surv_d
+  #########################
+  if (family == "Gaussian") {
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+
+    i.jags <- function() {
+      list(
+        a = matrix(0, nTime, Nb1), b = matrix(0, nTime, Nb1)
+      )
+    }
+
+    parameters <- c("a", "b")
+
+    betaL1 <- apply(object$MCMC$beta1, 2, mean)
+    betaL2 <- apply(object$MCMC$beta2, 2, mean)
+    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
+    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
+    gamma_pi <- mean(object$MCMC$gamma_pi)
+    gamma_lambda <- mean(object$MCMC$gamma_lambda)
+    h <- apply(object$MCMC$h, 2, mean)
+    sigma <- mean(object$MCMC$sigma)
+
+    if (is.matrix(XS) == FALSE) {
+      model.file <- textConnection(Gaussian1b)
+      betaS <- mean(object$MCMC$beta3)
+    } else {
+      model.file <- textConnection(Gaussianb)
+      betaS <- apply(object$MCMC$beta3, 2, mean)
+    }
+
+
+    d.jags <- list(
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      h = h, tau = 1 / sigma,
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2),
+      death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2),
+      id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = FALSE
+    )
+
+
+    a_hat <- sim1$mean$a
+    b_hat <- sim1$mean$b
+
+    a_sim <- sim1$sims.list$a
+    b_sim <- sim1$sims.list$b
+  }
+
+  if (family == "NB") {
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+
+    i.jags <- function() {
+      list(
+        a = matrix(0, nTime, Nb1), b = matrix(0, nTime, Nb1)
+      )
+    }
+
+    parameters <- c("a", "b")
+
+    betaL1 <- apply(object$MCMC$beta1, 2, mean)
+    betaL2 <- apply(object$MCMC$beta2, 2, mean)
+    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
+    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
+    gamma_pi <- mean(object$MCMC$gamma_pi)
+    gamma_lambda <- mean(object$MCMC$gamma_lambda)
+    h <- apply(object$MCMC$h, 2, mean)
+    r <- mean(object$MCMC$r)
+
+
+    if (is.matrix(XS) == FALSE) {
+      model.file <- textConnection(NB1b)
+      betaS <- mean(object$MCMC$beta3)
+    } else {
+      model.file <- textConnection(NBb)
+      betaS <- apply(object$MCMC$beta3, 2, mean)
+    }
+
+
+    d.jags <- list(
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      h = h, r = r,
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = FALSE
+    )
+
+    a_hat <- sim1$mean$a
+    b_hat <- sim1$mean$b
+
+    a_sim <- sim1$sims.list$a
+    b_sim <- sim1$sims.list$b
+  }
+
+  if (family == "GP") {
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+
+    i.jags <- function() {
+      list(
+        a = matrix(0, nTime, Nb1), b = matrix(0, nTime, Nb1)
+      )
+    }
+
+    parameters <- c("a", "b")
+
+    betaL1 <- apply(object$MCMC$beta1, 2, mean)
+    betaL2 <- apply(object$MCMC$beta2, 2, mean)
+    Sigmaa <- apply(object$MCMC$Sigmaa, c(2, 3), mean)
+    Sigmab <- apply(object$MCMC$Sigmab, c(2, 3), mean)
+    gamma_pi <- mean(object$MCMC$gamma_pi)
+    gamma_lambda <- mean(object$MCMC$gamma_lambda)
+    h <- apply(object$MCMC$h, 2, mean)
+    phiz <- mean(object$MCMC$phi)
+
+    if (is.matrix(XS) == FALSE) {
+      model.file <- textConnection(GP1b)
+      betaS <- mean(object$MCMC$beta3)
+    } else {
+      model.file <- textConnection(GPb)
+      betaS <- apply(object$MCMC$beta3, 2, mean)
+    }
+
+
+    d.jags <- list(
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      h = h, phiz = phiz,
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = FALSE
+    )
+    a_hat <- sim1$mean$a
+    b_hat <- sim1$mean$b
+
+    a_sim <- sim1$sims.list$a
+    b_sim <- sim1$sims.list$b
+  }
+  a <- a_hat
+  b <- b_hat
+  #######################
+  ################################
+  ############################################
+  step <- function(x) {
+    z <- 0
+    if (x >= 0) (z <- 1)
+    z
+  }
+  inprod <- function(a, b) {
+    z <- a %*% b
+    z
+  }
+  Alpha0 <- Alpha1 <- Surv_d <- c()
+  chaz <- matrix(0, n2, K)
+  for (k in 1:n2) {
+    if (is.matrix(XS) == FALSE) {
+      Alpha0[k] <- betaS * XS[k] + gamma_lambda * (inprod(betaL1[nindtime1], Xv1[k, ]) + a[k, 1]) +
+        gamma_pi * (inprod(betaL2[nindtime2], Xv2[k, ]) + b[k, 1])
+    } else {
+      Alpha0[k] <- inprod(betaS[], XS[k, ]) + gamma_lambda * (inprod(betaL1[nindtime1], Xv1[k, ]) + a[k, 1]) +
+        gamma_pi * (inprod(betaL2[nindtime2], Xv2[k, ]) + b[k, 1])
+    }
+
+
+    Alpha1[k] <- gamma_lambda * (betaL1[indtime1] + a[k, 2]) + gamma_pi * (betaL2[indtime2] + b[k, 2])
+
+
+    xk11 <- wk11 <- c()
+
+    for (j in 1:K) {
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[j] <- (xk[j] + 1) / 2 * s
+      wk11[j] <- wk[j] * s / 2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k, j] <- ((h[1] * step(peice[1] - xk11[j])) +
+        (h[2] * step(xk11[j] - peice[1]) * step(peice[2] - xk11[j])) +
+        (h[3] * step(xk11[j] - peice[2]) * step(peice[3] - xk11[j])) +
+        (h[4] * step(xk11[j] - peice[3]) * step(peice[4] - xk11[j])) +
+        (h[5] * step(xk11[j] - peice[4]))) * exp(Alpha0[k] + Alpha1[k] * xk11[j])
+    }
+
+
+    Surv_d[k] <- exp(-inprod(wk11, chaz[k, ]))
+  }
+  ########
+  Surv_n <- c()
+  chaz <- matrix(0, n2, K)
+  for (k in 1:n2) {
+    xk11 <- wk11 <- c()
+
+    for (j in 1:K) {
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[j] <- (xk[j] + 1) / 2 * (s + Dt)
+      wk11[j] <- wk[j] * (s + Dt) / 2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k, j] <- ((h[1] * step(peice[1] - xk11[j])) +
+        (h[2] * step(xk11[j] - peice[1]) * step(peice[2] - xk11[j])) +
+        (h[3] * step(xk11[j] - peice[2]) * step(peice[3] - xk11[j])) +
+        (h[4] * step(xk11[j] - peice[3]) * step(peice[4] - xk11[j])) +
+        (h[5] * step(xk11[j] - peice[4]))) * exp(Alpha0[k] + Alpha1[k] * xk11[j])
+    }
+
+    Surv_n[k] <- exp(-inprod(wk11, chaz[k, ]))
+  }
+  Surv_d[Surv_d == 0] <- 0.000001
+  DP <- 1 - Surv_n / Surv_d
   #####################
   DP_last <- cbind(unique(id), DP)
   colnames(DP_last) <- c("id", "est")

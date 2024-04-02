@@ -63,7 +63,7 @@ ZIJMCV <- function(FixedY, RandomY, GroupY, FixedZ, RandomZ, GroupZ, formSurv, d
   X1 <- stats::model.matrix(FixedY, mfX)
   mfU <- stats::model.frame(RandomY, data = data_long)
   Z1 <- stats::model.matrix(RandomY, mfU)
-  #id_prim <- as.integer(data_long[id][, 1])
+  # id_prim <- as.integer(data_long[id][, 1])
 
   id <- as.integer(data_long[all.vars(GroupY)][, 1])
 
@@ -130,6 +130,8 @@ ZIJMCV <- function(FixedY, RandomY, GroupY, FixedZ, RandomZ, GroupZ, formSurv, d
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -152,6 +154,11 @@ ll[i] <- (1-z[i])*(logdensity.beta(y[i],as[i], bs[i]))+z[i]*log(muz[i])+(1-z[i])
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+      cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+
+
+
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -217,10 +224,12 @@ gamma_pi~dnorm(0,0.001)
 
 
 
-Beta <- "model{
+  Beta <- "model{
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -243,6 +252,8 @@ ll[i] <- (1-z[i])*(logdensity.beta(y[i],as[i], bs[i]))+z[i]*log(muz[i])+(1-z[i])
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -313,6 +324,8 @@ for(l in 1:NbetaS){
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -333,6 +346,8 @@ ll[i] <- (1-z[i])*(logdensity.gamma(y[i],sigma1, mu1[i]))+z[i]*log(muz[i])+(1-z[
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -399,10 +414,12 @@ gamma_pi~dnorm(0,0.001)
 
 
 
-Gamma <- "model{
+  Gamma <- "model{
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -422,6 +439,8 @@ ll[i] <- (1-z[i])*(logdensity.gamma(y[i],sigma1, mu1[i]))+z[i]*log(muz[i])+(1-z[
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -493,6 +512,8 @@ for(l in 1:NbetaS){
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -514,6 +535,8 @@ for(l in 1:NbetaS){
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -579,10 +602,12 @@ gamma_pi~dnorm(0,0.001)
 
 
 
-Weibull <- "model{
+  Weibull <- "model{
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -600,6 +625,8 @@ Weibull <- "model{
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -672,6 +699,8 @@ for(l in 1:NbetaS){
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -690,6 +719,8 @@ ll[i] <- (1-z[i])*(logdensity.exp(y[i],mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-m
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -754,10 +785,12 @@ gamma_pi~dnorm(0,0.001)
 }"
 
 
-Exp <- "model{
+  Exp <- "model{
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -776,6 +809,8 @@ ll[i] <- (1-z[i])*(logdensity.exp(y[i],mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-m
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -845,6 +880,8 @@ for(l in 1:NbetaS){
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -870,6 +907,8 @@ for(l in 1:NbetaS){
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -934,10 +973,12 @@ gamma_pi~dnorm(0,0.001)
 }"
 
 
-IGauss <- "model{
+  IGauss <- "model{
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -957,6 +998,8 @@ IGauss <- "model{
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -1024,6 +1067,8 @@ for(l in 1:NbetaS){
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -1042,6 +1087,8 @@ ll[i] <- (1-z[i])*(logdensity.norm(y[i], mu[i],tau))+z[i]*log(muz[i])+
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -1106,10 +1153,12 @@ sigma<-1/tau
 }"
 
 
-Gaussian <- "model{
+  Gaussian <- "model{
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -1128,6 +1177,8 @@ Gaussian <- "model{
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -1199,6 +1250,8 @@ sigma<-1/tau
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -1216,6 +1269,8 @@ sigma<-1/tau
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -1278,10 +1333,12 @@ for(l in 1:NbetaS){
 
 
 
-logar1 <- "model{
+  logar1 <- "model{
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -1300,6 +1357,8 @@ logar1 <- "model{
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -1361,6 +1420,8 @@ gamma_pi~dnorm(0,0.001)
 
 m<-max(y)
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -1379,6 +1440,8 @@ ll[i]<-(1-z[i])*(loggam(m+1)-loggam(y[i]+1)-loggam(m-y[i]+1)+y[i]*log(pi[i])+(m-
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -1442,6 +1505,8 @@ gamma_pi~dnorm(0,0.001)
 
 m<-max(y)
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -1458,6 +1523,8 @@ m<-max(y)
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -1522,6 +1589,8 @@ for(l in 1:NbetaS){
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -1540,6 +1609,8 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -1603,6 +1674,8 @@ gamma_pi~dnorm(0,0.001)
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -1621,6 +1694,8 @@ gamma_pi~dnorm(0,0.001)
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -1682,6 +1757,8 @@ gamma_pi~dnorm(0,0.001)
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -1699,6 +1776,8 @@ gamma_pi~dnorm(0,0.001)
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -1762,6 +1841,8 @@ gamma_pi~dnorm(0,0.001)
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -1779,6 +1860,8 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -1843,6 +1926,8 @@ for(l in 1:NbetaS){
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -1863,6 +1948,8 @@ for(l in 1:NbetaS){
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
 
@@ -1927,6 +2014,8 @@ for(l in 1:NbetaS){
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -1944,6 +2033,8 @@ for(l in 1:NbetaS){
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -2007,6 +2098,8 @@ for(l in 1:NbetaS){
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -2023,6 +2116,8 @@ for(l in 1:NbetaS){
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -2084,6 +2179,8 @@ gamma_pi~dnorm(0,0.001)
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -2103,6 +2200,8 @@ gamma_pi~dnorm(0,0.001)
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -2165,10 +2264,12 @@ for(l in 1:NbetaS){
 
 
 
-Bell1wc <- "model{
+  Bell1wc <- "model{
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -2185,6 +2286,8 @@ Bell1wc <- "model{
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -2242,10 +2345,12 @@ gamma_pi~dnorm(0,0.001)
 }"
 
 
-Bellwc <- "model{
+  Bellwc <- "model{
 
 
   for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+KF1
 
@@ -2265,6 +2370,8 @@ Bellwc <- "model{
   # Survival and censoring times
   # Hazard function
   for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
@@ -2325,9 +2432,8 @@ for(l in 1:NbetaS){
 
 
   if (is.matrix(XS) == FALSE) {
-
     if (family == "Beta") {
-      y[y==1]=0.9999
+      y[y == 1] <- 0.9999
 
       model.file <- textConnection(Beta1)
 
@@ -2347,7 +2453,7 @@ for(l in 1:NbetaS){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phis", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phis", "h")
 
 
       d.jags <- list(
@@ -2383,7 +2489,7 @@ for(l in 1:NbetaS){
         gamma_lambda = sim1$sims.list$gamma_lambda,
         gamma_pi = sim1$sims.list$gamma_pi,
         h = sim1$sims.list$h,
-        phi= sim1$sims.list$phis
+        phi = sim1$sims.list$phis
       )
 
 
@@ -2601,7 +2707,7 @@ for(l in 1:NbetaS){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
 
 
       d.jags <- list(
@@ -2637,7 +2743,7 @@ for(l in 1:NbetaS){
         gamma_lambda = sim1$sims.list$gamma_lambda,
         gamma_pi = sim1$sims.list$gamma_pi,
         h = sim1$sims.list$h,
-        sigma= sim1$sims.list$sigma
+        sigma = sim1$sims.list$sigma
       )
 
 
@@ -2853,7 +2959,7 @@ for(l in 1:NbetaS){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "kappa", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "kappa", "h")
 
 
       d.jags <- list(
@@ -2889,7 +2995,7 @@ for(l in 1:NbetaS){
         gamma_lambda = sim1$sims.list$gamma_lambda,
         gamma_pi = sim1$sims.list$gamma_pi,
         h = sim1$sims.list$h,
-        kappa= sim1$sims.list$kappa
+        kappa = sim1$sims.list$kappa
       )
 
 
@@ -3104,7 +3210,7 @@ for(l in 1:NbetaS){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
 
 
       d.jags <- list(
@@ -3342,7 +3448,7 @@ for(l in 1:NbetaS){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
 
 
       d.jags <- list(
@@ -3378,7 +3484,7 @@ for(l in 1:NbetaS){
         gamma_lambda = sim1$sims.list$gamma_lambda,
         gamma_pi = sim1$sims.list$gamma_pi,
         h = sim1$sims.list$h,
-        sigma= sim1$sims.list$sigma
+        sigma = sim1$sims.list$sigma
       )
 
 
@@ -3595,7 +3701,7 @@ for(l in 1:NbetaS){
       }
 
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
 
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
@@ -3829,7 +3935,7 @@ for(l in 1:NbetaS){
       }
 
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
 
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
@@ -4064,7 +4170,7 @@ for(l in 1:NbetaS){
       }
 
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
 
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
@@ -4298,16 +4404,16 @@ for(l in 1:NbetaS){
       }
 
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
 
       C <- c()
       for (i in 1:n) {
         C[i] <- log(numbers::bell(y[i])) - lfactorial(y[i])
       }
 
-if(is.infinite(numbers::bell(max(y)))==TRUE){
-  model.file <- textConnection(Bell1wc)
-}
+      if (is.infinite(numbers::bell(max(y))) == TRUE) {
+        model.file <- textConnection(Bell1wc)
+      }
 
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
@@ -4541,7 +4647,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
 
 
       d.jags <- list(
@@ -4579,7 +4685,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         gamma_lambda = sim1$sims.list$gamma_lambda,
         gamma_pi = sim1$sims.list$gamma_pi,
         h = sim1$sims.list$h,
-        sigma= sim1$sims.list$sigma
+        sigma = sim1$sims.list$sigma
       )
 
 
@@ -4794,7 +4900,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "r", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "r", "h")
 
 
       d.jags <- list(
@@ -4899,7 +5005,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
           colnames(sim1$q97.5$Sigmab) <-
           colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
 
-          names(sim1$mean$r) <-
+        names(sim1$mean$r) <-
           names(sim1$sd$r) <-
           names(sim1$q2.5$r) <-
           names(sim1$q97.5$r) <-
@@ -5042,7 +5148,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phiz", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phiz", "h")
 
 
       d.jags <- list(
@@ -5272,9 +5378,8 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
     }
     ### ????????
   } else {
-
     if (family == "Beta") {
-      y[y==1]=0.9999
+      y[y == 1] <- 0.9999
 
       model.file <- textConnection(Beta)
 
@@ -5295,7 +5400,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phis", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phis", "h")
 
 
       d.jags <- list(
@@ -5330,7 +5435,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         gamma_lambda = sim1$sims.list$gamma_lambda,
         gamma_pi = sim1$sims.list$gamma_pi,
         h = sim1$sims.list$h,
-        phi= sim1$sims.list$phis
+        phi = sim1$sims.list$phis
       )
 
       if (n.chains > 1) {
@@ -5500,7 +5605,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         names(sim1$mean$phis) <-
           names(sim1$sd$phis) <-
           names(sim1$q2.5$phis) <-
-          names(sim1$q97.5$phis)  <- "Dispersion"
+          names(sim1$q97.5$phis) <- "Dispersion"
 
 
         MM <- rbind(
@@ -5552,7 +5657,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
 
 
       d.jags <- list(
@@ -5586,7 +5691,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         gamma_lambda = sim1$sims.list$gamma_lambda,
         gamma_pi = sim1$sims.list$gamma_pi,
         sigma = sim1$sims.list$sigma,
-        h=sim1$sims.list$h
+        h = sim1$sims.list$h
       )
 
       if (n.chains > 1) {
@@ -5756,7 +5861,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         names(sim1$mean$sigma) <-
           names(sim1$sd$sigma) <-
           names(sim1$q2.5$sigma) <-
-          names(sim1$q97.5$sigma)  <- "Shape"
+          names(sim1$q97.5$sigma) <- "Shape"
 
 
         MM <- rbind(
@@ -5806,7 +5911,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "kappa", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "kappa", "h")
 
 
       d.jags <- list(
@@ -5840,7 +5945,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         gamma_lambda = sim1$sims.list$gamma_lambda,
         gamma_pi = sim1$sims.list$gamma_pi,
         h = sim1$sims.list$h,
-        kappa= sim1$sims.list$kappa
+        kappa = sim1$sims.list$kappa
       )
 
       if (n.chains > 1) {
@@ -6010,7 +6115,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         names(sim1$mean$kappa) <-
           names(sim1$sd$kappa) <-
           names(sim1$q2.5$kappa) <-
-          names(sim1$q97.5$kappa)  <- "Shape"
+          names(sim1$q97.5$kappa) <- "Shape"
 
 
         MM <- rbind(
@@ -6061,7 +6166,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda",  "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
 
 
       d.jags <- list(
@@ -6300,7 +6405,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
 
 
       d.jags <- list(
@@ -6334,7 +6439,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         gamma_lambda = sim1$sims.list$gamma_lambda,
         gamma_pi = sim1$sims.list$gamma_pi,
         h = sim1$sims.list$h,
-        sigma= sim1$sims.list$sigma
+        sigma = sim1$sims.list$sigma
       )
 
       if (n.chains > 1) {
@@ -6504,7 +6609,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         names(sim1$mean$sigma) <-
           names(sim1$sd$sigma) <-
           names(sim1$q2.5$sigma) <-
-          names(sim1$q97.5$sigma)  <- "Shape"
+          names(sim1$q97.5$sigma) <- "Shape"
 
 
         MM <- rbind(
@@ -6553,7 +6658,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
 
 
       d.jags <- list(
@@ -6785,7 +6890,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
 
 
       d.jags <- list(
@@ -6819,7 +6924,6 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         gamma_lambda = sim1$sims.list$gamma_lambda,
         gamma_pi = sim1$sims.list$gamma_pi,
         h = sim1$sims.list$h
-
       )
 
       if (n.chains > 1) {
@@ -7018,7 +7122,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
 
 
       d.jags <- list(
@@ -7249,7 +7353,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
         indtime1 = indtime1, indtime2 = indtime2,
@@ -7278,7 +7382,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
 
 
 
-      if(is.infinite(numbers::bell(max(y)))==TRUE){
+      if (is.infinite(numbers::bell(max(y))) == TRUE) {
         model.file <- textConnection(Bellwc)
 
 
@@ -7516,7 +7620,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
 
 
       d.jags <- list(
@@ -7720,7 +7824,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         names(sim1$mean$sigma) <-
           names(sim1$sd$sigma) <-
           names(sim1$q2.5$sigma) <-
-          names(sim1$q97.5$sigma)  <- "Variance"
+          names(sim1$q97.5$sigma) <- "Variance"
 
 
         MM <- rbind(
@@ -7769,7 +7873,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "r", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "r", "h")
 
 
       d.jags <- list(
@@ -7973,7 +8077,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         names(sim1$mean$r) <-
           names(sim1$sd$r) <-
           names(sim1$q2.5$r) <-
-          names(sim1$q97.5$r)  <- "Dispersion"
+          names(sim1$q97.5$r) <- "Dispersion"
 
 
         MM <- rbind(
@@ -8019,7 +8123,7 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
         )
       }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phiz", "h")
+      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phiz", "h")
 
 
       d.jags <- list(
@@ -8252,20 +8356,23 @@ if(is.infinite(numbers::bell(max(y)))==TRUE){
   KF1 <- 100000
   KF2 <- 100000
   DIC <- sim1$DIC - 2 * n1 * KF1 - 2 * n2 * KF2
+  LPML <- -sum(log(sim1$mean$cpoinvy)) - sum(log(sim1$mean$cpoinvt))
 
-  if(family == "Bell"){
-    if(is.infinite(numbers::bell(max(y)))==TRUE){
-    DIC="It is not possible to compute the DIC because the values of the Bell number are not finite."
-  }}
+
+
+
+  if (family == "Bell") {
+    if (is.infinite(numbers::bell(max(y))) == TRUE) {
+      DIC <- "It is not possible to compute the DIC because the values of the Bell number are not finite."
+      LPML <- "It is not possible to compute the LPML because the values of the Bell number are not finite."
+    }
+  }
 
 
   list(
-    FixedY = FixedY, FixedZ = FixedZ, formSurv = formSurv,GroupY=GroupY,GroupZ=GroupZ,
-    RandomY = RandomY, RandomZ = RandomZ,obstime=obstime, id=id, peice=peice,
+    FixedY = FixedY, FixedZ = FixedZ, formSurv = formSurv, GroupY = GroupY, GroupZ = GroupZ,
+    RandomY = RandomY, RandomZ = RandomZ, obstime = obstime, id = id, peice = peice,
     family = family, MCMC = MCMC, Estimation = results,
-    DIC = DIC
+    DIC = DIC, LPML = LPML
   )
 }
-
-
-
