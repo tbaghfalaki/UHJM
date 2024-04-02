@@ -111,6 +111,8 @@ if(length(offset)==0){
 
 
     for(i in 1:n){
+          cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
       zeros[i]~dpois(phi[i])
       phi[i]<-  - ll[i]+K
 
@@ -130,6 +132,8 @@ theta[i]<-sum(tab[i,])
     }
 
 for(k in 1:n2){
+cpoinvt[k]<- (1/(0.0001+dweib(Time[k],p,mut[k])))*death[k]+
+(1/(0.0001+1-pweib(surt.cen[k],p,mut[k])))*(1-death[k])
     Time[k] ~ dweib(p,mut[k])
     is.censored[k]~dinterval(Time[k],surt.cen[k])
     log(mut[k])<-inprod(betaS[],XS[k,])+inprod(gamma[],b[k,])
@@ -163,6 +167,7 @@ Bellwc_mean <- "model{
 
 
     for(i in 1:n){
+    cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
       zeros[i]~dpois(phi[i])
       phi[i]<-  - ll[i]+K
 
@@ -182,6 +187,9 @@ theta[i]<-sum(tab[i,])
     }
 
 for(k in 1:n2){
+cpoinvt[k]<- (1/(0.0001+dweib(Time[k],p,mut[k])))*death[k]+
+(1/(0.0001+1-pweib(surt.cen[k],p,mut[k])))*(1-death[k])
+
     Time[k] ~ dweib(p,mut[k])
     is.censored[k]~dinterval(Time[k],surt.cen[k])
     log(mut[k])<-inprod(betaS[],XS[k,])+inprod(gamma[],b[k,])
@@ -218,6 +226,7 @@ gamma[k]~dnorm(0,0.001)
   NB <- "model{
 
   for(i in 1:n){
+  cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
     zeros[i]~dpois(phi[i])
     phi[i]<-  - ll[i]+K
 
@@ -229,6 +238,10 @@ gamma[k]~dnorm(0,0.001)
   }
     #####
    for(k in 1:n2){
+   cpoinvt[k]<- (1/(0.0001+dweib(Time[k],p,mut[k])))*death[k]+
+(1/(0.0001+1-pweib(surt.cen[k],p,mut[k])))*(1-death[k])
+
+
     Time[k] ~ dweib(p,mut[k])
     is.censored[k]~dinterval(Time[k],surt.cen[k])
     log(mut[k])<-inprod(betaS[],XS[k,])+inprod(gamma[],b[k,])
@@ -263,6 +276,7 @@ Poisson <- "model{
 
 
     for(i in 1:n){
+    cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
       zeros[i]~dpois(phi[i])
       phi[i]<-  - ll[i]+K
 
@@ -277,6 +291,8 @@ Poisson <- "model{
     }
 
 for(k in 1:n2){
+cpoinvt[k]<- (1/(0.0001+dweib(Time[k],p,mut[k])))*death[k]+
+(1/(0.0001+1-pweib(surt.cen[k],p,mut[k])))*(1-death[k])
     Time[k] ~ dweib(p,mut[k])
     is.censored[k]~dinterval(Time[k],surt.cen[k])
     log(mut[k])<-inprod(betaS[],XS[k,])+inprod(gamma[],b[k,])
@@ -311,6 +327,7 @@ Bell <- "model{
 
 
     for(i in 1:n){
+    cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
       zeros[i]~dpois(phi[i])
       phi[i]<-  - ll[i]+K
 
@@ -324,6 +341,9 @@ Bell <- "model{
     }
 
 for(k in 1:n2){
+cpoinvt[k]<- (1/(0.0001+dweib(Time[k],p,mut[k])))*death[k]+
+(1/(0.0001+1-pweib(surt.cen[k],p,mut[k])))*(1-death[k])
+
     Time[k] ~ dweib(p,mut[k])
     is.censored[k]~dinterval(Time[k],surt.cen[k])
     log(mut[k])<-inprod(betaS[],XS[k,])+inprod(gamma[],b[k,])
@@ -357,6 +377,7 @@ Bellwc <- "model{
 
 
     for(i in 1:n){
+    cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
       zeros[i]~dpois(phi[i])
       phi[i]<-  - ll[i]+K
 
@@ -370,6 +391,9 @@ Bellwc <- "model{
     }
 
 for(k in 1:n2){
+cpoinvt[k]<- (1/(0.0001+dweib(Time[k],p,mut[k])))*death[k]+
+(1/(0.0001+1-pweib(surt.cen[k],p,mut[k])))*(1-death[k])
+
     Time[k] ~ dweib(p,mut[k])
     is.censored[k]~dinterval(Time[k],surt.cen[k])
     log(mut[k])<-inprod(betaS[],XS[k,])+inprod(gamma[],b[k,])
@@ -404,6 +428,7 @@ logar <- "model{
 
 
     for(i in 1:n){
+    cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
       zeros[i]~dpois(phi[i])
       phi[i]<-  - ll[i]+K
 
@@ -419,6 +444,9 @@ ll[i]<-(1-z[i])*(log(-1/log(1-pi[i]))+y[i]*log(pi[i])-log(y[i]))+z[i]*log(lambda
     }
 
 for(k in 1:n2){
+cpoinvt[k]<- (1/(0.0001+dweib(Time[k],p,mut[k])))*death[k]+
+(1/(0.0001+1-pweib(surt.cen[k],p,mut[k])))*(1-death[k])
+
     Time[k] ~ dweib(p,mut[k])
     is.censored[k]~dinterval(Time[k],surt.cen[k])
     log(mut[k])<-inprod(betaS[],XS[k,])+inprod(gamma[],b[k,])
@@ -454,6 +482,7 @@ binomial <- "model{
   m<-max(y)
 
     for(i in 1:n){
+    cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
       zeros[i]~dpois(phi[i])
       phi[i]<-  - ll[i]+K
 
@@ -469,6 +498,8 @@ ll[i]<-(1-z[i])*(loggam(m+1)-loggam(y[i]+1)-loggam(m-y[i]+1)+y[i]*log(pi[i])+(m-
     }
 
 for(k in 1:n2){
+cpoinvt[k]<- (1/(0.0001+dweib(Time[k],p,mut[k])))*death[k]+
+(1/(0.0001+1-pweib(surt.cen[k],p,mut[k])))*(1-death[k])
     Time[k] ~ dweib(p,mut[k])
     is.censored[k]~dinterval(Time[k],surt.cen[k])
     log(mut[k])<-inprod(betaS[],XS[k,])+inprod(gamma[],b[k,])
@@ -501,6 +532,8 @@ gamma[k]~dnorm(0,0.001)
 GP <- "model{
 
     for(i in 1:n){
+          cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
       zeros[i]~dpois(phi[i])
       phi[i]<-  - ll[i]+K
 
@@ -514,6 +547,8 @@ GP <- "model{
     }
 
 for(k in 1:n2){
+cpoinvt[k]<- (1/(0.0001+dweib(Time[k],p,mut[k])))*death[k]+
+(1/(0.0001+1-pweib(surt.cen[k],p,mut[k])))*(1-death[k])
     Time[k] ~ dweib(p,mut[k])
     is.censored[k]~dinterval(Time[k],surt.cen[k])
     log(mut[k])<-inprod(betaS[],XS[k,])+inprod(gamma[],b[k,])
@@ -546,6 +581,8 @@ gamma[k]~dnorm(0,0.001)
 Exp <- "model{
 
     for(i in 1:n){
+          cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
       zeros[i]~dpois(phi[i])
       phi[i]<-  - ll[i]+K
 
@@ -559,6 +596,8 @@ ll[i] <- (1-z[i])*(logdensity.exp(y[i],lambda[i]))+z[i]*log(pi[i])+(1-z[i])*log(
     }
 
 for(k in 1:n2){
+cpoinvt[k]<- (1/(0.0001+dweib(Time[k],p,mut[k])))*death[k]+
+(1/(0.0001+1-pweib(surt.cen[k],p,mut[k])))*(1-death[k])
     Time[k] ~ dweib(p,mut[k])
     is.censored[k]~dinterval(Time[k],surt.cen[k])
     log(mut[k])<-inprod(betaS[],XS[k,])+inprod(gamma[],b[k,])
@@ -593,6 +632,8 @@ gamma[k]~dnorm(0,0.001)
 Gamma <- "model{
 
     for(i in 1:n){
+          cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
       zeros[i]~dpois(phi[i])
       phi[i]<-  - ll[i]+K
 
@@ -606,6 +647,8 @@ Gamma <- "model{
     }
 
 for(k in 1:n2){
+cpoinvt[k]<- (1/(0.0001+dweib(Time[k],p,mut[k])))*death[k]+
+(1/(0.0001+1-pweib(surt.cen[k],p,mut[k])))*(1-death[k])
     Time[k] ~ dweib(p,mut[k])
     is.censored[k]~dinterval(Time[k],surt.cen[k])
     log(mut[k])<-inprod(betaS[],XS[k,])+inprod(gamma[],b[k,])
@@ -642,6 +685,8 @@ sigma1~dgamma(.1,.1)
 Beta <- "model{
 
     for(i in 1:n){
+          cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
       zeros[i]~dpois(phi[i])
       phi[i]<-  - ll[i]+K
 
@@ -657,6 +702,8 @@ a1[i]<-mu[i]*phi11
     }
 
 for(k in 1:n2){
+cpoinvt[k]<- (1/(0.0001+dweib(Time[k],p,mut[k])))*death[k]+
+(1/(0.0001+1-pweib(surt.cen[k],p,mut[k])))*(1-death[k])
     Time[k] ~ dweib(p,mut[k])
     is.censored[k]~dinterval(Time[k],surt.cen[k])
     log(mut[k])<-inprod(betaS[],XS[k,])+inprod(gamma[],b[k,])
@@ -691,6 +738,8 @@ gamma[k]~dnorm(0,0.001)
 Weibull <- "model{
 
     for(i in 1:n){
+          cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
       zeros[i]~dpois(phi[i])
       phi[i]<-  - ll[i]+K
 
@@ -705,6 +754,8 @@ ll[i] <- (1-z[i])*(logdensity.weib(y[i],kappa, mu[i]))+z[i]*log(muz[i])+(1-z[i])
     }
 
 for(k in 1:n2){
+cpoinvt[k]<- (1/(0.0001+dweib(Time[k],p,mut[k])))*death[k]+
+(1/(0.0001+1-pweib(surt.cen[k],p,mut[k])))*(1-death[k])
     Time[k] ~ dweib(p,mut[k])
     is.censored[k]~dinterval(Time[k],surt.cen[k])
     log(mut[k])<-inprod(betaS[],XS[k,])+inprod(gamma[],b[k,])
@@ -740,6 +791,8 @@ gamma[k]~dnorm(0,0.001)
 Gaussian <- "model{
 
     for(i in 1:n){
+          cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
       zeros[i]~dpois(phi[i])
       phi[i]<-  - ll[i]+K
 
@@ -754,6 +807,8 @@ Gaussian <- "model{
     }
 
 for(k in 1:n2){
+cpoinvt[k]<- (1/(0.0001+dweib(Time[k],p,mut[k])))*death[k]+
+(1/(0.0001+1-pweib(surt.cen[k],p,mut[k])))*(1-death[k])
     Time[k] ~ dweib(p,mut[k])
     is.censored[k]~dinterval(Time[k],surt.cen[k])
     log(mut[k])<-inprod(betaS[],XS[k,])+inprod(gamma[],b[k,])
@@ -792,6 +847,8 @@ gamma[k]~dnorm(0,0.001)
 IGauss <- "model{
 
     for(i in 1:n){
+          cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
       zeros[i]~dpois(phi[i])
       phi[i]<-  - ll[i]+K
 
@@ -805,6 +862,8 @@ IGauss <- "model{
     }
 
 for(k in 1:n2){
+cpoinvt[k]<- (1/(0.0001+dweib(Time[k],p,mut[k])))*death[k]+
+(1/(0.0001+1-pweib(surt.cen[k],p,mut[k])))*(1-death[k])
     Time[k] ~ dweib(p,mut[k])
     is.censored[k]~dinterval(Time[k],surt.cen[k])
     log(mut[k])<-inprod(betaS[],XS[k,])+inprod(gamma[],b[k,])
@@ -869,13 +928,13 @@ if (family == "Exponential") {
     )
   }
 
-  parameters <- c("betaL1", "betaL2", "betaS", "Sigma", "gamma", "p")
+  parameters <- c("betaL1", "betaL2","betaS","cpoinvy","cpoinvt", "Sigma", "gamma", "p")
 
 
   d.jags <- list(
     n = n1, zeros = rep(0, n1), n2 = n2, y = y, Time = Time, surt.cen = surt.cen, K = 100000,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-    NbetaS = NbetaS,
+    NbetaS = NbetaS,death=death,
     Nb1 = Nb1, Nb2 = Nb2, mub = rep(0, Nb1 + Nb2), V = diag(1, Nb1 + Nb2), id = id_prim,
     XS = XS
   )
@@ -1063,14 +1122,14 @@ if (family == "Beta") {
     )
   }
 
-  parameters <- c("betaL1", "betaL2", "betaS", "Sigma", "gamma", "p","phi1")
+  parameters <- c("betaL1", "betaL2","betaS","cpoinvy","cpoinvt", "Sigma", "gamma", "p","phi1")
 
   y[y==1]=0.99999
 
   d.jags <- list(
     n = n1, zeros = rep(0, n1), n2 = n2, y = y, Time = Time, surt.cen = surt.cen, K = 100000,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-    NbetaS = NbetaS,
+    NbetaS = NbetaS,death=death,
     Nb1 = Nb1, Nb2 = Nb2, mub = rep(0, Nb1 + Nb2), V = diag(1, Nb1 + Nb2), id = id_prim,
     XS = XS
   )
@@ -1266,13 +1325,13 @@ if (family == "Weibull") {
     )
   }
 
-  parameters <- c("betaL1", "betaL2", "betaS", "Sigma", "gamma", "p","kappa")
+  parameters <- c("betaL1", "betaL2","betaS","cpoinvy","cpoinvt", "Sigma", "gamma", "p","kappa")
 
 
   d.jags <- list(
     n = n1, zeros = rep(0, n1), n2 = n2, y = y, Time = Time, surt.cen = surt.cen, K = 100000,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-    NbetaS = NbetaS,
+    NbetaS = NbetaS,death=death,
     Nb1 = Nb1, Nb2 = Nb2, mub = rep(0, Nb1 + Nb2), V = diag(1, Nb1 + Nb2), id = id_prim,
     XS = XS
   )
@@ -1468,13 +1527,13 @@ if (family == "inverse.gaussian") {
     )
   }
 
-  parameters <- c("betaL1", "betaL2", "betaS", "Sigma", "gamma", "p","sigma")
+  parameters <- c("betaL1", "betaL2","betaS","cpoinvy","cpoinvt", "Sigma", "gamma", "p","sigma")
 
 
   d.jags <- list(
     n = n1, zeros = rep(0, n1), n2 = n2, y = y, Time = Time, surt.cen = surt.cen, K = 100000,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-    NbetaS = NbetaS,
+    NbetaS = NbetaS,death=death,
     Nb1 = Nb1, Nb2 = Nb2, mub = rep(0, Nb1 + Nb2), V = diag(1, Nb1 + Nb2), id = id_prim,
     XS = XS
   )
@@ -1670,13 +1729,13 @@ if (family == "Gamma") {
     )
   }
 
-  parameters <- c("betaL1", "betaL2", "betaS", "Sigma", "gamma", "p","sigma")
+  parameters <- c("betaL1", "betaL2","betaS","cpoinvy","cpoinvt", "Sigma", "gamma", "p","sigma")
 
 
   d.jags <- list(
     n = n1, zeros = rep(0, n1), n2 = n2, y = y, Time = Time, surt.cen = surt.cen, K = 100000,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-    NbetaS = NbetaS,
+    NbetaS = NbetaS,death=death,
     Nb1 = Nb1, Nb2 = Nb2, mub = rep(0, Nb1 + Nb2), V = diag(1, Nb1 + Nb2), id = id_prim,
     XS = XS
   )
@@ -1873,13 +1932,13 @@ if (family == "Gaussian") {
     )
   }
 
-  parameters <- c("betaL1", "betaL2", "betaS", "Sigma", "gamma", "p","sigma")
+  parameters <- c("betaL1", "betaL2","betaS","cpoinvy","cpoinvt", "Sigma", "gamma", "p","sigma")
 
 
   d.jags <- list(
     n = n1, zeros = rep(0, n1), n2 = n2, y = y, Time = Time, surt.cen = surt.cen, K = 100000,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-    NbetaS = NbetaS,
+    NbetaS = NbetaS,death=death,
     Nb1 = Nb1, Nb2 = Nb2, mub = rep(0, Nb1 + Nb2), V = diag(1, Nb1 + Nb2), id = id_prim,
     XS = XS
   )
@@ -2076,13 +2135,13 @@ if (family == "Poisson") {
     )
   }
 
-  parameters <- c("betaL1", "betaL2", "betaS", "Sigma", "gamma", "p")
+  parameters <- c("betaL1", "betaL2","betaS","cpoinvy","cpoinvt", "Sigma", "gamma", "p")
 
 
   d.jags <- list(
     n = n1, zeros = rep(0, n1), n2 = n2, y = y, Time = Time, surt.cen = surt.cen, K = 100000,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-    NbetaS = NbetaS,offset=offset,
+    NbetaS = NbetaS,offset=offset,death=death,
     Nb1 = Nb1, Nb2 = Nb2, mub = rep(0, Nb1 + Nb2), V = diag(1, Nb1 + Nb2), id = id_prim,
     XS = XS
   )
@@ -2262,7 +2321,7 @@ if (family == "Bell") {
     )
   }
 
-  parameters <- c("betaL1", "betaL2", "betaS", "Sigma", "gamma", "p")
+  parameters <- c("betaL1", "betaL2","betaS","cpoinvy","cpoinvt", "Sigma", "gamma", "p")
   C <- c()
   for (i in 1:n) {
     C[i] <- log(numbers::bell(y[i])) - lfactorial(y[i])
@@ -2277,7 +2336,7 @@ if (family == "Bell") {
   d.jags <- list(
     n = n1, zeros = rep(0, n1), n2 = n2, y = y, Time = Time, surt.cen = surt.cen, K = 100000,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-    NbetaS = NbetaS, C=C,offset=offset,
+    NbetaS = NbetaS, C=C,offset=offset,death=death,
     Nb1 = Nb1, Nb2 = Nb2, mub = rep(0, Nb1 + Nb2), V = diag(1, Nb1 + Nb2), id = id_prim,
     XS = XS
   )
@@ -2459,13 +2518,13 @@ if (family == "Logarithmic") {
     )
   }
 
-  parameters <- c("betaL1", "betaL2", "betaS", "Sigma", "gamma", "p")
+  parameters <- c("betaL1", "betaL2","betaS","cpoinvy","cpoinvt", "Sigma", "gamma", "p")
 
 
   d.jags <- list(
     n = n1, zeros = rep(0, n1), n2 = n2, y = y, Time = Time, surt.cen = surt.cen, K = 100000,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-    NbetaS = NbetaS,offset=offset,
+    NbetaS = NbetaS,offset=offset,death=death,
     Nb1 = Nb1, Nb2 = Nb2, mub = rep(0, Nb1 + Nb2), V = diag(1, Nb1 + Nb2), id = id_prim,
     XS = XS
   )
@@ -2646,13 +2705,13 @@ if (family == "binomial") {
     )
   }
 
-  parameters <- c("betaL1", "betaL2", "betaS", "Sigma", "gamma", "p")
+  parameters <- c("betaL1", "betaL2","betaS","cpoinvy","cpoinvt", "Sigma", "gamma", "p")
 
 
   d.jags <- list(
     n = n1, zeros = rep(0, n1), n2 = n2, y = y, Time = Time, surt.cen = surt.cen, K = 100000,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-    NbetaS = NbetaS,offset=offset,
+    NbetaS = NbetaS,offset=offset,death=death,
     Nb1 = Nb1, Nb2 = Nb2, mub = rep(0, Nb1 + Nb2), V = diag(1, Nb1 + Nb2), id = id_prim,
     XS = XS
   )
@@ -2833,13 +2892,13 @@ if (family == "NB") {
     )
   }
 
-  parameters <- c("betaL1", "betaL2", "betaS", "Sigma", "gamma", "r", "p")
+  parameters <- c("betaL1", "betaL2", "betaS", "Sigma", "gamma", "r", "p","cpoinvy","cpoinvt")
 
 
   d.jags <- list(
     n = n1, zeros = rep(0, n1), n2 = n2, y = y, Time = Time, surt.cen = surt.cen, K = 100000,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-    NbetaS = NbetaS,offset=offset,
+    NbetaS = NbetaS,offset=offset,death=death,
     Nb1 = Nb1, Nb2 = Nb2, mub = rep(0, Nb1 + Nb2), V = diag(1, Nb1 + Nb2), id = id_prim,
     XS = XS
   )
@@ -3036,13 +3095,13 @@ if (family == "GP") {
     )
   }
 
-  parameters <- c("betaL1", "betaL2", "betaS", "Sigma", "gamma", "phiz", "p")
+  parameters <- c("betaL1", "betaL2","betaS","cpoinvy","cpoinvt", "Sigma", "gamma", "phiz", "p")
 
 
   d.jags <- list(
     n = n1, zeros = rep(0, n1), n2 = n2, y = y, Time = Time, surt.cen = surt.cen, K = 100000,
     X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-    NbetaS = NbetaS,offset=offset,
+    NbetaS = NbetaS,offset=offset,death=death,
     Nb1 = Nb1, Nb2 = Nb2, mub = rep(0, Nb1 + Nb2), V = diag(1, Nb1 + Nb2), id = id_prim,
     XS = XS
   )
@@ -3224,10 +3283,16 @@ if (family == "GP") {
 
 K <- 100000
 DIC <- sim1$DIC - 2 * n * K
+LPML <- -sum(log(sim1$mean$cpoinvy))-sum(log(sim1$mean$cpoinvt))
+
+
+
 
 if (family == "Bell") {
 if(is.infinite(numbers::bell(max(y)))==TRUE){
   DIC="It is not possible to compute the DIC because the values of the Bell number are not finite."
+  LPML="It is not possible to compute the LPML because the values of the Bell number are not finite."
+
 }
 }
 
@@ -3236,6 +3301,6 @@ list(
   RandomY = RandomY, RandomZ = RandomZ,GroupY=GroupY,GroupZ=GroupZ, id=id,
   obstime=obstime,
   family = family, MCMC = MCMC, Estimation = results,
-  DIC = DIC
+  DIC = DIC,LPML=LPML
 )
 }
