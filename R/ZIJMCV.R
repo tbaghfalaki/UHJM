@@ -522,7 +522,7 @@ for(l in 1:NbetaS){
 
 
 
-      log(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      log(mu[i]) <- -(inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,]))
       logit(muz[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],1:Nb2],Z2[i,])
 
 
@@ -614,7 +614,7 @@ gamma_pi~dnorm(0,0.001)
  ll[i] <- (1-z[i])*(logdensity.weib(y[i],kappa, mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
 
 
-      log(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      log(mu[i]) <- -(inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,]))
       logit(muz[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],1:Nb2],Z2[i,])
 
 
@@ -707,7 +707,7 @@ for(l in 1:NbetaS){
 ll[i] <- (1-z[i])*(logdensity.exp(y[i],mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
 
 
-      log(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      log(mu[i]) <- -(inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,]))
       logit(muz[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],1:Nb2],Z2[i,])
 
 
@@ -798,7 +798,7 @@ ll[i] <- (1-z[i])*(logdensity.exp(y[i],mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-m
 
 
 
-      log(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      log(mu[i]) <- -(inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,]))
       logit(muz[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],1:Nb2],Z2[i,])
 
 
