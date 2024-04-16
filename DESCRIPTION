@@ -5,7 +5,8 @@ Version: 0.1.0
 Authors@R: c(
   person("Taban", "Baghfalaki", email = "t.baghfalaki@gmail.com", role =c("cre","aut"), comment = c(ORCID = "0000-0002-2100-4532")),
   person("Mojtaba", "Ganjali", email = "m-Ganjali@sbu.ac.ir", role = "aut", comment = c(ORCID = "0000-0002-8574-1750")),
-  person("Narayanaswamy", "Balakrishnan", email = "bala@mcmaster.ca", role = "aut"))
+  person("Narayanaswamy", "Balakrishnan", email = "bala@mcmaster.ca", role = "aut"),
+  person("Helene", "Jacqmin-Gadda", email = "helene.jacqmin-gadda@u-bordeaux.fr", role = "aut"))
 Maintainer: Taban Baghfalaki <t.baghfalaki@gmail.com>
 URL: https://github.com/tbaghfalaki/UHJM
 Description: Performing a Gibbs sampler for hurdle joint models involves estimating joint models for zero-inflated longitudinal measurements and time-to-event data, as well as dynamic prediction based on those joint models. This versatile package accommodates various distributional assumptions, including Gaussian, Gamma, inverse Gaussian, Weibull, exponential, beta, Poisson, negative binomial, logarithmic, Bell, generalized Poisson, and binomial. These models, as elucidated in Ganjali et al. (2024), are operationalized through two key functions: "ZIJMCV" for joint modeling with a proportional hazard sub-model and a piecewise constant baseline hazard, and "ZISRE" for joint modeling with a Weibull sub-model incorporating a shared random effects model.
