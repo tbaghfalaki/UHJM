@@ -36,24 +36,16 @@ set.seed(2)
     surv_data_nb$id %in% INDVALID
   )
 ```
-
-We are considering ten markers; therefore, we require three lists as follows: one for the fixed effects model, one for the random effects model, and another for the survival model.
+We are considering one marker; therefore, we require one fixed effects model for rate and probability, one random effects model for , and another for the survival model.
 
 ```
-formFixed <- list(
-  Y1 ~ obstime + x1 + x2, Y2 ~ obstime + x1 + x2, Y3 ~ obstime + x1 + x2,
-  Y4 ~ obstime + x1 + x2, Y5 ~ obstime + x1 + x2, Y6 ~ obstime + x1 + x2,
-  Y7 ~ obstime + x1 + x2, Y8 ~ obstime + x1 + x2, Y9 ~ obstime + x1 + x2,
-  Y10 ~ obstime + x1 + x2
-)
-formRandom <- list(
-  ~obstime, ~obstime, ~obstime, ~obstime, ~obstime, ~obstime,
-  ~obstime, ~obstime, ~obstime, ~obstime
-)
-formGroup <- list(~id, ~id, ~id, ~id, ~id, ~id, ~id, ~id, ~id, ~id)
-
-formSurv <- survival::Surv(survtime, CR) ~ w1 + x1
-
+FixedY = Y1 ~ obstime + x1 + x2
+RandomY = ~obstime
+GroupY = ~id
+FixedZ = ~ obstime + x1
+RandomZ = ~obstime
+GroupZ = ~id
+formSurv = Surv(survtime, death) ~ w1 + w2,
 ```
 
 We need to choose the model for the marker trend among "intercept," "linear," and "quadratic." For instance, if we consider a covariate $x_1$, the options are as follows:
