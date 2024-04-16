@@ -2,40 +2,39 @@ Getting Started
 ---------------
 
 ```
-library(VSJM)
+library(UHJM)
 ```
 Loading the data from the package includes both longitudinal data in long format and survival data. It's essential to ensure that the same subject (ID) is present in both datasets.
 
 ```
-data(dataLong)
-data(dataSurv)
+data(long_data_p)
+data(surv_data_p)
 ```
 
-Dividing data to 50% training data and 50% validation set:
+Dividing data to 70% training data and 30% validation set:
 
 ```
 set.seed(2)
-INDTRAIN <- sample(dataSurv$id, .5 * (dim(dataSurv)[1]))
-INDVALID <- dataSurv$id[-INDTRAIN]
+  INDTRAIN <- sample(surv_data_nb$id, 0.7 * (dim(surv_data_nb)[1]))
+  INDVALID <- surv_data_nb$id[-INDTRAIN]
+  dataLong_t <- subset(
+    long_data_nb,
+    long_data_nb$id %in% INDTRAIN
+  )
+  dataSurv_t <- subset(
+    surv_data_nb,
+    surv_data_nb$id %in% INDTRAIN
+  )
+  names(dataSurv_t)
 
-dataLong_t <- subset(
-  dataLong,
-  dataLong$id %in% INDTRAIN
-)
-
-dataSurv_t <- subset(
-  dataSurv,
-  dataSurv$id %in% INDTRAIN
-)
-names(dataSurv_t)
-dataLong_v <- subset(
-  dataLong,
-  dataLong$id %in% INDVALID
-)
-dataSurv_v <- subset(
-  dataSurv,
-  dataSurv$id %in% INDVALID
-)
+  dataLong_v <- subset(
+    long_data_nb,
+    long_data_nb$id %in% INDVALID
+  )
+  dataSurv_v <- subset(
+    surv_data_nb,
+    surv_data_nb$id %in% INDVALID
+  )
 ```
 
 We are considering ten markers; therefore, we require three lists as follows: one for the fixed effects model, one for the random effects model, and another for the survival model.
