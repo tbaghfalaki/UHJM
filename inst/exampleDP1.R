@@ -43,11 +43,11 @@ rm(list=ls())
 
 
   DPplot1(Z2,
-  s = 0.4, id_new = 498, by = 0.2, mi = 5,
+  s = 1.1, id_new = 167, by = 0.1, mi = 5,
   Marker_lab="Marker", Time_lab="Time",
   n.chains = 1, n.iter = 20, n.burnin = 10,
   dataLong = dataLong_v, dataSurv = dataSurv_v
-)
+ )
 
 
 }
