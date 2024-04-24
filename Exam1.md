@@ -363,7 +363,7 @@ DPplot1(Z2,
 ```
 
 The plot is presented 
-![](/Figures/p1.png)
+![](/p1.png)
 
 
 ##### By considering shared random effects
