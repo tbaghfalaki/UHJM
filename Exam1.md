@@ -72,23 +72,17 @@ Finally, we have to use the VS function with the following arguments:
 -  K Number of nodes and weights for calculating Gaussian quadrature
 -  family Family objects provide a convenient way to specify the details of the models. They cover various distributions like "Gaussian", "Exponential", "Weibull", "Gamma", "Beta", "inverse.gaussian", "Poisson", "NB", "Logarithmic", "Bell", "GP", and "Binomial". Specifically, "NB" and "GP" are tailored for hurdle negative binomial and hurdle generalized Poisson joint models, respectively, while the others are utilized for the corresponding models based on their names.
 
------------------
-As an example, consider the following command, where this implementation has been performed on training data using the "DS" method:
+As an example, consider the following command, where this implementation has been performed on training data:
 
 ```
-VS <- VS(formFixed, formRandom, formGroup, formSurv,
-  nmark = 10, K1 = 15, K2 = 15,
-  model = model, n.chains1 = 2, n.iter1 = 2000, n.burnin1 = 1000,
-  n.thin1 = 1, n.chains2 = 2, n.iter2 = 2000, n.burnin2 = 1000,
-  n.thin2 = 1, simplify = TRUE, Obstime = "obstime", Method = "DS", ncl = 6,
-  DIC = TRUE, quiet = FALSE, dataLong_t, dataSurv_t
-)
-```
-
-For summarizing the outputs of this function, we utilize the following function:
-
-```
-SVS <- SVS(VS)
+Z2 <- ZIJMCV(
+    FixedY = Y1 ~ obstime + x1 + x2, RandomY = ~obstime, GroupY = ~id,
+    FixedZ = ~ obstime + x1, RandomZ = ~obstime, GroupZ = ~id,
+    formSurv = Surv(survtime, death) ~ w1 + w2,
+    dataLong = dataLong_t, dataSurv = dataSurv_t,
+    obstime = "obstime", id = "id", n.chains = 2,
+    n.iter = 200, n.burnin = 100, n.thin = 1, K = 15, family = "NB"
+  )
 ```
 
 The output of the function is as follows:
