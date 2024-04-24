@@ -41,83 +41,38 @@ We are considering one marker; therefore, we require one fixed effects model for
 ```
 FixedY = Y1 ~ obstime + x1 + x2
 RandomY = ~obstime
-GroupY = ~id
+GroupY = ~ id
 FixedZ = ~ obstime + x1
 RandomZ = ~obstime
 GroupZ = ~id
 formSurv = Surv(survtime, death) ~ w1 + w2,
 ```
 
-We need to choose the model for the marker trend among "intercept," "linear," and "quadratic." For instance, if we consider a covariate $x_1$, the options are as follows:
+This versatile package supports a wide range of distributional assumptions, encompassing Gaussian, Gamma, inverse Gaussian, Weibull, exponential, beta, Poisson, negative binomial, logarithmic, Bell, generalized Poisson, and binomial distributions. Further elaboration on the model's specifics can be found in Ganjali et al. (2024).
 
-intercept:
-$Y_{ik}(t)= \beta_{0k}+\beta_{1k}t+\beta_{2k}x_{1i}+b_{0ki}+\varepsilon_{ikt}$
-
-
-linear:
-$Y_{ik}(t)= \beta_{0k}+\beta_{1k}t+\beta_{2k}x_{1i}+b_{0ki}+b_{1ki} t+\varepsilon_{ikt}$
-
-
-quadratic:
-$Y_{ik}(t)= \beta_{0k}+\beta_{1k}t+\beta_{2k}t^2+\beta_{3k}x_{1i}+b_{0ki}+b_{1ki} t+b_{1ki} t^2+\varepsilon_{ikt}$
-
-For example, for three markers, we can consider:
-```
-model <- list("intercept", "linear", "quadratic")
-```
-
-In our example, we consider all of them to be linear, as follows:
-
-```
-model <- list(
-  "linear", "linear", "linear", "linear", "linear", "linear",
-  "linear", "linear", "linear", "linear"
-)
-```
-
+These joint models are operationalized through two pivotal functions: (1) "ZIJMCV", facilitating joint modeling with a proportional hazard sub-model and a piecewise constant baseline hazard, considering associations based on the current values, and (2) "ZISRE," enabling joint modeling with a Weibull sub-model by incorporating a shared random effects model. At first, we consider the first one:
 
 Finally, we have to use the VS function with the following arguments:
 
--  formFixed a list of formulas for fixed part of longitudinal model
--  formRandom a list of formulas for random part of longitudinal model
--  formGroup a list of formulas specifying the cluster variable for Y (e.g. = list (~ subject, ~ subject,...))
+-  FixedY formula for fixed part of longitudinal count model
+-  RandomY formula for random part of longitudinal count model
+-  GroupY formula specifying the cluster variable for Y (e.g. = ~ subject)
+-  FixedZ formula for fixed part of longitudinal probability model
+-  RandomZ formula for random part of longitudinal probability model
+-  GroupZ formula specifying the cluster variable for Z (e.g. = ~ subject)
 -  formSurv formula for survival model
 -  dataLong data set of observed longitudinal variables.
 -  dataSurv data set of observed survival variables.
--  nmark the number of longitudinal markers
--  K1 Number of nodes and weights for calculating Gaussian quadrature in the first stage.
--  K2 Number of nodes and weights for calculating Gaussian quadrature in the second stage.
--  model a list of the models for the longitudinal part which includes "linear" or "quadratic".
--  Obstime the observed time in longitudinal data
--  ncl the number of nodes to be forked for parallel computing
--  Method the method for variable selection including "CS" for continues spike and "DS" for Dirac spike.
--  n.chains1 the number of parallel chains for the model in the first stage; default is 1.
--  n.iter1 integer specifying the total number of iterations in the first stage; default is 1000.
--  n.burnin1 integer specifying how many of n.iter to discard as burn-in in the first stage; default is 5000.
--  n.thin1 integer specifying the thinning of the chains in the first stage; default is 1.
--  n.chains2 the number of parallel chains for the model in the second stage; default is 1.
--  n.iter2 integer specifying the total number of iterations in the second stage; default is 1000.
--  n.burnin2 integer specifying how many of n.iter to discard as burn-in in the second stage; default is 5000.
--  n.thin2 integer specifying the thinning of the chains in the second stage; default is 1.
--  simplify Logical; the option for simplifying the use of CS and DS; default is TRUE.
--  DIC Logical; if TRUE (default), compute deviance, pD, and DIC. The rule pD=var(deviance) / 2 is used.
--  quiet Logical, whether to suppress stdout in jags.model().
+-  obstime the observed time in longitudinal data
+-  id the id variable in longitudinal data
+-  n.chains the number of parallel chains for the model; default is 1.
+-  n.iter integer specifying the total number of iterations; default is 1000.
+-  n.burnin integer specifying how many of n.iter to discard as burn-in ; default is 5000.
+-  n.thin integer specifying the thinning of the chains; default is 1.
+-  K Number of nodes and weights for calculating Gaussian quadrature
+-  family Family objects provide a convenient way to specify the details of the models. They cover various distributions like "Gaussian", "Exponential", "Weibull", "Gamma", "Beta", "inverse.gaussian", "Poisson", "NB", "Logarithmic", "Bell", "GP", and "Binomial". Specifically, "NB" and "GP" are tailored for hurdle negative binomial and hurdle generalized Poisson joint models, respectively, while the others are utilized for the corresponding models based on their names.
 
 -----------------
-This approach considers CS or DS priors as follows:
-
-DS:
-
-$\gamma_{lj} | \pi_{\gamma_{lj}},\sigma_{\gamma_{lj}}^2 \sim (1 - \pi_{\gamma_{lj}}) N(0,\sigma_{\gamma_{lj}}^2)+ \pi_{\gamma_{lj}}{\delta _0}(\gamma _{lj}), l=1,...,L, j=1,...,p^\gamma_l,$  
-
-CS:
-
-$\gamma_{lj} | \pi_{\gamma_{lj}},\sigma_{\gamma_{lj}}^2 \sim (1 - \pi_{\gamma_{lj}}) N(0,\sigma_{\gamma_{lj}}^2)+ \pi_{\gamma_{lj}}N(0,10^{-3}), l=1,...,L, j=1,...,p^\gamma_l,$  
-
-
-It is important to note that if you consider "simplify=TRUE", instead of hirarchical setup for the variance $\sigma_{\gamma_{lj}}^2$ an  inverse gamma prior with parameters (0.01,0.01) are considered for both CS and DS. 
-
-
 As an example, consider the following command, where this implementation has been performed on training data using the "DS" method:
 
 ```
