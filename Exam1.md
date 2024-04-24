@@ -235,13 +235,49 @@ $LPML
 
 Dynamic prediction
 ---------------
-###### By considering current value for the association 
+##### By considering current value for the association 
 
-For computing dynamic prediction (DP) there are different functions. The first one is computing DP based on first order approximassion with 
+To compute dynamic predictions (DP), various functions are available. 
 
-For computing DP
-- object an object inheriting from class VS function.
-- Method the method for variable selection including "LBFDR" for LBFDR and "BF" for Bayes factor.
+The initial method involves computing DP through a first-order approximation utilizing the *DP_CV* function, which requires the following arguments:
+-  object an object inheriting from class ZIJMCV
+-  dataLong data set of observed longitudinal variables.
+-  dataSurv data set of observed survival variables.
+-  s the landmark time for prediction
+-  t the window of prediction for prediction
+-  n.chains the number of parallel chains for the model; default is 1.
+-  n.iter integer specifying the total number of iterations; default is 1000.
+-  n.burnin integer specifying how many of n.iter to discard as burn-in ; default is 5000.
+-  n.thin integer specifying the thinning of the chains; default is 1.
+
+The second approach entails computing DP via an MCMC approximation, enabling the computation of credible intervals. This is achieved using the *DP_CV_CI* function, which necessitates the following arguments:
+
+-  object an object inheriting from class ZIJMCV
+-  dataLong data set of observed longitudinal variables.
+-  dataSurv data set of observed survival variables.
+-  s the landmark time for prediction
+-  t the window of prediction for prediction
+-  mi the number of multiple imputation for Monte-Carlo approximation; default is 10.
+-  n.chains the number of parallel chains for the model; default is 1.
+-  n.iter integer specifying the total number of iterations; default is 1000.
+-  n.burnin integer specifying how many of n.iter to discard as burn-in ; default is 5000.
+-  n.thin integer specifying the thinning of the chains; default is 1.
+
+The final method involves generating plots for DP using the *DPplot1* function, which requires the following arguments:
+
+-  object an object inheriting from class ZIJMCV
+-  dataLong data set of observed longitudinal variables.
+-  dataSurv data set of observed survival variables.
+-  s the landmark time for prediction
+-  id_new id number for individual who want to plot his/her DP
+-  mi the number of multiple imputation for Monte-Carlo approximation; default is 10.
+-  by number: increment of the sequence of DP.
+-  Marker_lab the label for the response axis
+-  Time_lab the label for the time axis
+-  n.chains the number of parallel chains for the model; default is 1.
+-  n.iter integer specifying the total number of iterations; default is 1000.
+-  n.burnin integer specifying how many of n.iter to discard as burn-in ; default is 5000.
+
 
 The following command is considered for this aim:
 
