@@ -279,67 +279,40 @@ The final method involves generating plots for DP using the *DPplot1* function, 
 -  n.burnin integer specifying how many of n.iter to discard as burn-in ; default is 5000.
 
 
-The following command is considered for this aim:
-
+Example: 
 ```
-Step2 <- VS2(VS,
-  Method = "LBFDR", n.chains = 2, n.iter = 2000, n.burnin = 1000,
-  n.thin = 1, dataLong = dataLong_t, dataSurv = dataSurv_t
-)
-```
-Finally, for dynamic prediction, we should utilize the *DP* function, specifying the following arguments:
-
-
-- object an object inheriting from class VS
-- object2 an object inheriting from class VS2
-- Method the method for variable selection including "LBFDR" for LBFDR and "BF" for Bayes factor.
-- s the landmark time for prediction
-- t the window of prediction for prediction
-- cause_main the main cause for prediction
-- dataLong data set of observed longitudinal variables (validation set).
-- dataSurv data set of observed survival variables (validation set).
-
-
-
-```
-DP <- DP(VS, Step2,
-  Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 3000, n.burnin = 2000,
-  n.thin = 1, cause_main = 1,
-  DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
-)
+ DD <- DP_CV(
+    object = Z2, s = 0.5, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 1000,
+    n.thin = 1, dataLong = dataLong_v, dataSurv = dataSurv_v
+  )
 ```
 
 The outputs of this function are as follows:
 
 ```
 $DP
-     id         est
-1     2 0.710044463
-2     5 0.121999798
-3     7 0.155945232
-4    10 0.059012615
-5    11 0.031432560
-6    15 0.059668201
-7    16 0.029397494
-8    18 0.104735078
-9    19 0.134540067
-10   21 0.223344760
-11   22 0.405120681
-12   24 0.009959658
+     id        est
+1     5 0.54272784
+2    10 0.36723442
+3    15 0.21209392
+4    16 0.42057850
+5    18 0.58191392
+6    19 0.93703289
+7    21 0.78147087
+8    22 0.86166804
 .
 .
 .
-243 488 0.054126771
-244 492 0.051628731
-245 493 0.089307181
-246 494 0.007899571
-247 495 0.058865561
-248 497 0.125211111
-249 498 0.045489998
-250 500 0.054972112
+144 488 0.79895668
+145 492 0.19337471
+146 493 0.08209953
+147 494 0.42388086
+148 495 0.18696540
+149 498 0.74811362
+150 500 0.66517540
 
 $s
-[1] 0.1
+[1] 0.5
 
 $t
 [1] 0.5
@@ -365,19 +338,32 @@ library(survival)
 library(DPCri)
 
 Criteria(
-  s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
-  CR = dataSurv_v$CR, P = DP$DP$est, cause = 1
+  s = 0.5, t = 0.5, Survt = dataSurv_v$survtime,
+  CR = dataSurv_v$death, P = DD$DP$est, cause = 1
 )
 ```
 with the following outputs:
 
 ```
 $Cri
-           est         sd
-AUC 0.74090038 0.05008035
-BS  0.09049356 0.01382442
+          est         sd
+AUC 0.7843750 0.05783069
+BS  0.1673699 0.02236938
 ```
 
+Additionally, for the plot, we have the following visualization for subject 167:
 
-###### By considering shared random effects
+```
+DPplot1(Z2,
+  s = 1.5, id_new = 167, by = 0.1, mi = 5,
+  Marker_lab="Marker", Time_lab="Time",
+  n.chains = 1, n.iter = 20, n.burnin = 10,
+  dataLong = dataLong_v, dataSurv = dataSurv_v
+ )
+```
+
+The plot is presented [here](/Figures/sim.md). 
+
+
+##### By considering shared random effects
 
