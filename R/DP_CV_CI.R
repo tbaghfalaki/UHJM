@@ -1645,7 +1645,7 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
   wk <- glq$weights # Weights
   K <- length(xk) # K-points
   ################
-  time_new=dataLong["obstime"]
+  time_new=dataLong[obstime]
   data_Long_s <- dataLong[time_new <= s, ]
   #data_Long_s <- dataLong[dataLong$obstime <= s, ]
   data_long <- data_Long_s[unique(c(

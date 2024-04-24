@@ -4408,7 +4408,7 @@ for(l in 1:NbetaS){
 
       C <- c()
       for (i in 1:n) {
-        C[i] <- log(numbers::bell(y[i])) - lfactorial(y[i])
+        C[i] <- log(numbers::bell(as.numeric(y[i]))) - lfactorial(y[i])
       }
 
       if (is.infinite(numbers::bell(max(y))) == TRUE) {

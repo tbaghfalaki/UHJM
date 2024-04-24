@@ -409,7 +409,7 @@ for(k in 1:n2){
   ############################
 
   ################
-  time_new=dataLong["obstime"]
+  time_new=dataLong[obstime]
   data_Long_s <- dataLong[time_new <= s, ]
   data_long <- data_Long_s[unique(c(
     all.vars(GroupY), all.vars(FixedY), all.vars(RandomY),
