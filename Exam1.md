@@ -7,8 +7,8 @@ library(UHJM)
 Loading the data from the package includes both longitudinal data in long format and survival data. It's essential to ensure that the same subject (ID) is present in both datasets.
 
 ```
-data(long_data_p)
-data(surv_data_p)
+data(long_data_nb)
+data(surv_data_nb)
 ```
 
 Dividing data to 70% training data and 30% validation set:
