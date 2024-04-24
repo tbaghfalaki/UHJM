@@ -362,7 +362,7 @@ DPplot1(Z2,
  )
 ```
 
-The plot is presented [here](/Figures/sim.md). 
+The plot is presented [here](/p1.png). 
 
 
 ##### By considering shared random effects
