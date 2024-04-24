@@ -361,7 +361,6 @@ DPplot1(Z2,
   dataLong = dataLong_v, dataSurv = dataSurv_v
  )
 ```
-![](/p1.png)
 
 
 ##### By considering shared random effects
