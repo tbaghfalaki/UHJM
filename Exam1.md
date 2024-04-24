@@ -361,10 +361,108 @@ DPplot1(Z2,
   dataLong = dataLong_v, dataSurv = dataSurv_v
  )
 ```
-
-The plot is presented 
 ![](/p1.png)
 
 
 ##### By considering shared random effects
+
+To compute dynamic predictions (DP), various functions are available. 
+
+The initial method involves computing DP through a first-order approximation utilizing the *DP_SRE* function, which requires the following arguments:
+-  object an object inheriting from class VS
+-  dataLong data set of observed longitudinal variables.
+-  dataSurv data set of observed survival variables.
+-  s the landmark time for prediction
+-  t the window of prediction for prediction
+-  n.chains the number of parallel chains for the model; default is 1.
+-  n.iter integer specifying the total number of iterations; default is 1000.
+-  n.burnin integer specifying how many of n.iter to discard as burn-in ; default is 5000.
+-  n.thin integer specifying the thinning of the chains; default is 1.
+
+The second approach entails computing DP via an MCMC approximation, enabling the computation of credible intervals. This is achieved using the *DP_SRE_CI* function, which necessitates the following arguments:
+
+-  object an object inheriting from class VS
+-  dataLong data set of observed longitudinal variables.
+-  dataSurv data set of observed survival variables.
+-  s the landmark time for prediction
+-  t the window of prediction for prediction
+-  mi the number of multiple imputation for Monte-Carlo approximation; default is 10.
+-  n.chains the number of parallel chains for the model; default is 1.
+-  n.iter integer specifying the total number of iterations; default is 1000.
+-  n.burnin integer specifying how many of n.iter to discard as burn-in ; default is 5000.
+-  n.thin integer specifying the thinning of the chains; default is 1.
+
+
+The final method involves generating plots for DP using the *DPplot2* function, which requires the following arguments:
+
+-  object an object inheriting from class ZISRE
+-  dataLong data set of observed longitudinal variables.
+-  dataSurv data set of observed survival variables.
+-  s the landmark time for prediction
+-  id_new id number for individual who want to plot his/her DP
+-  mi the number of multiple imputation for Monte-Carlo approximation; default is 10.
+-  by number: increment of the sequence of DP.
+-  Marker_lab the label for the response axis
+-  Time_lab the label for the time axis
+-  n.chains the number of parallel chains for the model; default is 1.
+-  n.iter integer specifying the total number of iterations; default is 1000.
+-  n.burnin integer specifying how many of n.iter to discard as burn-in ; default is 5000.
+
+
+Example: 
+
+```
+DD <- DP_SRE(Z1,
+    s = 0.1, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 1000,
+    n.thin = 1, dataLong = dataLong_v, dataSurv = dataSurv_v
+  )
+
+```
+with the following outputs:
+
+```
+$DP
+     id          est
+1     5 0.0108342165
+2    10 0.8862672150
+3    15 0.0315760312
+4    16 0.7846448587
+5    18 0.1739335618
+6    19 0.0342197666
+7    21 0.4936661757
+8    22 0.8842215307
+.
+.
+.
+143 481 0.1513871921
+144 488 0.5682667495
+145 492 0.1234556872
+146 493 0.3496337934
+147 494 0.1883084163
+148 495 0.6348319831
+149 498 0.6761305704
+150 500 0.6103851130
+
+$s
+[1] 0.1
+
+$t
+[1] 0.5
+```
+
+
+
+Additionally, for the plot, we have the following visualization for subject 498:
+
+```
+DPplot2(Z1,
+  s = 0.4, id_new = 498, by = 0.2, mi = 5,
+  Marker_lab="Biomarker", Time_lab="Time (week)",
+  n.chains = 1, n.iter = 20, n.burnin = 10,
+  dataLong = dataLong_v, dataSurv = dataSurv_v
+)
+```
+
+
+
 
