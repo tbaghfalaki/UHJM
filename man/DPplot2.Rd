@@ -90,12 +90,12 @@ rm(list=ls())
     dataLong = dataLong_t, dataSurv = dataSurv_t,
     obstime = "obstime", offset = NULL,
     n.chains = 2,
-    n.iter = 200, n.burnin = 100, n.thin = 1, family = "Exponential"
+    n.iter = 2000, n.burnin = 1000, n.thin = 1, family = "Exponential"
   )
 
 
   DD <- DP_SRE(Z1,
-    s = 0.1, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 500,
+    s = 0.1, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 1000,
     n.thin = 1, dataLong = dataLong_v, dataSurv = dataSurv_v
   )
 

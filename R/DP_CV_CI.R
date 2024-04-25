@@ -2511,11 +2511,18 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(Bell1b)
-      betaSs <- object$MCMC$beta3[SAMPLE]
+      betaS <- mean(object$MCMC$beta3)
+      if (is.infinite(numbers::bell(max(y))) == TRUE) {
+        model.file <- textConnection(Bellwcb)
+      }
     } else {
       model.file <- textConnection(Bellb)
-      betaSs <- object$MCMC$beta3[SAMPLE,]
+      betaS <- apply(object$MCMC$beta3, 2, mean)
+      if (is.infinite(numbers::bell(max(y))) == TRUE) {
+        model.file <- textConnection(Bellwcb)
+      }
     }
+
 
 
     a_mcmc=b_mcmc=list()
@@ -2532,11 +2539,25 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
       if (is.matrix(XS) == FALSE) {
         model.file <- textConnection(Bell1b)
-        betaS <- betaSs[ttt]
+        betaS <- mean(object$MCMC$beta3)
+        betaSs <- object$MCMC$beta3[SAMPLE]
+
+        if (is.infinite(numbers::bell(max(y))) == TRUE) {
+          model.file <- textConnection(Bellwcb)
+          betaSs <- object$MCMC$beta3[SAMPLE]
+
+        }
       } else {
         model.file <- textConnection(Bellb)
-        betaS <- betaSs[ttt,]
+        betaS <- apply(object$MCMC$beta3, 2, mean)
+        betaSs <- object$MCMC$beta3[SAMPLE,]
+
+        if (is.infinite(numbers::bell(max(y))) == TRUE) {
+          model.file <- textConnection(Bellwcb)
+        }
       }
+
+
 
 
 
@@ -2576,7 +2597,9 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
     a_mcmc[[ttt]]=a_hat
     b_mcmc[[ttt]]=b_hat
 
-  }
+    }
+
+
   }
 
   #########################
@@ -2893,10 +2916,8 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
 
   if (is.matrix(XS) == FALSE) {
-    model.file <- textConnection(NB1b)
     betaS <- betaSs[ttt]
   } else {
-    model.file <- textConnection(NBb)
     betaS <- betaSs[ttt,]
   }
   #######################
