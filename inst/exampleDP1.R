@@ -32,7 +32,7 @@ rm(list=ls())
     formSurv = Surv(survtime, death) ~ w1 + w2,
     dataLong = dataLong_t, dataSurv = dataSurv_t,
     obstime = "obstime", id = "id", n.chains = 2,
-    n.iter = 2000, n.burnin = 1000, n.thin = 1, K = 15, family = "NB"
+    n.iter = 20, n.burnin = 10, n.thin = 1, K = 15, family = "NB"
   )
 
 

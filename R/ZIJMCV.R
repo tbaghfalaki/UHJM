@@ -2431,5789 +2431,2508 @@ for(l in 1:NbetaS){
 }"
 
 
-  if (is.matrix(XS) == FALSE) {
-    if (family == "Beta") {
-      y[y == 1] <- 0.9999
-
-      model.file <- textConnection(Beta1)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(1),
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phis", "h")
-
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1,
-        beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        h = sim1$sims.list$h,
-        phi = sim1$sims.list$phis
-      )
-
-
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- "x"
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
-
 
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
 
+Beta1t <- "model{
 
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
 
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
 
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
 
-        names(sim1$mean$phis) <-
-          names(sim1$sd$phis) <-
-          names(sim1$q2.5$phis) <-
-          names(sim1$q97.5$phis) <-
-          names(sim1$Rhat$phis) <- "Dispersion"
+ll[i] <- (1-z[i])*(logdensity.beta(y[i],as[i], bs[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
 
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+    as[i]<-mu[i]*phi1
+    bs[i]<-(1-mu[i])*phi1
+      logit(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
 
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
 
 
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
-          cbind(sim1$mean$phis, sim1$sd$phis, sim1$q2.5$phis, sim1$q97.5$phis, sim1$Rhat$phis)
-        )
 
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
 
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
 
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+      cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
 
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
 
 
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
+        Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
 
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
 
 
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- "x"
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
 
 
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
 
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-        names(sim1$mean$phis) <-
-          names(sim1$sd$phis) <-
-          names(sim1$q2.5$phis) <-
-          names(sim1$q97.5$phis) <- "Dispersion"
-
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
-          cbind(sim1$mean$phis, sim1$sd$phis, sim1$q2.5$phis, sim1$q97.5$phis)
-        )
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
     }
 
 
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
 
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
 
-    if (family == "Gamma") {
-      model.file <- textConnection(Gamma1)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(1),
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
-
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1,
-        beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        h = sim1$sims.list$h,
-        sigma = sim1$sims.list$sigma
-      )
 
 
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- "x"
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
 
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
 
 
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
 
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
 
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
 
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
 
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
 
+    betaS~dnorm(0,0.001)
 
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
 
-        names(sim1$mean$sigma) <-
-          names(sim1$sd$sigma) <-
-          names(sim1$q2.5$sigma) <-
-          names(sim1$q97.5$sigma) <-
-          names(sim1$Rhat$sigma) <- "Shape"
+ phi1~dgamma(.1,.1)
+  phis<-1/phi1
 
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+}"
 
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
 
 
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
-          cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma, sim1$Rhat$sigma)
-        )
+Betat <- "model{
 
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
 
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
 
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
 
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+ll[i] <- (1-z[i])*(logdensity.beta(y[i],as[i], bs[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
 
+    as[i]<-mu[i]*phi1
+    bs[i]<-(1-mu[i])*phi1
+      logit(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
 
 
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
 
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
 
 
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- "x"
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
 
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
 
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
 
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
 
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
 
+   haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
 
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-        names(sim1$mean$sigma) <-
-          names(sim1$sd$sigma) <-
-          names(sim1$q2.5$sigma) <-
-          names(sim1$q97.5$sigma) <- "Shape"
-
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
-          cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma)
-        )
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
     }
 
 
-    if (family == "Weibull") {
-      model.file <- textConnection(Weibull1)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(1), kappa = 1,
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "kappa", "h")
-
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1,
-        beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        h = sim1$sims.list$h,
-        kappa = sim1$sims.list$kappa
-      )
-
-
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- "x"
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
 
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
 
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
 
-        names(sim1$mean$kappa) <-
-          names(sim1$sd$kappa) <-
-          names(sim1$q2.5$kappa) <-
-          names(sim1$q97.5$kappa) <-
-          names(sim1$Rhat$kappa) <- "Shape"
 
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
 
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
 
 
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
-          cbind(sim1$mean$kappa, sim1$sd$kappa, sim1$q2.5$kappa, sim1$q97.5$kappa, sim1$Rhat$kappa)
-        )
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
 
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
 
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
 
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
 
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
+for(l in 1:NbetaS){
+  betaS[l]~dnorm(0,0.001)
+  }
 
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
+ phi1~dgamma(.1,.1)
+  phis<-1/phi1
 
+}"
 
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
 
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
 
 
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- "x"
+Gamma1t <- "model{
 
 
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
 
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
 
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
 
+ll[i] <- (1-z[i])*(logdensity.gamma(y[i],sigma1, mu1[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
 
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+    mu1[i]<-sigma1/mu[i]
+      log(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
 
 
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
 
 
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
 
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
 
+        Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
 
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
 
-        names(sim1$mean$kappa) <-
-          names(sim1$sd$kappa) <-
-          names(sim1$q2.5$kappa) <-
-          names(sim1$q97.5$kappa) <- "Shape"
 
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
-          cbind(sim1$mean$kappa, sim1$sd$kappa, sim1$q2.5$kappa, sim1$q97.5$kappa)
-        )
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
 
 
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
 
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
-    }
-
-    if (family == "Exponential") {
-      model.file <- textConnection(Exp1)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(1), r = 1,
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
-
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1,
-        beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        h = sim1$sims.list$h
-      )
-
-
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- "x"
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
-
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- "x"
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
-
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
     }
 
 
-    if (family == "inverse.gaussian") {
-      model.file <- textConnection(IGauss1)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(1), r = 1,
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
-
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1,
-        beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        h = sim1$sims.list$h,
-        sigma = sim1$sims.list$sigma
-      )
-
-
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- "x"
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
 
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
 
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
 
-        names(sim1$mean$sigma) <-
-          names(sim1$sd$sigma) <-
-          names(sim1$q2.5$sigma) <-
-          names(sim1$q97.5$sigma) <-
-          names(sim1$Rhat$sigma) <- "Shape"
 
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
 
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
 
 
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
-          cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma, sim1$Rhat$sigma)
-        )
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
 
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
 
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
 
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
 
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
+    betaS~dnorm(0,0.001)
 
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
+   sigma1~dgamma(.1,.1)
+  sigma<-1/sigma1
 
 
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
+}"
 
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
 
 
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- "x"
+Gammat <- "model{
 
 
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
 
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
 
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+ll[i] <- (1-z[i])*(logdensity.gamma(y[i],sigma1, mu1[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
 
+    mu1[i]<-sigma1/mu[i]
+      log(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
 
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
 
 
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
 
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
 
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
 
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
 
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
 
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
 
-        names(sim1$mean$sigma) <-
-          names(sim1$sd$sigma) <-
-          names(sim1$q2.5$sigma) <-
-          names(sim1$q97.5$sigma) <- "Shape"
-
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
-          cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma)
-        )
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
     }
 
 
-    if (family == "Poisson") {
-      model.file <- textConnection(Poisson1)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(1),
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
 
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        h = sim1$sims.list$h
-      )
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
 
 
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
 
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
 
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
 
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- "x"
 
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
 
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
 
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
 
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
 
+for(l in 1:NbetaS){
+  betaS[l]~dnorm(0,0.001)
+  }
 
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
 
+  sigma1~dgamma(.1,.1)
+  sigma<-1/sigma1
 
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+}"
 
 
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
 
 
 
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+Weibull1t <- "model{
 
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
 
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
 
-        MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
 
 
+ ll[i] <- (1-z[i])*(logdensity.weib(y[i],kappa, mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
 
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
 
 
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+      log(mu[i]) <- -(inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,]))
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
 
 
 
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
 
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
 
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
 
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- "x"
+       Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
 
 
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
 
 
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
 
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
-    }
-    #################
-    if (family == "Logarithmic") {
-      model.file <- textConnection(logar1)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(1),
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        h = sim1$sims.list$h
-      )
-
-
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- "x"
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- "x"
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
     }
 
 
-    if (family == "binomial") {
-      model.file <- textConnection(binomial1)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(1),
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
 
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        h = sim1$sims.list$h
-      )
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
 
 
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
 
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
 
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
 
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- "x"
 
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
 
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
 
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
 
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
 
+    betaS~dnorm(0,0.001)
 
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
 
+  kappa~dgamma(.1,.1)
 
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
 
+}"
 
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
 
 
+Weibullt <- "model{
 
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
 
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
 
-        MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+ ll[i] <- (1-z[i])*(logdensity.weib(y[i],kappa, mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
 
 
+      log(mu[i]) <- -(inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,]))
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
 
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
 
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
 
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
 
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
 
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
 
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
 
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
 
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- "x"
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
-    }
-    #################
-    if (family == "Bell") {
-      model.file <- textConnection(Bell1)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(1),
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
-
-      C <- c()
-      for (i in 1:n) {
-        C[i] <- log(numbers::bell(as.numeric(y[i]))) - lfactorial(y[i])
-      }
-
-      if (is.infinite(numbers::bell(max(y))) == TRUE) {
-        model.file <- textConnection(Bell1wc)
-      }
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K, C = C
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        h = sim1$sims.list$h
-      )
-
-
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- "x"
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- "x"
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
-    }
-
-    #########################
-    if (family == "Gaussian") {
-      model.file <- textConnection(Gaussian1)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(1), r = 1,
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
-
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time,
-        death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1),
-        V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1,
-        beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        h = sim1$sims.list$h,
-        sigma = sim1$sims.list$sigma
-      )
-
-
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- "x"
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
-
-        names(sim1$mean$sigma) <-
-          names(sim1$sd$sigma) <-
-          names(sim1$q2.5$sigma) <-
-          names(sim1$q97.5$sigma) <-
-          names(sim1$Rhat$sigma) <- "Variance"
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
-          cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma, sim1$Rhat$sigma)
-        )
-
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- "x"
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-        names(sim1$mean$sigma) <-
-          names(sim1$sd$sigma) <-
-          names(sim1$q2.5$sigma) <-
-          names(sim1$q97.5$sigma) <- "Variance"
-
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
-          cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma)
-        )
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
-    }
-
-    if (family == "NB") {
-      model.file <- textConnection(NB1)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(1), r = 1,
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "r", "h")
-
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1,
-        beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        h = sim1$sims.list$h,
-        r = sim1$sims.list$r
-      )
-
-
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- "x"
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
-
-        names(sim1$mean$r) <-
-          names(sim1$sd$r) <-
-          names(sim1$q2.5$r) <-
-          names(sim1$q97.5$r) <-
-          names(sim1$Rhat$r) <- "Dispersion"
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
-          cbind(sim1$mean$r, sim1$sd$r, sim1$q2.5$r, sim1$q97.5$r, sim1$Rhat$r)
-        )
-
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- "x"
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-        names(sim1$mean$r) <-
-          names(sim1$sd$r) <-
-          names(sim1$q2.5$r) <-
-          names(sim1$q97.5$r) <- "Dispersion"
-
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
-          cbind(sim1$mean$r, sim1$sd$r, sim1$q2.5$r, sim1$q97.5$r)
-        )
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
-    }
-
-    if (family == "GP") {
-      model.file <- textConnection(GP1)
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(1), phiz = stats::rnorm(1),
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phiz", "h")
-
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        phi = sim1$sims.list$phiz,
-        h = sim1$sims.list$h
-      )
-
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- "x"
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
-          cbind(sim1$mean$phiz, sim1$sd$phiz, sim1$q2.5$phiz, sim1$q97.5$phiz, sim1$Rhat$phiz)
-        )
-
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-        names(sim1$mean$phiz) <-
-          names(sim1$sd$phiz) <-
-          names(sim1$q2.5$phiz) <-
-          names(sim1$q97.5$phiz) <-
-          names(sim1$Rhat$phiz) <- "Dispersion"
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- "x"
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
-          cbind(sim1$mean$phiz, sim1$sd$phiz, sim1$q2.5$phiz, sim1$q97.5$phiz)
-        )
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-        names(sim1$mean$phiz) <-
-          names(sim1$sd$phiz) <-
-          names(sim1$q2.5$phiz) <-
-          names(sim1$q97.5$phiz) <-
-          names(sim1$Rhat$phiz) <- "Dispersion"
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
-    }
-    ### ????????
-  } else {
-    if (family == "Beta") {
-      y[y == 1] <- 0.9999
-
-      model.file <- textConnection(Beta)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-      NbetaS <- dim(XS)[2]
-
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(NbetaS),
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phis", "h")
-
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1,
-        beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        h = sim1$sims.list$h,
-        phi = sim1$sims.list$phis
-      )
-
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- colnames(XS)
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-        names(sim1$mean$phis) <-
-          names(sim1$sd$phis) <-
-          names(sim1$q2.5$phis) <-
-          names(sim1$q97.5$phis) <-
-          names(sim1$Rhat$phis) <- "Dispersion"
-
-
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
-          cbind(sim1$mean$phis, sim1$sd$phis, sim1$q2.5$phis, sim1$q97.5$phis, sim1$Rhat$phis)
-        )
-
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- colnames(XS)
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-        names(sim1$mean$phis) <-
-          names(sim1$sd$phis) <-
-          names(sim1$q2.5$phis) <-
-          names(sim1$q97.5$phis) <- "Dispersion"
-
-
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
-          cbind(sim1$mean$phis, sim1$sd$phis, sim1$q2.5$phis, sim1$q97.5$phis)
-        )
-
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
     }
 
 
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
 
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
 
-    if (family == "Gamma") {
-      model.file <- textConnection(Gamma)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-      NbetaS <- dim(XS)[2]
-
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(NbetaS),
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
-
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        sigma = sim1$sims.list$sigma,
-        h = sim1$sims.list$h
-      )
-
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
-
 
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- colnames(XS)
 
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
 
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
 
 
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
 
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
 
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
 
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
 
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+for(l in 1:NbetaS){
+  betaS[l]~dnorm(0,0.001)
+  }
 
 
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+  kappa~dgamma(.1,.1)
 
 
+}"
 
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
 
-        names(sim1$mean$sigma) <-
-          names(sim1$sd$sigma) <-
-          names(sim1$q2.5$sigma) <-
-          names(sim1$q97.5$sigma) <-
-          names(sim1$Rhat$sigma) <- "Shape"
 
 
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
-          cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma, sim1$Rhat$sigma)
-        )
 
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+Exp1t <- "model{
 
 
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
 
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
 
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+ll[i] <- (1-z[i])*(logdensity.exp(y[i],mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
 
 
+      log(mu[i]) <- -(inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,]))
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
 
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
 
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
 
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
 
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- colnames(XS)
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
 
+    Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
 
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
 
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
 
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
 
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
 
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-        names(sim1$mean$sigma) <-
-          names(sim1$sd$sigma) <-
-          names(sim1$q2.5$sigma) <-
-          names(sim1$q97.5$sigma) <- "Shape"
-
-
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
-          cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma)
-        )
-
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
     }
 
 
-    if (family == "Weibull") {
-      model.file <- textConnection(Weibull)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-      NbetaS <- dim(XS)[2]
-
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(NbetaS), kappa = 1,
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "kappa", "h")
-
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        h = sim1$sims.list$h,
-        kappa = sim1$sims.list$kappa
-      )
-
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- colnames(XS)
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
 
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
 
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
 
 
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
 
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
 
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
 
-        names(sim1$mean$kappa) <-
-          names(sim1$sd$kappa) <-
-          names(sim1$q2.5$kappa) <-
-          names(sim1$q97.5$kappa) <-
-          names(sim1$Rhat$kappa) <- "Shape"
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
 
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
 
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
-          cbind(sim1$mean$kappa, sim1$sd$kappa, sim1$q2.5$kappa, sim1$q97.5$kappa, sim1$Rhat$kappa)
-        )
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
 
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
 
+    betaS~dnorm(0,0.001)
 
 
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
+  lambda~dgamma(.1,.1)
+  sigma<-1/lambda
 
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+}"
 
 
+Expt <- "model{
 
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
 
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
 
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
 
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- colnames(XS)
+ll[i] <- (1-z[i])*(logdensity.exp(y[i],mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
 
 
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
 
+      log(mu[i]) <- -(inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,]))
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
 
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
 
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
 
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
 
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
 
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
 
 
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
+   haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
 
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-        names(sim1$mean$kappa) <-
-          names(sim1$sd$kappa) <-
-          names(sim1$q2.5$kappa) <-
-          names(sim1$q97.5$kappa) <- "Shape"
-
-
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
-          cbind(sim1$mean$kappa, sim1$sd$kappa, sim1$q2.5$kappa, sim1$q97.5$kappa)
-        )
-
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
     }
 
 
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
 
-    if (family == "Exponential") {
-      model.file <- textConnection(Exp)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-      NbetaS <- dim(XS)[2]
-
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(NbetaS),
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
-
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        h = sim1$sims.list$h
-      )
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
 
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
 
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
 
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
 
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- colnames(XS)
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
 
 
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
 
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
 
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
 
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
 
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+for(l in 1:NbetaS){
+  betaS[l]~dnorm(0,0.001)
+  }
 
 
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+  lambda~dgamma(.1,.1)
+  sigma<-1/lambda
 
+}"
 
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
 
 
+IGauss1t <- "model{
 
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
 
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
 
 
-        MM <-
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
+ ll[i]<- (1-z[i])*(0.5*(log(lambda)-log(2*3.14)-3*log(0.000000001+y[i]))-
+ 0.5*lambda*pow((y[i]-mu[i]),2)/(pow(mu[i],2)*(0.000000001+y[i]))+log(1-muz[i]))+z[i]*log(muz[i])
 
 
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
+      log(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
 
 
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
 
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
 
 
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
 
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
 
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
 
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- colnames(XS)
+        Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
 
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
 
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
 
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
 
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <-
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
-
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
-    }
-
-    if (family == "inverse.gaussian") {
-      model.file <- textConnection(IGauss)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-      NbetaS <- dim(XS)[2]
-
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(NbetaS), sigma = 1,
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
-
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        h = sim1$sims.list$h,
-        sigma = sim1$sims.list$sigma
-      )
-
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- colnames(XS)
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-        names(sim1$mean$sigma) <-
-          names(sim1$sd$sigma) <-
-          names(sim1$q2.5$sigma) <-
-          names(sim1$q97.5$sigma) <-
-          names(sim1$Rhat$sigma) <- "Shape"
-
-
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
-          cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma, sim1$Rhat$sigma)
-        )
-
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- colnames(XS)
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-        names(sim1$mean$sigma) <-
-          names(sim1$sd$sigma) <-
-          names(sim1$q2.5$sigma) <-
-          names(sim1$q97.5$sigma) <- "Shape"
-
-
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
-          cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma)
-        )
-
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
     }
 
 
-    if (family == "Poisson") {
-      model.file <- textConnection(Poisson)
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
 
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-      NbetaS <- dim(XS)[2]
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
 
 
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(NbetaS),
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
 
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
 
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
 
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
 
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
 
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        h = sim1$sims.list$h
-      )
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
 
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
 
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
 
+    betaS~dnorm(0,0.001)
 
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- colnames(XS)
 
+  lambda~dgamma(.1,.1)
+  sigma<-1/lambda
 
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+}"
 
 
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+IGausst <- "model{
 
 
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
 
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
 
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+  ll[i]<- (1-z[i])*(0.5*(log(lambda)-log(2*3.14)-3*log(0.000000001+y[i]))-
+ 0.5*lambda*pow((y[i]-mu[i]),2)/(pow(mu[i],2)*(0.000000001+y[i]))+log(1-muz[i]))+z[i]*log(muz[i])
 
 
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
 
+      log(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
 
 
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
 
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
 
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
 
-        MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
 
 
+   haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
 
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- colnames(XS)
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
-      ### @@@@@@@@@@@@
-    }
-
-    if (family == "Logarithmic") {
-      model.file <- textConnection(logar)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-      NbetaS <- dim(XS)[2]
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(NbetaS),
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
-
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        h = sim1$sims.list$h
-      )
-
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- colnames(XS)
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- colnames(XS)
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
-      ### @@@@@@@@@@@@
-    }
-
-    if (family == "binomial") {
-      model.file <- textConnection(binomial)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-      NbetaS <- dim(XS)[2]
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(NbetaS),
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
-
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        h = sim1$sims.list$h
-      )
-
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- colnames(XS)
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- colnames(XS)
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
-      ### @@@@@@@@@@@@
-    }
-    if (family == "Bell") {
-      model.file <- textConnection(Bell)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-      NbetaS <- dim(XS)[2]
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(NbetaS),
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K, C = C
-      )
-
-
-      C <- c()
-      for (i in 1:n) {
-        C[i] <- log(numbers::bell(y[i])) - lfactorial(y[i])
-
-        d.jags <- list(
-          n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-          indtime1 = indtime1, indtime2 = indtime2,
-          X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
-          Xv1 = Xv1, Xv2 = Xv2,
-          Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-          XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-          s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-        )
-      }
-
-
-
-      if (is.infinite(numbers::bell(max(y))) == TRUE) {
-        model.file <- textConnection(Bellwc)
-
-
-        d.jags <- list(
-          n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-          indtime1 = indtime1, indtime2 = indtime2,
-          X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
-          Xv1 = Xv1, Xv2 = Xv2,
-          Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-          XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-          s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-        )
-      }
-
-
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        h = sim1$sims.list$h
-      )
-
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- colnames(XS)
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- colnames(XS)
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
-
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
     }
 
 
-    #########
-    if (family == "Gaussian") {
-      model.file <- textConnection(Gaussian)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-      NbetaS <- dim(XS)[2]
-
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(NbetaS), r = 1,
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
-
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        sigma = sim1$sims.list$sigma,
-        h = sim1$sims.list$h
-      )
-
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- colnames(XS)
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
 
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
 
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
 
 
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
 
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
 
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
 
-        names(sim1$mean$sigma) <-
-          names(sim1$sd$sigma) <-
-          names(sim1$q2.5$sigma) <-
-          names(sim1$q97.5$sigma) <-
-          names(sim1$Rhat$sigma) <- "Variance"
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
 
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
 
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
-          cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma, sim1$Rhat$sigma)
-        )
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
 
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
 
+for(l in 1:NbetaS){
+  betaS[l]~dnorm(0,0.001)
+  }
 
 
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
+  lambda~dgamma(.1,.1)
+  sigma<-1/lambda
 
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+}"
 
+Gaussian1t <- "model{
 
 
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
 
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
 
 
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- colnames(XS)
+ll[i] <- (1-z[i])*(logdensity.norm(y[i], mu[i],tau))+z[i]*log(muz[i])+
+(1-z[i])*log(1-muz[i])
 
 
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+      mu[i] <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
 
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
 
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
 
+       Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
 
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+   haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
 
 
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
 
-
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-        names(sim1$mean$sigma) <-
-          names(sim1$sd$sigma) <-
-          names(sim1$q2.5$sigma) <-
-          names(sim1$q97.5$sigma) <- "Variance"
-
-
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
-          cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma)
-        )
-
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
     }
 
-    if (family == "NB") {
-      model.file <- textConnection(NB)
-
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-      NbetaS <- dim(XS)[2]
-
-
-
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(NbetaS), r = 1,
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
-
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "r", "h")
-
-
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
-      )
-
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        r = sim1$sims.list$r,
-        h = sim1$sims.list$h
-      )
-
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- colnames(XS)
-
-
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
-
-
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
-
-
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
-
-
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
 
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
 
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          rownames(sim1$Rhat$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
 
 
 
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
 
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
 
-        names(sim1$mean$r) <-
-          names(sim1$sd$r) <-
-          names(sim1$q2.5$r) <-
-          names(sim1$q97.5$r) <-
-          names(sim1$Rhat$r) <- "Dispersion"
 
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
 
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
-          cbind(sim1$mean$r, sim1$sd$r, sim1$q2.5$r, sim1$q97.5$r, sim1$Rhat$r)
-        )
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
 
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
 
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
 
+    betaS~dnorm(0,0.001)
 
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
 
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+tau~dgamma(0.01,0.01)
+sigma<-1/tau
 
+}"
 
 
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
+Gaussiant <- "model{
 
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
 
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
 
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- colnames(XS)
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
 
+ ll[i] <- (1-z[i])*(logdensity.norm(y[i], mu[i],tau))+z[i]*log(muz[i])+
+(1-z[i])*log(1-muz[i])
 
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
 
 
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+      mu[i] <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
 
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
 
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
 
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
 
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
 
 
-        rownames(sim1$mean$Sigmab) <-
-          rownames(sim1$sd$Sigmab) <-
-          rownames(sim1$q2.5$Sigmab) <-
-          rownames(sim1$q97.5$Sigmab) <-
-          colnames(sim1$mean$Sigmab) <-
-          colnames(sim1$sd$Sigmab) <-
-          colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
+  haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
 
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-        names(sim1$mean$r) <-
-          names(sim1$sd$r) <-
-          names(sim1$q2.5$r) <-
-          names(sim1$q97.5$r) <- "Dispersion"
-
-
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
-          cbind(sim1$mean$r, sim1$sd$r, sim1$q2.5$r, sim1$q97.5$r)
-        )
-
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      }
     }
 
-    if (family == "GP") {
-      model.file <- textConnection(GP)
-      Nbeta1 <- dim(X1)[2]
-      Nbeta2 <- dim(X2)[2]
-      NbetaS <- dim(XS)[2]
 
-      Nb1 <- dim(Z1)[2]
-      Nb2 <- dim(Z2)[2]
-      i.jags <- function() {
-        list(
-          betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
-          betaS = stats::rnorm(NbetaS), phiz = stats::rnorm(1),
-          Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
-          gamma_lambda = stats::rnorm(1)
-        )
-      }
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
 
-      parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phiz", "h")
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
 
 
-      d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
-        Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
-        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
+
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
+
+
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
+
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
+
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
+
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
+
+for(l in 1:NbetaS){
+  betaS[l]~dnorm(0,0.001)
+  }
+
+
+tau~dgamma(0.01,0.01)
+sigma<-1/tau
+
+}"
+
+
+
+
+
+logart <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+  ll[i]<-(1-z[i])*(log(-1/log(1-pi[i]))+y[i]*log(pi[i])-log(y[i]))+z[i]*log(lambda[i])+
+  (1-z[i])*log(1-lambda[i])
+
+
+      logit(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+
+
+  haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
+
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
+
+
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
+
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
+
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
+
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
+
+for(l in 1:NbetaS){
+  betaS[l]~dnorm(0,0.001)
+  }
+
+}"
+
+
+
+
+logar1t <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+
+       ll[i]<-(1-z[i])*(log(-1/log(1-pi[i]))+y[i]*log(pi[i])-log(y[i]))+z[i]*log(lambda[i])+
+  (1-z[i])*log(1-lambda[i])
+
+
+      logit(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+    Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
+
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
+
+
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
+
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
+
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
+
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
+
+    betaS~dnorm(0,0.001)
+
+
+}"
+
+binomial1t <- "model{
+
+m<-max(y)
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+
+ll[i]<-(1-z[i])*(loggam(m+1)-loggam(y[i]+1)-loggam(m-y[i]+1)+y[i]*log(pi[i])+(m-y[i])*log(1-pi[i])-
+                   log(1-pow(1-pi[i],m)))+z[i]*log(lambda[i])+(1-z[i])*log(1-lambda[i])
+
+
+      logit(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+    Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+
+
+
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
+
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
+
+
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
+
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
+
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
+
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
+
+    betaS~dnorm(0,0.001)
+
+
+}"
+
+
+binomialt <- "model{
+
+m<-max(y)
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+  ll[i]<-(1-z[i])*(loggam(m+1)-loggam(y[i]+1)-loggam(m-y[i]+1)+y[i]*log(pi[i])+(m-y[i])*log(1-pi[i])-
+                   log(1-pow(1-pi[i],m)))+z[i]*log(lambda[i])+(1-z[i])*log(1-lambda[i])
+
+      logit(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
+
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
+
+
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
+
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
+
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
+
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
+
+for(l in 1:NbetaS){
+  betaS[l]~dnorm(0,0.001)
+  }
+
+}"
+
+###########
+NB1t <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+    ll[i]<-z[i]*log(pi[i]) +
+(1-z[i])*(log(1-pi[i])+loggam(r+y[i])-loggam(r)-loggam(y[i]+1)+r*log(r/(r+lambda[i]))+
+y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
+
+
+      log(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+    Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+  r~ dgamma(0.1,0.1)
+
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
+
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
+
+
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
+
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
+
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
+
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
+
+    betaS~dnorm(0,0.001)
+
+
+}"
+
+
+Poisson1t <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+
+     ll[i]<-z[i]*log(pi[i]) +(1-z[i])*(log(1-pi[i])+logdensity.pois(y[i], lambda[i])-log(1-exp(-lambda[i])))
+ #ll[i]<-(1-z[i])*(y[i]*log(lambda[i])-lambda[i] - loggam(y[i]+1)-log(1-exp(-lambda[i])))+z[i]*log(muz[i])+
+#(1-z[i])*log(1-muz[i])
+
+      log(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+
+
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
+
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
+
+
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
+
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
+
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
+
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
+
+    betaS~dnorm(0,0.001)
+
+
+}"
+
+GP1t <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+  ll[i]<-z[i]*log(pi[i]) +
+ (1-z[i])*(log(1-pi[i])+y[i]*log(lambda[i])-y[i]*log(1+phiz*lambda[i])+(y[i]-1)*log(1+phiz*y[i])- loggam(y[i]+1)-
+        lambda[i]*(1+phiz*y[i])/(1+phiz*lambda[i])-log(1-exp(-lambda[i]/(1+phiz*lambda[i]))))
+
+      log(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+      Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+
+
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+      phiz~dnorm(0,.001)
+
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
+
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
+
+
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
+
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
+
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
+
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
+
+    betaS~dnorm(0,0.001)
+
+
+}"
+
+
+NBt <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+    ll[i]<-z[i]*log(pi[i]) +
+(1-z[i])*(log(1-pi[i])+loggam(r+y[i])-loggam(r)-loggam(y[i]+1)+r*log(r/(r+lambda[i]))+
+y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
+
+      log(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+
+
+   haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+  r~ dgamma(0.1,0.1)
+
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
+
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
+
+
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
+
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
+
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
+
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
+
+for(l in 1:NbetaS){
+  betaS[l]~dnorm(0,0.001)
+  }
+
+}"
+
+
+Poissont <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+     ll[i]<-z[i]*log(pi[i]) +(1-z[i])*(log(1-pi[i])+logdensity.pois(y[i], lambda[i])-log(1-exp(-lambda[i])))
+
+
+# ll[i]<-(1-z[i])*(y[i]*log(lambda[i])-lambda[i] - loggam(y[i]+1)-log(1-exp(-lambda[i])))+z[i]*log(muz[i])+
+#(1-z[i])*log(1-muz[i])
+
+
+      log(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+    Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+
+
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
+
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
+
+
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
+
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
+
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
+
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
+
+for(l in 1:NbetaS){
+  betaS[l]~dnorm(0,0.001)
+  }
+
+}"
+
+GPt <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+  ll[i]<-z[i]*log(pi[i]) +
+ (1-z[i])*(log(1-pi[i])+y[i]*log(lambda[i])-y[i]*log(1+phiz*lambda[i])+(y[i]-1)*log(1+phiz*y[i])- loggam(y[i]+1)-
+        lambda[i]*(1+phiz*y[i])/(1+phiz*lambda[i])-log(1-exp(-lambda[i]/(1+phiz*lambda[i]))))
+
+      log(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+
+
+   haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+      phiz~dnorm(0,.001)
+
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
+
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
+
+
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
+
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
+
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
+
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
+
+for(l in 1:NbetaS){
+  betaS[l]~dnorm(0,0.001)
+  }
+
+}"
+
+Bell1t <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+ ll[i]<-(1-z[i])*(y[i]*log(theta[i])+1-exp(theta[i])+C[i]-(log(1-exp(1-exp(theta[i])))))+z[i]*log(muz[i])+
+(1-z[i])*log(1-muz[i])
+
+      log(theta[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+    Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
+
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
+
+
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
+
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
+
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
+
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
+
+    betaS~dnorm(0,0.001)
+
+
+}"
+
+
+Bellt <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+    ll[i]<-(1-z[i])*(y[i]*log(theta[i])+1-exp(theta[i])+C[i]-(log(1-exp(1-exp(theta[i])))))+z[i]*log(muz[i])+
+(1-z[i])*log(1-muz[i])
+
+
+      log(theta[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+
+
+   haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
+
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
+
+
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
+
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
+
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
+
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
+
+for(l in 1:NbetaS){
+  betaS[l]~dnorm(0,0.001)
+  }
+
+}"
+
+
+
+
+
+Bell1wct <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+ ll[i]<-(1-z[i])*(y[i]*log(theta[i])+1-exp(theta[i])-(log(1-exp(1-exp(theta[i])))))+z[i]*log(muz[i])+
+(1-z[i])*log(1-muz[i])
+
+      log(theta[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+
+    Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
+
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
+
+
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
+
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
+
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
+
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
+
+    betaS~dnorm(0,0.001)
+
+
+}"
+
+
+Bellwct <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+    ll[i]<-(1-z[i])*(y[i]*log(theta[i])+1-exp(theta[i])-(log(1-exp(1-exp(theta[i])))))+z[i]*log(muz[i])+
+(1-z[i])*log(1-muz[i])
+
+
+      log(theta[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
+
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
+
+
+  Sigmaa[1:Nb1,1:Nb1]<-inverse(Omegaa[,])
+  Omegaa[1:Nb1,1:Nb1]~dwish(V1[,],Nb1)
+
+  Sigmab <-1/Omegab
+  Omegab ~dgamma(0.1,0.1)
+
+for(l in 1:J){
+    h[l]~dgamma(0.1,0.1)
+  }
+
+gamma_lambda~dnorm(0,0.001)
+gamma_pi~dnorm(0,0.001)
+
+for(l in 1:NbetaS){
+  betaS[l]~dnorm(0,0.001)
+  }
+
+}"
+
+
+if (is.matrix(XS) == FALSE) {
+  if (family == "Beta") {
+    y[y == 1] <- 0.9999
+
+    model.file <- textConnection(Beta1)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(Beta1t))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(1),
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
       )
+    }
 
-      sim1 <- jagsUI::jags(
-        data = d.jags,
-        parameters.to.save = parameters,
-        model.file = model.file,
-        n.chains = n.chains,
-        parallel = FALSE,
-        n.adapt = FALSE,
-        n.iter = n.iter,
-        n.burnin = n.burnin,
-        n.thin = n.thin,
-        DIC = TRUE
-      )
-
-      MCMC <- list(
-        beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
-        beta3 = sim1$sims.list$betaS,
-        Sigmaa = sim1$sims.list$Sigmaa,
-        Sigmab = sim1$sims.list$Sigmab,
-        gamma_lambda = sim1$sims.list$gamma_lambda,
-        gamma_pi = sim1$sims.list$gamma_pi,
-        phi = sim1$sims.list$phiz,
-        h = sim1$sims.list$h
-      )
-
-      if (n.chains > 1) {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <-
-          names(sim1$Rhat$betaL1) <- colnames(X1)
-
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <-
-          names(sim1$Rhat$betaL2) <- colnames(X2)
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phis", "h")
 
 
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <-
-          names(sim1$Rhat$betaS) <- colnames(XS)
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
 
 
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <-
-          names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1,
+      beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      h = sim1$sims.list$h,
+      phi = sim1$sims.list$phis
+    )
 
 
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <-
-          names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
 
 
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <-
-          names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- "x"
 
 
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          rownames(sim1$Rhat$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
 
 
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
         rownames(sim1$mean$Sigmab) <-
           rownames(sim1$sd$Sigmab) <-
           rownames(sim1$q2.5$Sigmab) <-
@@ -8224,86 +4943,95 @@ for(l in 1:NbetaS){
           colnames(sim1$q2.5$Sigmab) <-
           colnames(sim1$q97.5$Sigmab) <-
           colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+      names(sim1$mean$phis) <-
+        names(sim1$sd$phis) <-
+        names(sim1$q2.5$phis) <-
+        names(sim1$q97.5$phis) <-
+        names(sim1$Rhat$phis) <- "Dispersion"
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
+        cbind(sim1$mean$phis, sim1$sd$phis, sim1$q2.5$phis, sim1$q97.5$phis, sim1$Rhat$phis)
+      )
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
 
 
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
 
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
-          cbind(sim1$mean$phiz, sim1$sd$phiz, sim1$q2.5$phiz, sim1$q97.5$phiz, sim1$Rhat$phiz)
-        )
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
-
-        names(sim1$mean$phiz) <-
-          names(sim1$sd$phiz) <-
-          names(sim1$q2.5$phiz) <-
-          names(sim1$q97.5$phiz) <-
-          names(sim1$Rhat$phiz) <- "Dispersion"
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
-        )
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
 
 
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
-      } else {
-        names(sim1$mean$betaL1) <-
-          names(sim1$sd$betaL1) <-
-          names(sim1$q2.5$betaL1) <-
-          names(sim1$q97.5$betaL1) <- colnames(X1)
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
 
-        names(sim1$mean$betaL2) <-
-          names(sim1$sd$betaL2) <-
-          names(sim1$q2.5$betaL2) <-
-          names(sim1$q97.5$betaL2) <- colnames(X2)
-
-
-        names(sim1$mean$betaS) <-
-          names(sim1$sd$betaS) <-
-          names(sim1$q2.5$betaS) <-
-          names(sim1$q97.5$betaS) <- colnames(XS)
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
 
 
-        names(sim1$mean$h) <-
-          names(sim1$sd$h) <-
-          names(sim1$q2.5$h) <-
-          names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- "x"
 
 
-        names(sim1$mean$gamma_lambda) <-
-          names(sim1$sd$gamma_lambda) <-
-          names(sim1$q2.5$gamma_lambda) <-
-          names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
 
 
-        names(sim1$mean$gamma_pi) <-
-          names(sim1$sd$gamma_pi) <-
-          names(sim1$q2.5$gamma_pi) <-
-          names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
 
 
-        rownames(sim1$mean$Sigmaa) <-
-          rownames(sim1$sd$Sigmaa) <-
-          rownames(sim1$q2.5$Sigmaa) <-
-          rownames(sim1$q97.5$Sigmaa) <-
-          colnames(sim1$mean$Sigmaa) <-
-          colnames(sim1$sd$Sigmaa) <-
-          colnames(sim1$q2.5$Sigmaa) <-
-          colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
 
 
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
         rownames(sim1$mean$Sigmab) <-
           rownames(sim1$sd$Sigmab) <-
           rownames(sim1$q2.5$Sigmab) <-
@@ -8311,68 +5039,6099 @@ for(l in 1:NbetaS){
           colnames(sim1$mean$Sigmab) <-
           colnames(sim1$sd$Sigmab) <-
           colnames(sim1$q2.5$Sigmab) <-
-          colnames(sim1$q97.5$Sigmab) <- c("Intercept", "Slope")
-
-
-
-        ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
-        colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
-
-        D11 <- sim1$mean$Sigmaa
-        D22 <- sim1$mean$Sigmab
-
-
-        MM <- rbind(
-          cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
-          cbind(sim1$mean$phiz, sim1$sd$phiz, sim1$q2.5$phiz, sim1$q97.5$phiz)
-        )
-        colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-        names(sim1$mean$phiz) <-
-          names(sim1$sd$phiz) <-
-          names(sim1$q2.5$phiz) <-
-          names(sim1$q97.5$phiz) <-
-          names(sim1$Rhat$phiz) <- "Dispersion"
-
-        SM <- rbind(
-          cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
-          cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
-          cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
-          cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
-        )
-
-
-        colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
-
-
-
-        results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
       }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+      names(sim1$mean$phis) <-
+        names(sim1$sd$phis) <-
+        names(sim1$q2.5$phis) <-
+        names(sim1$q97.5$phis) <- "Dispersion"
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
+        cbind(sim1$mean$phis, sim1$sd$phis, sim1$q2.5$phis, sim1$q97.5$phis)
+      )
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
     }
   }
 
 
-  KF1 <- 100000
-  KF2 <- 100000
-  DIC <- sim1$DIC - 2 * n1 * KF1 - 2 * n2 * KF2
-  LPML <- -sum(log(sim1$mean$cpoinvy)) - sum(log(sim1$mean$cpoinvt))
+
+
+  if (family == "Gamma") {
+    model.file <- textConnection(Gamma1)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(Gamma1t))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(1),
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
+
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1,
+      beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      h = sim1$sims.list$h,
+      sigma = sim1$sims.list$sigma
+    )
+
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+      names(sim1$mean$sigma) <-
+        names(sim1$sd$sigma) <-
+        names(sim1$q2.5$sigma) <-
+        names(sim1$q97.5$sigma) <-
+        names(sim1$Rhat$sigma) <- "Shape"
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
+        cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma, sim1$Rhat$sigma)
+      )
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+      names(sim1$mean$sigma) <-
+        names(sim1$sd$sigma) <-
+        names(sim1$q2.5$sigma) <-
+        names(sim1$q97.5$sigma) <- "Shape"
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
+        cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma)
+      )
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
 
 
 
 
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+  }
+
+
+  if (family == "Weibull") {
+    model.file <- textConnection(Weibull1)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(Weibull1t))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(1), kappa = 1,
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "kappa", "h")
+
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1,
+      beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      h = sim1$sims.list$h,
+      kappa = sim1$sims.list$kappa
+    )
+
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+
+      names(sim1$mean$kappa) <-
+        names(sim1$sd$kappa) <-
+        names(sim1$q2.5$kappa) <-
+        names(sim1$q97.5$kappa) <-
+        names(sim1$Rhat$kappa) <- "Shape"
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
+        cbind(sim1$mean$kappa, sim1$sd$kappa, sim1$q2.5$kappa, sim1$q97.5$kappa, sim1$Rhat$kappa)
+      )
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+      names(sim1$mean$kappa) <-
+        names(sim1$sd$kappa) <-
+        names(sim1$q2.5$kappa) <-
+        names(sim1$q97.5$kappa) <- "Shape"
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
+        cbind(sim1$mean$kappa, sim1$sd$kappa, sim1$q2.5$kappa, sim1$q97.5$kappa)
+      )
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+  }
+
+  if (family == "Exponential") {
+    model.file <- textConnection(Exp1)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(Exp1t))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(1), r = 1,
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1,
+      beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      h = sim1$sims.list$h
+    )
+
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+  }
+
+
+  if (family == "inverse.gaussian") {
+    model.file <- textConnection(IGauss1)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(IGauss1t))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(1), r = 1,
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
+
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1,
+      beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      h = sim1$sims.list$h,
+      sigma = sim1$sims.list$sigma
+    )
+
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+      names(sim1$mean$sigma) <-
+        names(sim1$sd$sigma) <-
+        names(sim1$q2.5$sigma) <-
+        names(sim1$q97.5$sigma) <-
+        names(sim1$Rhat$sigma) <- "Shape"
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
+        cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma, sim1$Rhat$sigma)
+      )
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+      names(sim1$mean$sigma) <-
+        names(sim1$sd$sigma) <-
+        names(sim1$q2.5$sigma) <-
+        names(sim1$q97.5$sigma) <- "Shape"
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
+        cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma)
+      )
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+  }
+
+
+  if (family == "Poisson") {
+    model.file <- textConnection(Poisson1)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(Poisson1t))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(1),
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      h = sim1$sims.list$h
+    )
+
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+  }
+  #################
+  if (family == "Logarithmic") {
+    model.file <- textConnection(logar1)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(logar1t))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(1),
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      h = sim1$sims.list$h
+    )
+
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+  }
+
+
+  if (family == "binomial") {
+    model.file <- textConnection(binomial1)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(binomial1t))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(1),
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      h = sim1$sims.list$h
+    )
+
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+  }
+  #################
   if (family == "Bell") {
+    model.file <- textConnection(Bell1)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(Bell1t))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(1),
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+
+    C <- c()
+    for (i in 1:n) {
+      C[i] <- log(numbers::bell(as.numeric(y[i]))) - lfactorial(y[i])
+    }
+
     if (is.infinite(numbers::bell(max(y))) == TRUE) {
-      DIC <- "It is not possible to compute the DIC because the values of the Bell number are not finite."
-      LPML <- "It is not possible to compute the LPML because the values of the Bell number are not finite."
+      model.file <- textConnection(Bell1wc)
+      if(dim(Z2)[2]==1)(model.file <- textConnection(Bell1wct))
+
+    }
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K, C = C
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      h = sim1$sims.list$h
+    )
+
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+  }
+
+  #########################
+  if (family == "Gaussian") {
+    model.file <- textConnection(Gaussian1)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(Gaussian1t))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(1), r = 1,
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
+
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time,
+      death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1),
+      V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1,
+      beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      h = sim1$sims.list$h,
+      sigma = sim1$sims.list$sigma
+    )
+
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+      names(sim1$mean$sigma) <-
+        names(sim1$sd$sigma) <-
+        names(sim1$q2.5$sigma) <-
+        names(sim1$q97.5$sigma) <-
+        names(sim1$Rhat$sigma) <- "Variance"
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
+        cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma, sim1$Rhat$sigma)
+      )
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+      names(sim1$mean$sigma) <-
+        names(sim1$sd$sigma) <-
+        names(sim1$q2.5$sigma) <-
+        names(sim1$q97.5$sigma) <- "Variance"
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
+        cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma)
+      )
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+  }
+
+  if (family == "NB") {
+    model.file <- textConnection(NB1)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(NB1t))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(1), r = 1,
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "r", "h")
+
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1,
+      beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      h = sim1$sims.list$h,
+      r = sim1$sims.list$r
+    )
+
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+      names(sim1$mean$r) <-
+        names(sim1$sd$r) <-
+        names(sim1$q2.5$r) <-
+        names(sim1$q97.5$r) <-
+        names(sim1$Rhat$r) <- "Dispersion"
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
+        cbind(sim1$mean$r, sim1$sd$r, sim1$q2.5$r, sim1$q97.5$r, sim1$Rhat$r)
+      )
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+      names(sim1$mean$r) <-
+        names(sim1$sd$r) <-
+        names(sim1$q2.5$r) <-
+        names(sim1$q97.5$r) <- "Dispersion"
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
+        cbind(sim1$mean$r, sim1$sd$r, sim1$q2.5$r, sim1$q97.5$r)
+      )
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+  }
+
+  if (family == "GP") {
+    model.file <- textConnection(GP1)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(GP1t))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(1), phiz = stats::rnorm(1),
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phiz", "h")
+
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      phi = sim1$sims.list$phiz,
+      h = sim1$sims.list$h
+    )
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
+        cbind(sim1$mean$phiz, sim1$sd$phiz, sim1$q2.5$phiz, sim1$q97.5$phiz, sim1$Rhat$phiz)
+      )
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      names(sim1$mean$phiz) <-
+        names(sim1$sd$phiz) <-
+        names(sim1$q2.5$phiz) <-
+        names(sim1$q97.5$phiz) <-
+        names(sim1$Rhat$phiz) <- "Dispersion"
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- "x"
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
+        cbind(sim1$mean$phiz, sim1$sd$phiz, sim1$q2.5$phiz, sim1$q97.5$phiz)
+      )
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+      names(sim1$mean$phiz) <-
+        names(sim1$sd$phiz) <-
+        names(sim1$q2.5$phiz) <-
+        names(sim1$q97.5$phiz) <-
+        names(sim1$Rhat$phiz) <- "Dispersion"
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+  }
+  ### ????????
+} else {
+  if (family == "Beta") {
+    y[y == 1] <- 0.9999
+
+    model.file <- textConnection(Beta)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(Betat))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+    NbetaS <- dim(XS)[2]
+
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(NbetaS),
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phis", "h")
+
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1,
+      beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      h = sim1$sims.list$h,
+      phi = sim1$sims.list$phis
+    )
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+      names(sim1$mean$phis) <-
+        names(sim1$sd$phis) <-
+        names(sim1$q2.5$phis) <-
+        names(sim1$q97.5$phis) <-
+        names(sim1$Rhat$phis) <- "Dispersion"
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
+        cbind(sim1$mean$phis, sim1$sd$phis, sim1$q2.5$phis, sim1$q97.5$phis, sim1$Rhat$phis)
+      )
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+      names(sim1$mean$phis) <-
+        names(sim1$sd$phis) <-
+        names(sim1$q2.5$phis) <-
+        names(sim1$q97.5$phis) <- "Dispersion"
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
+        cbind(sim1$mean$phis, sim1$sd$phis, sim1$q2.5$phis, sim1$q97.5$phis)
+      )
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
     }
   }
 
 
-  list(
-    FixedY = FixedY, FixedZ = FixedZ, formSurv = formSurv, GroupY = GroupY, GroupZ = GroupZ,
-    RandomY = RandomY, RandomZ = RandomZ, obstime = obstime, id = id, peice = peice,
-    family = family, MCMC = MCMC, Estimation = results,
-    DIC = DIC, LPML = LPML
-  )
+
+
+  if (family == "Gamma") {
+    model.file <- textConnection(Gamma)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(Gammat))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+    NbetaS <- dim(XS)[2]
+
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(NbetaS),
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
+
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      sigma = sim1$sims.list$sigma,
+      h = sim1$sims.list$h
+    )
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+      names(sim1$mean$sigma) <-
+        names(sim1$sd$sigma) <-
+        names(sim1$q2.5$sigma) <-
+        names(sim1$q97.5$sigma) <-
+        names(sim1$Rhat$sigma) <- "Shape"
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
+        cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma, sim1$Rhat$sigma)
+      )
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+      names(sim1$mean$sigma) <-
+        names(sim1$sd$sigma) <-
+        names(sim1$q2.5$sigma) <-
+        names(sim1$q97.5$sigma) <- "Shape"
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
+        cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma)
+      )
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+  }
+
+
+  if (family == "Weibull") {
+    model.file <- textConnection(Weibull)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(Weibullt))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+    NbetaS <- dim(XS)[2]
+
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(NbetaS), kappa = 1,
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "kappa", "h")
+
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      h = sim1$sims.list$h,
+      kappa = sim1$sims.list$kappa
+    )
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+      names(sim1$mean$kappa) <-
+        names(sim1$sd$kappa) <-
+        names(sim1$q2.5$kappa) <-
+        names(sim1$q97.5$kappa) <-
+        names(sim1$Rhat$kappa) <- "Shape"
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
+        cbind(sim1$mean$kappa, sim1$sd$kappa, sim1$q2.5$kappa, sim1$q97.5$kappa, sim1$Rhat$kappa)
+      )
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+      names(sim1$mean$kappa) <-
+        names(sim1$sd$kappa) <-
+        names(sim1$q2.5$kappa) <-
+        names(sim1$q97.5$kappa) <- "Shape"
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
+        cbind(sim1$mean$kappa, sim1$sd$kappa, sim1$q2.5$kappa, sim1$q97.5$kappa)
+      )
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+  }
+
+
+
+  if (family == "Exponential") {
+    model.file <- textConnection(Exp)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(Expt))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+    NbetaS <- dim(XS)[2]
+
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(NbetaS),
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      h = sim1$sims.list$h
+    )
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+
+      MM <-
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
+
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <-
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+  }
+
+  if (family == "inverse.gaussian") {
+    model.file <- textConnection(IGauss)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(IGausst))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+    NbetaS <- dim(XS)[2]
+
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(NbetaS), sigma = 1,
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
+
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      h = sim1$sims.list$h,
+      sigma = sim1$sims.list$sigma
+    )
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+      names(sim1$mean$sigma) <-
+        names(sim1$sd$sigma) <-
+        names(sim1$q2.5$sigma) <-
+        names(sim1$q97.5$sigma) <-
+        names(sim1$Rhat$sigma) <- "Shape"
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
+        cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma, sim1$Rhat$sigma)
+      )
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+      names(sim1$mean$sigma) <-
+        names(sim1$sd$sigma) <-
+        names(sim1$q2.5$sigma) <-
+        names(sim1$q97.5$sigma) <- "Shape"
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
+        cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma)
+      )
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+  }
+
+
+  if (family == "Poisson") {
+    model.file <- textConnection(Poisson)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(Poissont))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+    NbetaS <- dim(XS)[2]
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(NbetaS),
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      h = sim1$sims.list$h
+    )
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+    ### @@@@@@@@@@@@
+  }
+
+  if (family == "Logarithmic") {
+    model.file <- textConnection(logar)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(logart))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+    NbetaS <- dim(XS)[2]
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(NbetaS),
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      h = sim1$sims.list$h
+    )
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+    ### @@@@@@@@@@@@
+  }
+
+  if (family == "binomial") {
+    model.file <- textConnection(binomial)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(binomialt))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+    NbetaS <- dim(XS)[2]
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(NbetaS),
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      h = sim1$sims.list$h
+    )
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+    ### @@@@@@@@@@@@
+  }
+  if (family == "Bell") {
+    model.file <- textConnection(Bell)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(Bellt))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+    NbetaS <- dim(XS)[2]
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(NbetaS),
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K, C = C
+    )
+
+
+    C <- c()
+    for (i in 1:n) {
+      C[i] <- log(numbers::bell(y[i])) - lfactorial(y[i])
+
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1, indtime2 = indtime2,
+        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
+
+
+
+    if (is.infinite(numbers::bell(max(y))) == TRUE) {
+      model.file <- textConnection(Bellwc)
+      if(dim(Z2)[2]==1)(model.file <- textConnection(Bellwct))
+
+
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1, indtime2 = indtime2,
+        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
+
+
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      h = sim1$sims.list$h
+    )
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+  }
+
+
+  #########
+  if (family == "Gaussian") {
+    model.file <- textConnection(Gaussian)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(Gaussiant))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+    NbetaS <- dim(XS)[2]
+
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(NbetaS), r = 1,
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "sigma", "h")
+
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      sigma = sim1$sims.list$sigma,
+      h = sim1$sims.list$h
+    )
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+      names(sim1$mean$sigma) <-
+        names(sim1$sd$sigma) <-
+        names(sim1$q2.5$sigma) <-
+        names(sim1$q97.5$sigma) <-
+        names(sim1$Rhat$sigma) <- "Variance"
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
+        cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma, sim1$Rhat$sigma)
+      )
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+      names(sim1$mean$sigma) <-
+        names(sim1$sd$sigma) <-
+        names(sim1$q2.5$sigma) <-
+        names(sim1$q97.5$sigma) <- "Variance"
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
+        cbind(sim1$mean$sigma, sim1$sd$sigma, sim1$q2.5$sigma, sim1$q97.5$sigma)
+      )
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+  }
+
+  if (family == "NB") {
+    model.file <- textConnection(NB)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(NBt))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+    NbetaS <- dim(XS)[2]
+
+
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(NbetaS), r = 1,
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "r", "h")
+
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      r = sim1$sims.list$r,
+      h = sim1$sims.list$h
+    )
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+      names(sim1$mean$r) <-
+        names(sim1$sd$r) <-
+        names(sim1$q2.5$r) <-
+        names(sim1$q97.5$r) <-
+        names(sim1$Rhat$r) <- "Dispersion"
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
+        cbind(sim1$mean$r, sim1$sd$r, sim1$q2.5$r, sim1$q97.5$r, sim1$Rhat$r)
+      )
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+      names(sim1$mean$r) <-
+        names(sim1$sd$r) <-
+        names(sim1$q2.5$r) <-
+        names(sim1$q97.5$r) <- "Dispersion"
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
+        cbind(sim1$mean$r, sim1$sd$r, sim1$q2.5$r, sim1$q97.5$r)
+      )
+
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+  }
+
+  if (family == "GP") {
+    model.file <- textConnection(GP)
+    if(dim(Z2)[2]==1)(model.file <- textConnection(GPt))
+
+    Nbeta1 <- dim(X1)[2]
+    Nbeta2 <- dim(X2)[2]
+    NbetaS <- dim(XS)[2]
+
+    Nb1 <- dim(Z1)[2]
+    Nb2 <- dim(Z2)[2]
+    i.jags <- function() {
+      list(
+        betaL1 = stats::rnorm(Nbeta1), betaL2 = stats::rnorm(Nbeta2),
+        betaS = stats::rnorm(NbetaS), phiz = stats::rnorm(1),
+        Omegab = diag(Nb2), Omegaa = diag(Nb1), gamma_pi = stats::rnorm(1),
+        gamma_lambda = stats::rnorm(1)
+      )
+    }
+
+    parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "phiz", "h")
+
+
+    d.jags <- list(
+      n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+      indtime1 = indtime1, indtime2 = indtime2,
+      X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+      Xv1 = Xv1, Xv2 = Xv2,
+      Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+      XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+      s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+    )
+
+    sim1 <- jagsUI::jags(
+      data = d.jags,
+      parameters.to.save = parameters,
+      model.file = model.file,
+      n.chains = n.chains,
+      parallel = FALSE,
+      n.adapt = FALSE,
+      n.iter = n.iter,
+      n.burnin = n.burnin,
+      n.thin = n.thin,
+      DIC = TRUE
+    )
+
+    MCMC <- list(
+      beta1 = sim1$sims.list$betaL1, beta2 = sim1$sims.list$betaL2,
+      beta3 = sim1$sims.list$betaS,
+      Sigmaa = sim1$sims.list$Sigmaa,
+      Sigmab = sim1$sims.list$Sigmab,
+      gamma_lambda = sim1$sims.list$gamma_lambda,
+      gamma_pi = sim1$sims.list$gamma_pi,
+      phi = sim1$sims.list$phiz,
+      h = sim1$sims.list$h
+    )
+
+    if (n.chains > 1) {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <-
+        names(sim1$Rhat$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <-
+        names(sim1$Rhat$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <-
+        names(sim1$Rhat$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <-
+        names(sim1$Rhat$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <-
+        names(sim1$Rhat$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <-
+        names(sim1$Rhat$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        rownames(sim1$Rhat$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$Rhat$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          rownames(sim1$Rhat$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$Rhat$Sigmab) <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab) <-
+          names(sim1$Rhat$Sigmab) <- "Intercept"
+      }
+
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
+        cbind(sim1$mean$phiz, sim1$sd$phiz, sim1$q2.5$phiz, sim1$q97.5$phiz, sim1$Rhat$phiz)
+      )
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+      names(sim1$mean$phiz) <-
+        names(sim1$sd$phiz) <-
+        names(sim1$q2.5$phiz) <-
+        names(sim1$q97.5$phiz) <-
+        names(sim1$Rhat$phiz) <- "Dispersion"
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda, sim1$Rhat$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi, sim1$Rhat$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h, sim1$Rhat$h)
+      )
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    } else {
+      names(sim1$mean$betaL1) <-
+        names(sim1$sd$betaL1) <-
+        names(sim1$q2.5$betaL1) <-
+        names(sim1$q97.5$betaL1) <- colnames(X1)
+
+      names(sim1$mean$betaL2) <-
+        names(sim1$sd$betaL2) <-
+        names(sim1$q2.5$betaL2) <-
+        names(sim1$q97.5$betaL2) <- colnames(X2)
+
+
+      names(sim1$mean$betaS) <-
+        names(sim1$sd$betaS) <-
+        names(sim1$q2.5$betaS) <-
+        names(sim1$q97.5$betaS) <- colnames(XS)
+
+
+      names(sim1$mean$h) <-
+        names(sim1$sd$h) <-
+        names(sim1$q2.5$h) <-
+        names(sim1$q97.5$h) <- c(paste0("h", 1), paste0("h", 2), paste0("h", 3), paste0("h", 4), paste0("h", 5))
+
+
+      names(sim1$mean$gamma_lambda) <-
+        names(sim1$sd$gamma_lambda) <-
+        names(sim1$q2.5$gamma_lambda) <-
+        names(sim1$q97.5$gamma_lambda) <- "gamma_lambda"
+
+
+      names(sim1$mean$gamma_pi) <-
+        names(sim1$sd$gamma_pi) <-
+        names(sim1$q2.5$gamma_pi) <-
+        names(sim1$q97.5$gamma_pi) <- "gamma_pi"
+
+
+      rownames(sim1$mean$Sigmaa) <-
+        rownames(sim1$sd$Sigmaa) <-
+        rownames(sim1$q2.5$Sigmaa) <-
+        rownames(sim1$q97.5$Sigmaa) <-
+        colnames(sim1$mean$Sigmaa) <-
+        colnames(sim1$sd$Sigmaa) <-
+        colnames(sim1$q2.5$Sigmaa) <-
+        colnames(sim1$q97.5$Sigmaa) <- c("Intercept", "Slope")
+
+
+      if(dim(Z2)[2]==2){
+        rownames(sim1$mean$Sigmab) <-
+          rownames(sim1$sd$Sigmab) <-
+          rownames(sim1$q2.5$Sigmab) <-
+          rownames(sim1$q97.5$Sigmab) <-
+          colnames(sim1$mean$Sigmab) <-
+          colnames(sim1$sd$Sigmab) <-
+          colnames(sim1$q2.5$Sigmab) <-
+          colnames(sim1$q97.5$Sigmab)  <- c("Intercept", "Slope")
+      }else{
+        names(sim1$mean$Sigmab) <-
+          names(sim1$sd$Sigmab) <-
+          names(sim1$q2.5$Sigmab) <-
+          names(sim1$q97.5$Sigmab)  <- "Intercept"
+      }
+
+
+      ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
+      colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
+
+      D11 <- sim1$mean$Sigmaa
+      D22 <- sim1$mean$Sigmab
+
+
+      MM <- rbind(
+        cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
+        cbind(sim1$mean$phiz, sim1$sd$phiz, sim1$q2.5$phiz, sim1$q97.5$phiz)
+      )
+      colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+      names(sim1$mean$phiz) <-
+        names(sim1$sd$phiz) <-
+        names(sim1$q2.5$phiz) <-
+        names(sim1$q97.5$phiz) <-
+        names(sim1$Rhat$phiz) <- "Dispersion"
+
+      SM <- rbind(
+        cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
+        cbind(sim1$mean$gamma_lambda, sim1$sd$gamma_lambda, sim1$q2.5$gamma_lambda, sim1$q97.5$gamma_lambda),
+        cbind(sim1$mean$gamma_pi, sim1$sd$gamma_pi, sim1$q2.5$gamma_pi, sim1$q97.5$gamma_pi),
+        cbind(sim1$mean$h, sim1$sd$h, sim1$q2.5$h, sim1$q97.5$h)
+      )
+
+
+      colnames(SM) <- c("Est", "SD", "L_CI", "U_CI")
+
+
+
+      results <- list(Count_model = MM, Zero_inflated_model = ZPM, Survival_model = SM, D = list(D11 = D11, D22 = D22))
+    }
+  }
+}
+
+
+KF1 <- 100000
+KF2 <- 100000
+DIC <- sim1$DIC - 2 * n1 * KF1 - 2 * n2 * KF2
+LPML <- -sum(log(sim1$mean$cpoinvy)) - sum(log(sim1$mean$cpoinvt))
+
+
+
+
+if (family == "Bell") {
+  if (is.infinite(numbers::bell(max(y))) == TRUE) {
+    DIC <- "It is not possible to compute the DIC because the values of the Bell number are not finite."
+    LPML <- "It is not possible to compute the LPML because the values of the Bell number are not finite."
+  }
+}
+
+
+list(
+  FixedY = FixedY, FixedZ = FixedZ, formSurv = formSurv, GroupY = GroupY, GroupZ = GroupZ,
+  RandomY = RandomY, RandomZ = RandomZ, obstime = obstime, id = id, peice = peice,
+  family = family, MCMC = MCMC, Estimation = results,
+  DIC = DIC, LPML = LPML
+)
 }
