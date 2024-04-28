@@ -4851,6 +4851,22 @@ if (is.matrix(XS) == FALSE) {
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
 
+
+
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
+
+
+
     sim1 <- jagsUI::jags(
       data = d.jags,
       parameters.to.save = parameters,
@@ -5120,6 +5136,19 @@ if (is.matrix(XS) == FALSE) {
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
 
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
+
+
     sim1 <- jagsUI::jags(
       data = d.jags,
       parameters.to.save = parameters,
@@ -5385,6 +5414,22 @@ if (is.matrix(XS) == FALSE) {
       XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
+
+
+
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
+
+
 
     sim1 <- jagsUI::jags(
       data = d.jags,
@@ -5656,6 +5701,19 @@ if (is.matrix(XS) == FALSE) {
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
 
+
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
+
     sim1 <- jagsUI::jags(
       data = d.jags,
       parameters.to.save = parameters,
@@ -5912,6 +5970,18 @@ if (is.matrix(XS) == FALSE) {
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
 
+
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
     sim1 <- jagsUI::jags(
       data = d.jags,
       parameters.to.save = parameters,
@@ -6182,6 +6252,19 @@ if (is.matrix(XS) == FALSE) {
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
 
+
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
+
     sim1 <- jagsUI::jags(
       data = d.jags,
       parameters.to.save = parameters,
@@ -6433,6 +6516,18 @@ if (is.matrix(XS) == FALSE) {
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
 
+
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
     sim1 <- jagsUI::jags(
       data = d.jags,
       parameters.to.save = parameters,
@@ -6681,6 +6776,18 @@ if (is.matrix(XS) == FALSE) {
       XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
+
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
 
     sim1 <- jagsUI::jags(
       data = d.jags,
@@ -6942,6 +7049,17 @@ if (is.matrix(XS) == FALSE) {
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K, C = C
     )
 
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
     sim1 <- jagsUI::jags(
       data = d.jags,
       parameters.to.save = parameters,
@@ -7193,6 +7311,18 @@ if (is.matrix(XS) == FALSE) {
       XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
+
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
 
     sim1 <- jagsUI::jags(
       data = d.jags,
@@ -7461,6 +7591,18 @@ if (is.matrix(XS) == FALSE) {
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
 
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
+
     sim1 <- jagsUI::jags(
       data = d.jags,
       parameters.to.save = parameters,
@@ -7724,6 +7866,20 @@ if (is.matrix(XS) == FALSE) {
       XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
+
+
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
+
 
     sim1 <- jagsUI::jags(
       data = d.jags,
@@ -7991,6 +8147,21 @@ if (is.matrix(XS) == FALSE) {
       XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
+
+
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
+
+
 
     sim1 <- jagsUI::jags(
       data = d.jags,
@@ -8264,6 +8435,19 @@ if (is.matrix(XS) == FALSE) {
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
 
+
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
+
     sim1 <- jagsUI::jags(
       data = d.jags,
       parameters.to.save = parameters,
@@ -8532,6 +8716,19 @@ if (is.matrix(XS) == FALSE) {
       XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
+
+
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
 
     sim1 <- jagsUI::jags(
       data = d.jags,
@@ -8803,6 +9000,19 @@ if (is.matrix(XS) == FALSE) {
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
 
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
+
+
     sim1 <- jagsUI::jags(
       data = d.jags,
       parameters.to.save = parameters,
@@ -9056,6 +9266,18 @@ if (is.matrix(XS) == FALSE) {
       XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
+
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
 
     sim1 <- jagsUI::jags(
       data = d.jags,
@@ -9325,6 +9547,18 @@ if (is.matrix(XS) == FALSE) {
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
 
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
+
     sim1 <- jagsUI::jags(
       data = d.jags,
       parameters.to.save = parameters,
@@ -9572,6 +9806,18 @@ if (is.matrix(XS) == FALSE) {
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
 
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
+
     sim1 <- jagsUI::jags(
       data = d.jags,
       parameters.to.save = parameters,
@@ -9818,6 +10064,18 @@ if (is.matrix(XS) == FALSE) {
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
 
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
+
     sim1 <- jagsUI::jags(
       data = d.jags,
       parameters.to.save = parameters,
@@ -10052,6 +10310,11 @@ if (is.matrix(XS) == FALSE) {
     }
 
     parameters <- c("betaL1", "betaL2", "betaS", "cpoinvy", "cpoinvt", "Sigmaa", "Sigmab", "gamma_pi", "gamma_lambda", "h")
+
+    C <- c()
+    for (i in 1:n) {
+      C[i] <- log(numbers::bell(y[i])) - lfactorial(y[i])
+    }
     d.jags <- list(
       n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
       indtime1 = indtime1, indtime2 = indtime2,
@@ -10061,24 +10324,17 @@ if (is.matrix(XS) == FALSE) {
       XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K, C = C
     )
-
-
-    C <- c()
-    for (i in 1:n) {
-      C[i] <- log(numbers::bell(y[i])) - lfactorial(y[i])
-
+    if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1, indtime2 = indtime2,
-        X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
         Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1, Nb2 = Nb2, mub1 = rep(0, Nb1), mub2 = rep(0, Nb2), V1 = diag(1, Nb1), V2 = diag(1, Nb2), id = id_prim,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
         XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
-        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K,C=C
       )
     }
-
-
 
     if (is.infinite(numbers::bell(max(y))) == TRUE) {
       model.file <- textConnection(Bellwc)
@@ -10094,6 +10350,17 @@ if (is.matrix(XS) == FALSE) {
         XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
         s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
       )
+      if(dim(Z2)[2]==1){
+        d.jags <- list(
+          n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+          indtime1 = indtime1,
+          X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+          Xv1 = Xv1, Xv2 = Xv2,
+          Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+          XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+          s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+        )
+      }
     }
 
 
@@ -10346,6 +10613,19 @@ if (is.matrix(XS) == FALSE) {
       XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
+
+
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
 
     sim1 <- jagsUI::jags(
       data = d.jags,
@@ -10615,6 +10895,19 @@ if (is.matrix(XS) == FALSE) {
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
 
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
+
+
     sim1 <- jagsUI::jags(
       data = d.jags,
       parameters.to.save = parameters,
@@ -10880,6 +11173,18 @@ if (is.matrix(XS) == FALSE) {
       XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
       s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
     )
+
+    if(dim(Z2)[2]==1){
+      d.jags <- list(
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,
+        X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
+        Xv1 = Xv1, Xv2 = Xv2,
+        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
+        s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
+      )
+    }
 
     sim1 <- jagsUI::jags(
       data = d.jags,

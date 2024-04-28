@@ -85,7 +85,6 @@ Function using 'JAGS' software to estimate the hurdle joint modeling
 \examples{
 library(survival)
 
-
 \donttest{
   data(long_data_p)
   data(surv_data_p)
@@ -153,8 +152,8 @@ library(survival)
 
   Z4 <- ZIJMCV(
     FixedY = Y1 ~ obstime + x1 + x2, RandomY = ~obstime, GroupY = ~id,
-    FixedZ = ~ obstime + x1, RandomZ = ~obstime, GroupZ = ~id,
-    formSurv = Surv(survtime, death) ~ w1 + w2,
+    FixedZ = ~ obstime + x1, RandomZ = ~1, GroupZ = ~id,
+    formSurv = Surv(survtime, death) ~ w1 ,
     dataLong = long_data_nb, dataSurv = surv_data_nb,
     obstime = "obstime", id = "id",
     n.chains = 2,
