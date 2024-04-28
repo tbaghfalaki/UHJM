@@ -4976,8 +4976,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
 
 
       MM <- rbind(
@@ -5067,8 +5068,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
+
 
       names(sim1$mean$phis) <-
         names(sim1$sd$phis) <-
@@ -5257,8 +5259,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
 
       MM <- rbind(
@@ -5348,8 +5351,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
+
 
       names(sim1$mean$sigma) <-
         names(sim1$sd$sigma) <-
@@ -5542,8 +5546,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
 
       MM <- rbind(
@@ -5635,8 +5640,8 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
 
       names(sim1$mean$kappa) <-
         names(sim1$sd$kappa) <-
@@ -5819,8 +5824,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
 
       MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
@@ -5909,8 +5915,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
+
 
 
       MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
@@ -6092,8 +6099,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
 
       MM <- rbind(
@@ -6185,8 +6193,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
+
 
       names(sim1$mean$sigma) <-
         names(sim1$sd$sigma) <-
@@ -6369,8 +6378,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
 
       MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
@@ -6458,8 +6468,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
+
 
 
       MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
@@ -6630,8 +6641,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
 
       MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
@@ -6718,8 +6730,8 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
 
 
       MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
@@ -6892,8 +6904,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
 
       MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
@@ -6980,8 +6993,8 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
 
 
       MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
@@ -7163,8 +7176,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
 
       MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
@@ -7251,8 +7265,8 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
 
 
       MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
@@ -7434,8 +7448,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
 
       MM <- rbind(
@@ -7525,8 +7540,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
+
 
       names(sim1$mean$sigma) <-
         names(sim1$sd$sigma) <-
@@ -7712,8 +7728,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
 
       MM <- rbind(
@@ -7803,8 +7820,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
+
 
       names(sim1$mean$r) <-
         names(sim1$sd$r) <-
@@ -7983,8 +8001,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
 
       MM <- rbind(
@@ -8078,8 +8097,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
+
 
 
       MM <- rbind(
@@ -8266,8 +8286,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
       names(sim1$mean$phis) <-
         names(sim1$sd$phis) <-
@@ -8363,8 +8384,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
+
 
       names(sim1$mean$phis) <-
         names(sim1$sd$phis) <-
@@ -8550,8 +8572,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
       names(sim1$mean$sigma) <-
         names(sim1$sd$sigma) <-
@@ -8647,8 +8670,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
+
 
       names(sim1$mean$sigma) <-
         names(sim1$sd$sigma) <-
@@ -8832,8 +8856,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
       names(sim1$mean$kappa) <-
         names(sim1$sd$kappa) <-
@@ -8929,8 +8954,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
+
 
       names(sim1$mean$kappa) <-
         names(sim1$sd$kappa) <-
@@ -9114,8 +9140,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
 
 
@@ -9205,8 +9232,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
+
 
 
       MM <-
@@ -9381,8 +9409,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
       names(sim1$mean$sigma) <-
         names(sim1$sd$sigma) <-
@@ -9478,8 +9507,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
+
 
       names(sim1$mean$sigma) <-
         names(sim1$sd$sigma) <-
@@ -9660,8 +9690,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
 
       MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
@@ -9747,8 +9778,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
+
 
 
       MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
@@ -9918,8 +9950,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
 
       MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
@@ -10005,8 +10038,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
+
 
 
       MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
@@ -10177,8 +10211,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
 
       MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
@@ -10264,8 +10299,8 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
 
 
       MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
@@ -10466,8 +10501,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
 
       MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1)
@@ -10553,8 +10589,8 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
 
 
       MM <- cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1)
@@ -10729,8 +10765,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
       names(sim1$mean$sigma) <-
         names(sim1$sd$sigma) <-
@@ -10826,8 +10863,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
+
 
       names(sim1$mean$sigma) <-
         names(sim1$sd$sigma) <-
@@ -11010,8 +11048,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
       names(sim1$mean$r) <-
         names(sim1$sd$r) <-
@@ -11107,8 +11146,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
+
 
       names(sim1$mean$r) <-
         names(sim1$sd$r) <-
@@ -11288,8 +11328,9 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2, sim1$Rhat$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa,Rhat=sim1$Rhat$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
+
 
 
       MM <- rbind(
@@ -11382,8 +11423,8 @@ if (is.matrix(XS) == FALSE) {
       ZPM <- cbind(sim1$mean$betaL2, sim1$sd$betaL2, sim1$q2.5$betaL2, sim1$q97.5$betaL2)
       colnames(ZPM) <- c("Est", "SD", "L_CI", "U_CI")
 
-      D11 <- sim1$mean$Sigmaa
-      D22 <- sim1$mean$Sigmab
+      D11 <- list(est=sim1$mean$Sigmaa,sd=sim1$sd$Sigmaa,L=sim1$q2.5$Sigmaa,U=sim1$q97.5$Sigmaa)
+      D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
 
 
       MM <- rbind(
