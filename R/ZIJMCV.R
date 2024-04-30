@@ -2121,6 +2121,7 @@ for(l in 1:NbetaS){
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k,1])
     Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2]+b[k,2])
+
     haz[k]<- ((h[1]*step(s[1]-Time[k]))+
   (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
   (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
@@ -2468,7 +2469,7 @@ ll[i] <- (1-z[i])*(logdensity.beta(y[i],as[i], bs[i]))+z[i]*log(muz[i])+(1-z[i])
 
         Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
 
@@ -2568,7 +2569,7 @@ ll[i] <- (1-z[i])*(logdensity.beta(y[i],as[i], bs[i]))+z[i]*log(muz[i])+(1-z[i])
      Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
 
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
@@ -2664,7 +2665,7 @@ ll[i] <- (1-z[i])*(logdensity.gamma(y[i],sigma1, mu1[i]))+z[i]*log(muz[i])+(1-z[
 
         Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
 
@@ -2762,7 +2763,7 @@ ll[i] <- (1-z[i])*(logdensity.gamma(y[i],sigma1, mu1[i]))+z[i]*log(muz[i])+(1-z[
      Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
 
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
     haz[k]<- ((h[1]*step(s[1]-Time[k]))+
@@ -2860,7 +2861,7 @@ Weibull1t <- "model{
 
        Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
     haz[k]<- ((h[1]*step(s[1]-Time[k]))+
@@ -2953,7 +2954,7 @@ Weibullt <- "model{
      Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
 
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
     haz[k]<- ((h[1]*step(s[1]-Time[k]))+
@@ -3049,7 +3050,7 @@ ll[i] <- (1-z[i])*(logdensity.exp(y[i],mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-m
 
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
     haz[k]<- ((h[1]*step(s[1]-Time[k]))+
@@ -3142,7 +3143,7 @@ ll[i] <- (1-z[i])*(logdensity.exp(y[i],mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-m
      Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
 
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
@@ -3242,7 +3243,7 @@ IGauss1t <- "model{
 
         Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
     haz[k]<- ((h[1]*step(s[1]-Time[k]))+
   (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
@@ -3335,7 +3336,7 @@ IGausst <- "model{
      Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
 
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
@@ -3426,7 +3427,7 @@ ll[i] <- (1-z[i])*(logdensity.norm(y[i], mu[i],tau))+z[i]*log(muz[i])+
 
        Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
   (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
@@ -3518,7 +3519,7 @@ Gaussiant <- "model{
      Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
 
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
   haz[k]<- ((h[1]*step(s[1]-Time[k]))+
@@ -3613,7 +3614,7 @@ logart <- "model{
      Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
 
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
   haz[k]<- ((h[1]*step(s[1]-Time[k]))+
@@ -3703,7 +3704,7 @@ logar1t <- "model{
 
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
 
@@ -3789,7 +3790,7 @@ ll[i]<-(1-z[i])*(loggam(m+1)-loggam(y[i]+1)-loggam(m-y[i]+1)+y[i]*log(pi[i])+(m-
 
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
 
@@ -3878,7 +3879,7 @@ m<-max(y)
      Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
 
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
     haz[k]<- ((h[1]*step(s[1]-Time[k]))+
@@ -3966,7 +3967,7 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
 
@@ -4054,7 +4055,7 @@ Poisson1t <- "model{
 
      Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
 
@@ -4140,7 +4141,7 @@ GP1t <- "model{
 
       Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
 
@@ -4229,7 +4230,7 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
      Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
 
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
@@ -4320,7 +4321,7 @@ Poissont <- "model{
     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
 
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
 
@@ -4408,7 +4409,7 @@ GPt <- "model{
      Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
 
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
@@ -4493,7 +4494,7 @@ Bell1t <- "model{
 
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
     haz[k]<- ((h[1]*step(s[1]-Time[k]))+
@@ -4580,7 +4581,7 @@ Bellt <- "model{
      Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
 
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
@@ -4669,7 +4670,7 @@ Bell1wct <- "model{
 
     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
     haz[k]<- ((h[1]*step(s[1]-Time[k]))+
@@ -4756,7 +4757,7 @@ Bellwct <- "model{
      Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
     gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
 
-    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
 
 
     haz[k]<- ((h[1]*step(s[1]-Time[k]))+
