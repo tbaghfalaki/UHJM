@@ -35,7 +35,6 @@ DPplot1 <- function(object, s = s, id_new = id_new, mi = mi,
                     Marker_lab="Marker", Time_lab="Time",
                     by = 0.1, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
                     dataLong, dataSurv) {
-  time_new <- dataLong["obstime"]
 
   FixedY <- object$FixedY
   FixedZ <- object$FixedZ
@@ -43,8 +42,9 @@ DPplot1 <- function(object, s = s, id_new = id_new, mi = mi,
   RandomZ <- object$RandomZ
   GroupY <- object$GroupY
   GroupZ <- object$GroupZ
-
-
+  obstime=object$obstime
+  id=object$id
+  time_new <- dataLong[obstime]
 
   data_Long_s <- dataLong[time_new <= s, ]
   data_long <- data_Long_s[unique(c(
@@ -53,12 +53,12 @@ DPplot1 <- function(object, s = s, id_new = id_new, mi = mi,
   ))]
   y <- data_long[all.vars(FixedY)][, 1]
   id_prime <- as.integer(data_long[all.vars(GroupY)][, 1])
-  time_new <- as.numeric(dataLong["obstime"][, 1])
+  time_new <- as.numeric(dataLong[obstime][, 1])
 
   Data_new <- data_long[id_prime == id_new, ]
 
   y_new <- Data_new[all.vars(FixedY)][, 1]
-  time_y <- as.numeric(Data_new["obstime"][, 1])
+  time_y <- as.numeric(Data_new[obstime][, 1])
 
   #################### survival time #########
   formSurv <- object$formSurv

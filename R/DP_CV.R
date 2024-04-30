@@ -3927,13 +3927,15 @@ Bellwctb <- "model{
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(logar1b)
       betaS <- mean(object$MCMC$beta3)
-      if(dim(Z2)[2]==1){model.file <- textConnection(logar1tb)
+      if(dim(Z2)[2]==1){
+      model.file <- textConnection(logar1tb)
       Omegab = 1/Sigmab
       }
     } else {
       model.file <- textConnection(logarb)
       betaS <- apply(object$MCMC$beta3, 2, mean)
-      if(dim(Z2)[2]==1){model.file <- textConnection(logartb)
+      if(dim(Z2)[2]==1){
+      model.file <- textConnection(logartb)
       Omegab = 1/Sigmab
       }
     }

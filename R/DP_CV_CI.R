@@ -1630,6 +1630,1706 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
 }"
 
+
+
+Beta1tb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+ll[i] <- (1-z[i])*(logdensity.beta(y[i],as[i], bs[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
+
+    as[i]<-mu[i]*phi1
+    bs[i]<-(1-mu[i])*phi1
+      logit(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+      cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+
+        Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+
+
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+ phi1 <-1/phis
+
+}"
+
+
+
+Betatb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+
+ll[i] <- (1-z[i])*(logdensity.beta(y[i],as[i], bs[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
+
+    as[i]<-mu[i]*phi1
+    bs[i]<-(1-mu[i])*phi1
+      logit(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+
+
+
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+   haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+  phi1 <-1/phis
+
+
+}"
+
+
+
+
+Gamma1tb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+
+ll[i] <- (1-z[i])*(logdensity.gamma(y[i],sigma1, mu1[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
+
+    mu1[i]<-sigma1/mu[i]
+      log(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+
+
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+        Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+
+
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+  sigma1<-1/sigma
+
+
+}"
+
+
+
+Gammatb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+ll[i] <- (1-z[i])*(logdensity.gamma(y[i],sigma1, mu1[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
+
+    mu1[i]<-sigma1/mu[i]
+      log(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+
+
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+
+  sigma1<-1/sigma
+
+
+}"
+
+
+
+
+
+Weibull1tb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+
+ ll[i] <- (1-z[i])*(logdensity.weib(y[i],kappa, mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
+
+
+
+      log(mu[i]) <- -(inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,]))
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+
+
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+       Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+
+
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+
+}"
+
+
+
+Weibulltb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+ ll[i] <- (1-z[i])*(logdensity.weib(y[i],kappa, mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
+
+
+      log(mu[i]) <- -(inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,]))
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+
+  for(l in 1:Nbeta1){
+    betaL1[l]~dnorm(0,0.001)
+  }
+
+  for(l in 1:Nbeta2){
+    betaL2[l]~dnorm(0,0.001)
+  }
+
+
+
+
+}"
+
+
+
+
+
+
+Exp1tb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+ll[i] <- (1-z[i])*(logdensity.exp(y[i],mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
+
+
+      log(mu[i]) <- -(inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,]))
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+    Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+
+
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+  lambda<-1/sigma
+
+}"
+
+
+Exptb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+ll[i] <- (1-z[i])*(logdensity.exp(y[i],mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-muz[i])
+
+
+
+      log(mu[i]) <- -(inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,]))
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+   haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+  lambda<-1/sigma
+
+
+}"
+
+
+
+IGauss1tb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+
+ ll[i]<- (1-z[i])*(0.5*(log(lambda)-log(2*3.14)-3*log(0.000000001+y[i]))-
+ 0.5*lambda*pow((y[i]-mu[i]),2)/(pow(mu[i],2)*(0.000000001+y[i]))+log(1-muz[i]))+z[i]*log(muz[i])
+
+
+
+      log(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+        Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+
+
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+  lambda<-1/sigma
+
+
+}"
+
+
+IGausstb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+  ll[i]<- (1-z[i])*(0.5*(log(lambda)-log(2*3.14)-3*log(0.000000001+y[i]))-
+ 0.5*lambda*pow((y[i]-mu[i]),2)/(pow(mu[i],2)*(0.000000001+y[i]))+log(1-muz[i]))+z[i]*log(muz[i])
+
+
+
+      log(mu[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+   haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+  lambda<-1/sigma
+
+}"
+
+Gaussian1tb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+
+ll[i] <- (1-z[i])*(logdensity.norm(y[i], mu[i],tau))+z[i]*log(muz[i])+
+(1-z[i])*log(1-muz[i])
+
+
+      mu[i] <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+       Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+   haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+
+
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+tau<-1/sigma
+
+}"
+
+
+Gaussiantb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+ ll[i] <- (1-z[i])*(logdensity.norm(y[i], mu[i],tau))+z[i]*log(muz[i])+
+(1-z[i])*log(1-muz[i])
+
+
+
+      mu[i] <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+  haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+tau<-1/sigma
+
+
+}"
+
+
+
+
+
+logartb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+  ll[i]<-(1-z[i])*(log(-1/log(1-pi[i]))+y[i]*log(pi[i])-log(y[i]))+z[i]*log(lambda[i])+
+  (1-z[i])*log(1-lambda[i])
+
+
+      logit(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+  haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+}"
+
+
+
+
+logar1tb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+
+       ll[i]<-(1-z[i])*(log(-1/log(1-pi[i]))+y[i]*log(pi[i])-log(y[i]))+z[i]*log(lambda[i])+
+  (1-z[i])*log(1-lambda[i])
+
+
+      logit(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+    Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+
+
+
+}"
+
+binomial1tb <- "model{
+
+m<-max(y)
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+
+ll[i]<-(1-z[i])*(loggam(m+1)-loggam(y[i]+1)-loggam(m-y[i]+1)+y[i]*log(pi[i])+(m-y[i])*log(1-pi[i])-
+                   log(1-pow(1-pi[i],m)))+z[i]*log(lambda[i])+(1-z[i])*log(1-lambda[i])
+
+
+      logit(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+    Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+}"
+
+
+binomialtb <- "model{
+
+m<-max(y)
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+  ll[i]<-(1-z[i])*(loggam(m+1)-loggam(y[i]+1)-loggam(m-y[i]+1)+y[i]*log(pi[i])+(m-y[i])*log(1-pi[i])-
+                   log(1-pow(1-pi[i],m)))+z[i]*log(lambda[i])+(1-z[i])*log(1-lambda[i])
+
+      logit(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+
+}"
+
+###########
+NB1tb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+    ll[i]<-z[i]*log(pi[i]) +
+(1-z[i])*(log(1-pi[i])+loggam(r+y[i])-loggam(r)-loggam(y[i]+1)+r*log(r/(r+lambda[i]))+
+y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
+
+
+      log(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+    Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+
+
+}"
+
+
+Poisson1tb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+
+     ll[i]<-z[i]*log(pi[i]) +(1-z[i])*(log(1-pi[i])+logdensity.pois(y[i], lambda[i])-log(1-exp(-lambda[i])))
+ #ll[i]<-(1-z[i])*(y[i]*log(lambda[i])-lambda[i] - loggam(y[i]+1)-log(1-exp(-lambda[i])))+z[i]*log(muz[i])+
+#(1-z[i])*log(1-muz[i])
+
+      log(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+
+
+}"
+
+GP1tb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+  ll[i]<-z[i]*log(pi[i]) +
+ (1-z[i])*(log(1-pi[i])+y[i]*log(lambda[i])-y[i]*log(1+phiz*lambda[i])+(y[i]-1)*log(1+phiz*y[i])- loggam(y[i]+1)-
+        lambda[i]*(1+phiz*y[i])/(1+phiz*lambda[i])-log(1-exp(-lambda[i]/(1+phiz*lambda[i]))))
+
+      log(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+      Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+}"
+
+
+NBtb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+    ll[i]<-z[i]*log(pi[i]) +
+(1-z[i])*(log(1-pi[i])+loggam(r+y[i])-loggam(r)-loggam(y[i]+1)+r*log(r/(r+lambda[i]))+
+y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
+
+      log(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+   haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+
+}"
+
+
+Poissontb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+     ll[i]<-z[i]*log(pi[i]) +(1-z[i])*(log(1-pi[i])+logdensity.pois(y[i], lambda[i])-log(1-exp(-lambda[i])))
+
+
+# ll[i]<-(1-z[i])*(y[i]*log(lambda[i])-lambda[i] - loggam(y[i]+1)-log(1-exp(-lambda[i])))+z[i]*log(muz[i])+
+#(1-z[i])*log(1-muz[i])
+
+
+      log(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+    Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+
+}"
+
+GPtb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+  ll[i]<-z[i]*log(pi[i]) +
+ (1-z[i])*(log(1-pi[i])+y[i]*log(lambda[i])-y[i]*log(1+phiz*lambda[i])+(y[i]-1)*log(1+phiz*y[i])- loggam(y[i]+1)-
+        lambda[i]*(1+phiz*y[i])/(1+phiz*lambda[i])-log(1-exp(-lambda[i]/(1+phiz*lambda[i]))))
+
+      log(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(pi[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+   haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+
+}"
+
+Bell1tb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+ ll[i]<-(1-z[i])*(y[i]*log(theta[i])+1-exp(theta[i])+C[i]-(log(1-exp(1-exp(theta[i])))))+z[i]*log(muz[i])+
+(1-z[i])*log(1-muz[i])
+
+      log(theta[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+    Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+
+}"
+
+
+Belltb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+    ll[i]<-(1-z[i])*(y[i]*log(theta[i])+1-exp(theta[i])+C[i]-(log(1-exp(1-exp(theta[i])))))+z[i]*log(muz[i])+
+(1-z[i])*log(1-muz[i])
+
+
+      log(theta[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+   haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+
+}"
+
+
+
+
+
+Bell1wctb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+ ll[i]<-(1-z[i])*(y[i]*log(theta[i])+1-exp(theta[i])-(log(1-exp(1-exp(theta[i])))))+z[i]*log(muz[i])+
+(1-z[i])*log(1-muz[i])
+
+      log(theta[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+
+    Alpha0[k]<- betaS*XS[k]+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+}"
+
+
+Bellwctb <- "model{
+
+
+  for(i in 1:n){
+      cpoinvy[i]<- 1/(0.0001+exp(ll[i]))
+
+    zeros[i]~dpois(phi[i])
+    phi[i]<-  - ll[i]+KF1
+
+    ll[i]<-(1-z[i])*(y[i]*log(theta[i])+1-exp(theta[i])-(log(1-exp(1-exp(theta[i])))))+z[i]*log(muz[i])+
+(1-z[i])*log(1-muz[i])
+
+
+      log(theta[i]) <- inprod(betaL1[],X1[i,])+inprod(a[id[i],1:Nb1],Z1[i,])
+      logit(muz[i]) <-  inprod(betaL2[],X2[i,])+b[id[i]]
+
+
+
+    a[i,1:Nb1]~dmnorm(mub1[],Omegaa[,])
+    b[i]~dnorm(0,Omegab)
+  }
+
+  # Survival and censoring times
+  # Hazard function
+  for(k in 1:n2){
+        cpoinvt[k]<- 1/(0.0001+exp(death[k]*log(haz[k])+logSurv[k]))
+
+     Alpha0[k]<- inprod(betaS[],XS[k,])+gamma_lambda*(inprod(betaL1[nindtime1],Xv1[k,])+a[k,1])+
+    gamma_pi*(inprod(betaL2[nindtime2],Xv2[k,])+b[k])
+
+    Alpha1[k]<- gamma_lambda*(betaL1[indtime1]+a[k,2])+gamma_pi*(betaL2[indtime2])
+
+
+    haz[k]<- ((h[1]*step(s[1]-Time[k]))+
+  (h[2]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+  (h[3]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+  (h[4]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+  (h[5]*step(Time[k]-s[4])))*exp(Alpha0[k]+Alpha1[k]*Time[k])
+    for(j in 1:K){
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+      #  Hazard function at Gauss-Kronrod/Legendre nodes
+      chaz[k,j]<-  ((h[1]*step(s[1]-xk11[k,j]))+
+        (h[2]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+        (h[3]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+        (h[4]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+        (h[5]*step(xk11[k,j]-s[4])))*exp(Alpha0[k]+Alpha1[k]*xk11[k,j])
+
+    }
+
+
+    logSurv[k]<- -inprod(wk11[k,],chaz[k,])
+
+    #Definition of the survival log-likelihood using zeros trick
+    phi2[k]<-KF2-death[k]*log(haz[k])-logSurv[k]
+    zeros2[k]~dpois(phi2[k])
+}
+
+
+
+}"
+#####
+
   ############################
   tmp <- dataSurv[all.vars(formSurv)]
   Time <- tmp[all.vars(formSurv)][, 1] # matrix of observed time such as Time=min(Tevent,Tcens)
@@ -1724,46 +3424,81 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
-    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+
+    if(dim(Z2)[2]==1){
+    Sigmabs <- object$MCMC$Sigmab[SAMPLE]
+    }else{
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+
+    }
+
     gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
     gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
     phiss <- object$MCMC$phi[SAMPLE]
     hs <- object$MCMC$h[SAMPLE,]
 
 
+
+    #Omegab = solve(Sigmab)
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(Beta1b)
       betaSs <- object$MCMC$beta3[SAMPLE]
+      if(dim(Z2)[2]==1){model.file <- textConnection(Beta1tb)
+      #Omegab = 1/Sigmab
+      }
     } else {
       model.file <- textConnection(Betab)
       betaSs <- object$MCMC$beta3[SAMPLE,]
+      if(dim(Z2)[2]==1){model.file <- textConnection(Betatb)
+      #Omegab = 1/Sigmab
+      }
     }
+
+
+
+
+
     a_mcmc=b_mcmc=list()
     for(ttt in 1:mi){
 
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       Sigmaa <- Sigmaas[ttt,,]
-      Sigmab <- Sigmabs[ttt,,]
+      if(dim(Z2)[2]==1){
+        Sigmab <- Sigmabs[ttt]
+      }else{
+        Sigmab <- Sigmabs[ttt,,]
+
+      }
       gamma_pi <- gamma_pis[ttt]
       gamma_lambda <- gamma_lambdas[ttt]
       phis <- phiss[ttt]
       h <- hs[ttt,]
 
 
+
+
+
+      Omegab = solve(Sigmab)
       if (is.matrix(XS) == FALSE) {
         model.file <- textConnection(Beta1b)
         betaS <- betaSs[ttt]
+        if(dim(Z2)[2]==1){model.file <- textConnection(Beta1tb)
+        Omegab = 1/Sigmab
+        }
       } else {
         model.file <- textConnection(Betab)
         betaS <- betaSs[ttt,]
+        if(dim(Z2)[2]==1){model.file <- textConnection(Betatb)
+        Omegab = 1/Sigmab
+        }
       }
 
 
 
 
     d.jags <- list(
-      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda, phis = phis,
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab =Omegab, gamma_pi = gamma_pi, gamma_lambda = gamma_lambda, phis = phis,
       h = h,
       n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
       indtime1 = indtime1, indtime2 = indtime2,
@@ -1783,7 +3518,7 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -1827,45 +3562,84 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
-    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+    if(dim(Z2)[2]==1){
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE]
+    }else{
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+
+    }
     gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
     gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
     sigmas <- object$MCMC$sigma[SAMPLE]
     hs <- object$MCMC$h[SAMPLE,]
 
 
+
+
+    #Omegab = solve(Sigmab)
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(Gamma1b)
       betaSs <- object$MCMC$beta3[SAMPLE]
+      if(dim(Z2)[2]==1){model.file <- textConnection(Gamma1tb)
+      #Omegab = 1/Sigmab
+      }
     } else {
       model.file <- textConnection(Gammab)
       betaSs <- object$MCMC$beta3[SAMPLE,]
+      if(dim(Z2)[2]==1){model.file <- textConnection(Gammatb)
+      #Omegab = 1/Sigmab
+      }
     }
+
+
+
+
+
+
+
     a_mcmc=b_mcmc=list()
     for(ttt in 1:mi){
 
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       Sigmaa <- Sigmaas[ttt,,]
-      Sigmab <- Sigmabs[ttt,,]
+
+      if(dim(Z2)[2]==1){
+        Sigmab <- Sigmabs[ttt]
+      }else{
+        Sigmab <- Sigmabs[ttt,,]
+
+      }
+
+
       gamma_pi <- gamma_pis[ttt]
       gamma_lambda <- gamma_lambdas[ttt]
       sigma <- sigmas[ttt]
       h <- hs[ttt,]
 
 
+
+
+      Omegab = solve(Sigmab)
       if (is.matrix(XS) == FALSE) {
         model.file <- textConnection(Gamma1b)
         betaS <- betaSs[ttt]
+        if(dim(Z2)[2]==1){model.file <- textConnection(Gamma1tb)
+        Omegab = 1/Sigmab
+        }
       } else {
         model.file <- textConnection(Gammab)
         betaS <- betaSs[ttt,]
+        if(dim(Z2)[2]==1){model.file <- textConnection(Gammatb)
+        Omegab = 1/Sigmab
+        }
       }
 
 
 
+
     d.jags <- list(
-      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab =Omegab, gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
       sigma1 = 1 / sigma,
       h = h,
       n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
@@ -1886,7 +3660,7 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -1927,20 +3701,35 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
-    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+    if(dim(Z2)[2]==1){
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE]
+    }else{
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+
+    }
     gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
     gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
     kappas <- object$MCMC$kappa[SAMPLE]
     hs <- object$MCMC$h[SAMPLE,]
 
 
+    #Omegab = solve(Sigmab)
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(Weibull1b)
       betaSs <- object$MCMC$beta3[SAMPLE]
+      if(dim(Z2)[2]==1){model.file <- textConnection(Weibull1tb)
+      #Omegab = 1/Sigmab
+      }
     } else {
       model.file <- textConnection(Weibullb)
       betaSs <- object$MCMC$beta3[SAMPLE,]
+      if(dim(Z2)[2]==1){model.file <- textConnection(Weibulltb)
+      #Omegab = 1/Sigmab
+      }
     }
+
+
+
 
     a_mcmc=b_mcmc=list()
     for(ttt in 1:mi){
@@ -1948,26 +3737,38 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       Sigmaa <- Sigmaas[ttt,,]
-      Sigmab <- Sigmabs[ttt,,]
+
+      if(dim(Z2)[2]==1){
+        Sigmab <- Sigmabs[ttt]
+      }else{
+        Sigmab <- Sigmabs[ttt,,]
+
+      }
       gamma_pi <- gamma_pis[ttt]
       gamma_lambda <- gamma_lambdas[ttt]
       kappa <- kappas[ttt]
       h <- hs[ttt,]
 
 
+
+      Omegab = solve(Sigmab)
       if (is.matrix(XS) == FALSE) {
         model.file <- textConnection(Weibull1b)
         betaS <- betaSs[ttt]
+        if(dim(Z2)[2]==1){model.file <- textConnection(Weibull1tb)
+        Omegab = 1/Sigmab
+        }
       } else {
         model.file <- textConnection(Weibullb)
         betaS <- betaSs[ttt,]
+        if(dim(Z2)[2]==1){model.file <- textConnection(Weibulltb)
+        Omegab = 1/Sigmab
+        }
       }
 
 
-
-
     d.jags <- list(
-      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab =Omegab, gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
       kappa = kappa,
       h = h,
       n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
@@ -1988,7 +3789,7 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -2026,19 +3827,38 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
-    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+    if(dim(Z2)[2]==1){
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE]
+    }else{
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+
+    }
+
+
     gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
     gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
     hs <- object$MCMC$h[SAMPLE,]
 
 
+
+    #Omegab = solve(Sigmab)
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(Exp1b)
       betaSs <- object$MCMC$beta3[SAMPLE]
+      if(dim(Z2)[2]==1){model.file <- textConnection(Exp1tb)
+      #Omegab = 1/Sigmab
+      }
     } else {
       model.file <- textConnection(Expb)
       betaSs <- object$MCMC$beta3[SAMPLE,]
+      if(dim(Z2)[2]==1){model.file <- textConnection(Exptb)
+      #Omegab = 1/Sigmab
+      }
     }
+
+
+
+
 
     a_mcmc=b_mcmc=list()
     for(ttt in 1:mi){
@@ -2046,25 +3866,37 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       Sigmaa <- Sigmaas[ttt,,]
-      Sigmab <- Sigmabs[ttt,,]
+      if(dim(Z2)[2]==1){
+        Sigmab <- Sigmabs[ttt]
+      }else{
+        Sigmab <- Sigmabs[ttt,,]
+
+      }
+
       gamma_pi <- gamma_pis[ttt]
       gamma_lambda <- gamma_lambdas[ttt]
       h <- hs[ttt,]
 
 
+      Omegab = solve(Sigmab)
       if (is.matrix(XS) == FALSE) {
         model.file <- textConnection(Exp1b)
         betaS <- betaSs[ttt]
+        if(dim(Z2)[2]==1){model.file <- textConnection(Exp1tb)
+        Omegab = 1/Sigmab
+        }
       } else {
         model.file <- textConnection(Expb)
         betaS <- betaSs[ttt,]
+        if(dim(Z2)[2]==1){model.file <- textConnection(Exptb)
+        Omegab = 1/Sigmab
+        }
       }
 
 
 
-
     d.jags <- list(
-      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab =Omegab, gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
       h = h,
       n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
       indtime1 = indtime1, indtime2 = indtime2,
@@ -2084,7 +3916,7 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -2123,20 +3955,35 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
-    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+    if(dim(Z2)[2]==1){
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE]
+    }else{
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+
+    }
     gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
     gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
     sigmas <- object$MCMC$sigma[SAMPLE]
     hs <- object$MCMC$h[SAMPLE,]
 
 
+
+    #Omegab = solve(Sigmab)
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(IGauss1b)
       betaSs <- object$MCMC$beta3[SAMPLE]
+      if(dim(Z2)[2]==1){model.file <- textConnection(IGauss1tb)
+      #Omegab = 1/Sigmab
+      }
     } else {
       model.file <- textConnection(IGaussb)
       betaSs <- object$MCMC$beta3[SAMPLE,]
+      if(dim(Z2)[2]==1){model.file <- textConnection(IGausstb)
+      #Omegab = 1/Sigmab
+      }
     }
+
+
 
     a_mcmc=b_mcmc=list()
     for(ttt in 1:mi){
@@ -2144,26 +3991,38 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       Sigmaa <- Sigmaas[ttt,,]
-      Sigmab <- Sigmabs[ttt,,]
+      if(dim(Z2)[2]==1){
+        Sigmab <- Sigmabs[ttt]
+      }else{
+        Sigmab <- Sigmabs[ttt,,]
+
+      }
       gamma_pi <- gamma_pis[ttt]
       gamma_lambda <- gamma_lambdas[ttt]
       sigma <- sigmas[ttt]
       h <- hs[ttt,]
 
 
+
+
+      Omegab = solve(Sigmab)
       if (is.matrix(XS) == FALSE) {
         model.file <- textConnection(IGauss1b)
         betaS <- betaSs[ttt]
+        if(dim(Z2)[2]==1){model.file <- textConnection(IGauss1tb)
+        Omegab = 1/Sigmab
+        }
       } else {
         model.file <- textConnection(IGaussb)
         betaS <- betaSs[ttt,]
+        if(dim(Z2)[2]==1){model.file <- textConnection(IGausstb)
+        Omegab = 1/Sigmab
+        }
       }
 
 
-
-
     d.jags <- list(
-      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab =Omegab, gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
       h = h, lambda = 1 / sigma,
       n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
       indtime1 = indtime1, indtime2 = indtime2,
@@ -2183,7 +4042,7 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -2217,20 +4076,31 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
-    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+    if(dim(Z2)[2]==1){
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE]
+    }else{
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+
+    }
     gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
     gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
     hs <- object$MCMC$h[SAMPLE,]
 
 
+    #Omegab = solve(Sigmab)
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(Poisson1b)
       betaSs <- object$MCMC$beta3[SAMPLE]
+      if(dim(Z2)[2]==1){model.file <- textConnection(Poisson1tb)
+      #Omegab = 1/Sigmab
+      }
     } else {
       model.file <- textConnection(Poissonb)
       betaSs <- object$MCMC$beta3[SAMPLE,]
+      if(dim(Z2)[2]==1){model.file <- textConnection(Poissontb)
+      #Omegab = 1/Sigmab
+      }
     }
-
 
     a_mcmc=b_mcmc=list()
     for(ttt in 1:mi){
@@ -2238,25 +4108,37 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       Sigmaa <- Sigmaas[ttt,,]
-      Sigmab <- Sigmabs[ttt,,]
+      if(dim(Z2)[2]==1){
+        Sigmab <- Sigmabs[ttt]
+      }else{
+        Sigmab <- Sigmabs[ttt,,]
+
+      }
       gamma_pi <- gamma_pis[ttt]
       gamma_lambda <- gamma_lambdas[ttt]
       h <- hs[ttt,]
 
 
+      Omegab = solve(Sigmab)
       if (is.matrix(XS) == FALSE) {
         model.file <- textConnection(Poisson1b)
         betaS <- betaSs[ttt]
+        if(dim(Z2)[2]==1){model.file <- textConnection(Poisson1tb)
+        Omegab = 1/Sigmab
+        }
       } else {
         model.file <- textConnection(Poissonb)
         betaS <- betaSs[ttt,]
+        if(dim(Z2)[2]==1){model.file <- textConnection(Poissontb)
+        Omegab = 1/Sigmab
+        }
       }
 
 
 
 
     d.jags <- list(
-      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab =Omegab, gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
       h = h,
       n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
       indtime1 = indtime1, indtime2 = indtime2,
@@ -2276,7 +4158,7 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -2310,18 +4192,31 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
-    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+
+    if(dim(Z2)[2]==1){
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE]
+    }else{
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+
+    }
     gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
     gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
     hs <- object$MCMC$h[SAMPLE,]
 
 
+    #Omegab = solve(Sigmab)
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(logar1b)
       betaSs <- object$MCMC$beta3[SAMPLE]
+      if(dim(Z2)[2]==1){model.file <- textConnection(logar1tb)
+      #Omegab = 1/Sigmab
+      }
     } else {
-      model.file <- textConnection(logar1b)
+      model.file <- textConnection(logarb)
       betaSs <- object$MCMC$beta3[SAMPLE,]
+      if(dim(Z2)[2]==1){model.file <- textConnection(logartb)
+      #Omegab = 1/Sigmab
+      }
     }
 
 
@@ -2331,25 +4226,37 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       Sigmaa <- Sigmaas[ttt,,]
-      Sigmab <- Sigmabs[ttt,,]
+      if(dim(Z2)[2]==1){
+        Sigmab <- Sigmabs[ttt]
+      }else{
+        Sigmab <- Sigmabs[ttt,,]
+
+      }
       gamma_pi <- gamma_pis[ttt]
       gamma_lambda <- gamma_lambdas[ttt]
       h <- hs[ttt,]
 
 
+      Omegab = solve(Sigmab)
       if (is.matrix(XS) == FALSE) {
         model.file <- textConnection(logar1b)
         betaS <- betaSs[ttt]
+        if(dim(Z2)[2]==1){model.file <- textConnection(logar1tb)
+        Omegab = 1/Sigmab
+        }
       } else {
         model.file <- textConnection(logarb)
         betaS <- betaSs[ttt,]
+        if(dim(Z2)[2]==1){model.file <- textConnection(logartb)
+        Omegab = 1/Sigmab
+        }
       }
 
 
 
 
     d.jags <- list(
-      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab =Omegab, gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
       h = h,
       n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
       indtime1 = indtime1, indtime2 = indtime2,
@@ -2369,7 +4276,7 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -2405,18 +4312,31 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
-    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+    if(dim(Z2)[2]==1){
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE]
+    }else{
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+
+    }
+
     gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
     gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
     hs <- object$MCMC$h[SAMPLE,]
 
 
+    #Omegab = solve(Sigmab)
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(binomial1b)
       betaSs <- object$MCMC$beta3[SAMPLE]
+      if(dim(Z2)[2]==1){model.file <- textConnection(binomial1tb)
+      #Omegab = 1/Sigmab
+      }
     } else {
       model.file <- textConnection(binomialb)
       betaSs <- object$MCMC$beta3[SAMPLE,]
+      if(dim(Z2)[2]==1){model.file <- textConnection(binomialtb)
+      #Omegab = 1/Sigmab
+      }
     }
 
 
@@ -2426,25 +4346,38 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       Sigmaa <- Sigmaas[ttt,,]
-      Sigmab <- Sigmabs[ttt,,]
+      if(dim(Z2)[2]==1){
+        Sigmab <- Sigmabs[ttt]
+      }else{
+        Sigmab <- Sigmabs[ttt,,]
+
+      }
       gamma_pi <- gamma_pis[ttt]
       gamma_lambda <- gamma_lambdas[ttt]
       h <- hs[ttt,]
 
 
+      Omegab = solve(Sigmab)
       if (is.matrix(XS) == FALSE) {
         model.file <- textConnection(binomial1b)
         betaS <- betaSs[ttt]
+        if(dim(Z2)[2]==1){model.file <- textConnection(binomial1tb)
+        Omegab = 1/Sigmab
+        }
       } else {
         model.file <- textConnection(binomialb)
         betaS <- betaSs[ttt,]
+        if(dim(Z2)[2]==1){model.file <- textConnection(binomialtb)
+        Omegab = 1/Sigmab
+        }
       }
 
 
 
 
+
     d.jags <- list(
-      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab =Omegab, gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
       h = h,
       n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
       indtime1 = indtime1, indtime2 = indtime2,
@@ -2464,7 +4397,7 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -2503,23 +4436,45 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
-    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+
+    if(dim(Z2)[2]==1){
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE]
+    }else{
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+
+    }
     gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
     gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
     hs <- object$MCMC$h[SAMPLE,]
 
 
+    #Omegab = solve(Sigmab)
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(Bell1b)
-      betaS <- mean(object$MCMC$beta3)
+      betaSs <- object$MCMC$beta3[SAMPLE]
+      if (is.infinite(numbers::bell(max(y))) == TRUE) {
+        model.file <- textConnection(Bell1wcb)
+      }
+      if(dim(Z2)[2]==1){
+        model.file <- textConnection(Bell1tb)
+        #Omegab = 1/Sigmab
+        if (is.infinite(numbers::bell(max(y))) == TRUE) {
+          model.file <- textConnection(Bell1wctb)
+        }
+      }
+
+    } else {
+      model.file <- textConnection(Bellb)
+      betaSs <- object$MCMC$beta3[SAMPLE,]
       if (is.infinite(numbers::bell(max(y))) == TRUE) {
         model.file <- textConnection(Bellwcb)
       }
-    } else {
-      model.file <- textConnection(Bellb)
-      betaS <- apply(object$MCMC$beta3, 2, mean)
-      if (is.infinite(numbers::bell(max(y))) == TRUE) {
-        model.file <- textConnection(Bellwcb)
+      if(dim(Z2)[2]==1){
+        model.file <- textConnection(Belltb)
+        #Omegab = 1/Sigmab
+        if (is.infinite(numbers::bell(max(y))) == TRUE) {
+          model.file <- textConnection(Bellwctb)
+        }
       }
     }
 
@@ -2531,29 +4486,44 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       Sigmaa <- Sigmaas[ttt,,]
-      Sigmab <- Sigmabs[ttt,,]
+      if(dim(Z2)[2]==1){
+        Sigmab <- Sigmabs[ttt]
+      }else{
+        Sigmab <- Sigmabs[ttt,,]
+
+      }
       gamma_pi <- gamma_pis[ttt]
       gamma_lambda <- gamma_lambdas[ttt]
       h <- hs[ttt,]
 
 
+      #Omegab = solve(Sigmab)
       if (is.matrix(XS) == FALSE) {
         model.file <- textConnection(Bell1b)
-        betaS <- mean(object$MCMC$beta3)
-        betaSs <- object$MCMC$beta3[SAMPLE]
-
+        betaS <- betaSs[ttt]
         if (is.infinite(numbers::bell(max(y))) == TRUE) {
-          model.file <- textConnection(Bellwcb)
-          betaSs <- object$MCMC$beta3[SAMPLE]
-
+          model.file <- textConnection(Bell1wcb)
         }
+        if(dim(Z2)[2]==1){
+          model.file <- textConnection(Bell1tb)
+          #Omegab = 1/Sigmab
+          if (is.infinite(numbers::bell(max(y))) == TRUE) {
+            model.file <- textConnection(Bell1wctb)
+          }
+        }
+
       } else {
         model.file <- textConnection(Bellb)
-        betaS <- apply(object$MCMC$beta3, 2, mean)
-        betaSs <- object$MCMC$beta3[SAMPLE,]
-
+        betaS <- betaSs[ttt,]
         if (is.infinite(numbers::bell(max(y))) == TRUE) {
           model.file <- textConnection(Bellwcb)
+        }
+        if(dim(Z2)[2]==1){
+          model.file <- textConnection(Belltb)
+          #Omegab = 1/Sigmab
+          if (is.infinite(numbers::bell(max(y))) == TRUE) {
+            model.file <- textConnection(Bellwctb)
+          }
         }
       }
 
@@ -2563,7 +4533,7 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
 
     d.jags <- list(
-      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab =Omegab, gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
       h = h,
       n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
       indtime1 = indtime1, indtime2 = indtime2,
@@ -2583,7 +4553,7 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -2620,19 +4590,33 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
-    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+
+    if(dim(Z2)[2]==1){
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE]
+    }else{
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+
+    }
     gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
     gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
     sigmas <- object$MCMC$sigma[SAMPLE]
     hs <- object$MCMC$h[SAMPLE,]
 
 
+    #Omegab = solve(Sigmab)
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(Gaussian1b)
       betaSs <- object$MCMC$beta3[SAMPLE]
+      if(dim(Z2)[2]==1){
+        model.file <- textConnection(Gaussian1tb)
+        #Omegab = 1/Sigmab
+      }
     } else {
       model.file <- textConnection(Gaussianb)
       betaSs <- object$MCMC$beta3[SAMPLE,]
+      if(dim(Z2)[2]==1){model.file <- textConnection(Gaussiantb)
+      #Omegab = 1/Sigmab
+      }
     }
 
 
@@ -2642,26 +4626,40 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       Sigmaa <- Sigmaas[ttt,,]
-      Sigmab <- Sigmabs[ttt,,]
+      if(dim(Z2)[2]==1){
+        Sigmab <- Sigmabs[ttt]
+      }else{
+        Sigmab <- Sigmabs[ttt,,]
+
+      }
       gamma_pi <- gamma_pis[ttt]
       gamma_lambda <- gamma_lambdas[ttt]
       sigma <- sigmas[ttt]
       h <- hs[ttt,]
 
 
+      Omegab = solve(Sigmab)
       if (is.matrix(XS) == FALSE) {
         model.file <- textConnection(Gaussian1b)
         betaS <- betaSs[ttt]
+        if(dim(Z2)[2]==1){
+          model.file <- textConnection(Gaussian1tb)
+          Omegab = 1/Sigmab
+        }
       } else {
         model.file <- textConnection(Gaussianb)
         betaS <- betaSs[ttt,]
+        if(dim(Z2)[2]==1){
+          model.file <- textConnection(Gaussiantb)
+          Omegab = 1/Sigmab
+        }
       }
 
 
 
 
     d.jags <- list(
-      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab =Omegab, gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
       h = h, tau = 1 / sigma,
       n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2),
       death = death, KF1 = 100000, KF2 = 100000,
@@ -2683,7 +4681,7 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -2718,19 +4716,33 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
-    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+    if(dim(Z2)[2]==1){
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE]
+    }else{
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+
+    }
+
     gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
     gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
     rs <- object$MCMC$r[SAMPLE]
     hs <- object$MCMC$h[SAMPLE,]
 
 
+   # #Omegab = solve(Sigmab)
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(NB1b)
       betaSs <- object$MCMC$beta3[SAMPLE]
+      if(dim(Z2)[2]==1){
+        model.file <- textConnection(NB1tb)
+       # #Omegab = 1/Sigmab
+      }
     } else {
       model.file <- textConnection(NBb)
       betaSs <- object$MCMC$beta3[SAMPLE,]
+      if(dim(Z2)[2]==1){model.file <- textConnection(NBtb)
+      ##Omegab = 1/Sigmab
+      }
     }
 
 
@@ -2743,19 +4755,33 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       Sigmaa <- Sigmaas[ttt,,]
-      Sigmab <- Sigmabs[ttt,,]
+      if(dim(Z2)[2]==1){
+        Sigmab <- Sigmabs[ttt]
+      }else{
+        Sigmab <- Sigmabs[ttt,,]
+
+      }
       gamma_pi <- gamma_pis[ttt]
       gamma_lambda <- gamma_lambdas[ttt]
       r <- rs[ttt]
       h <- hs[ttt,]
 
 
+      Omegab = solve(Sigmab)
       if (is.matrix(XS) == FALSE) {
         model.file <- textConnection(NB1b)
         betaS <- betaSs[ttt]
+        if(dim(Z2)[2]==1){
+          model.file <- textConnection(NB1tb)
+          Omegab = 1/Sigmab
+        }
       } else {
         model.file <- textConnection(NBb)
         betaS <- betaSs[ttt,]
+        if(dim(Z2)[2]==1){
+          model.file <- textConnection(NBtb)
+          Omegab = 1/Sigmab
+        }
       }
 
 
@@ -2763,7 +4789,7 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
     d.jags <- list(
       betaL1 = betaL1, betaL2 = betaL2, betaS = betaS,
-      Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      Omegaa = solve(Sigmaa), Omegab =Omegab, gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
       h = h, r = r,
       n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
       indtime1 = indtime1, indtime2 = indtime2,
@@ -2783,7 +4809,7 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -2816,19 +4842,33 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     Sigmaas <- object$MCMC$Sigmaa[SAMPLE,,]
-    Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+
+    if(dim(Z2)[2]==1){
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE]
+    }else{
+      Sigmabs <- object$MCMC$Sigmab[SAMPLE,,]
+
+    }
     gamma_pis <- object$MCMC$gamma_pi[SAMPLE]
     gamma_lambdas <- object$MCMC$gamma_lambda[SAMPLE]
     phizs <- object$MCMC$phi[SAMPLE]
     hs <- object$MCMC$h[SAMPLE,]
 
 
+    #Omegab = solve(Sigmab)
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(GP1b)
       betaSs <- object$MCMC$beta3[SAMPLE]
+      if(dim(Z2)[2]==1){
+        model.file <- textConnection(GP1tb)
+        #Omegab = 1/Sigmab
+      }
     } else {
       model.file <- textConnection(GPb)
       betaSs <- object$MCMC$beta3[SAMPLE,]
+      if(dim(Z2)[2]==1){model.file <- textConnection(GPtb)
+      #Omegab = 1/Sigmab
+      }
     }
 
 
@@ -2838,25 +4878,38 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       Sigmaa <- Sigmaas[ttt,,]
-      Sigmab <- Sigmabs[ttt,,]
+      if(dim(Z2)[2]==1){
+        Sigmab <- Sigmabs[ttt]
+      }else{
+        Sigmab <- Sigmabs[ttt,,]
+
+      }
       gamma_pi <- gamma_pis[ttt]
       gamma_lambda <- gamma_lambdas[ttt]
       phiz <- phizs[ttt]
       h <- hs[ttt,]
 
 
+      Omegab = solve(Sigmab)
       if (is.matrix(XS) == FALSE) {
         model.file <- textConnection(GP1b)
         betaS <- betaSs[ttt]
+        if(dim(Z2)[2]==1){
+          model.file <- textConnection(GP1tb)
+          Omegab = 1/Sigmab
+        }
       } else {
         model.file <- textConnection(GPb)
         betaS <- betaSs[ttt,]
+        if(dim(Z2)[2]==1){
+          model.file <- textConnection(GPtb)
+          Omegab = 1/Sigmab
+        }
       }
 
 
-
     d.jags <- list(
-      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab = solve(Sigmab), gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
+      betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omegaa = solve(Sigmaa), Omegab =Omegab, gamma_pi = gamma_pi, gamma_lambda = gamma_lambda,
       h = h, phiz = phiz,
       n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = rep(s, n2), death = death, KF1 = 100000, KF2 = 100000,
       indtime1 = indtime1, indtime2 = indtime2,
@@ -2876,7 +4929,7 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
     a_hat <- sim1$mean$a
@@ -2909,7 +4962,12 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
   betaL1 <- betaL1s[ttt,]
   betaL2 <- betaL2s[ttt,]
   Sigmaa <- Sigmaas[ttt,,]
-  Sigmab <- Sigmabs[ttt,,]
+  if(dim(Z2)[2]==1){
+    Sigmab <- Sigmabs[ttt]
+  }else{
+    Sigmab <- Sigmabs[ttt,,]
+
+  }
   gamma_pi <- gamma_pis[ttt]
   gamma_lambda <- gamma_lambdas[ttt]
   h <- hs[ttt,]
@@ -2928,15 +4986,29 @@ y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
   chaz <- matrix(0, n2, K)
   for (k in 1:n2) {
     if (is.matrix(XS) == FALSE) {
-      Alpha0[k] <- betaS * XS[k] + gamma_lambda * (inprod(betaL1[nindtime1], Xv1[k, ]) + a[k, 1]) +
-        gamma_pi * (inprod(betaL2[nindtime2], Xv2[k, ]) + b[k, 1])
+      if(dim(Z2)[2]==1){
+        Alpha0[k] <- betaS * XS[k] + gamma_lambda * (inprod(betaL1[nindtime1], Xv1[k, ]) + a[k, 1]) +
+          gamma_pi * (inprod(betaL2[nindtime2], Xv2[k, ]) + b[k])
+      }else{
+        Alpha0[k] <- betaS * XS[k] + gamma_lambda * (inprod(betaL1[nindtime1], Xv1[k, ]) + a[k, 1]) +
+          gamma_pi * (inprod(betaL2[nindtime2], Xv2[k, ]) + b[k, 1])
+      }
     } else {
-      Alpha0[k] <- inprod(betaS[], XS[k, ]) + gamma_lambda * (inprod(betaL1[nindtime1], Xv1[k, ]) + a[k, 1]) +
-        gamma_pi * (inprod(betaL2[nindtime2], Xv2[k, ]) + b[k, 1])
+      if(dim(Z2)[2]==1){
+        Alpha0[k] <- inprod(betaS[], XS[k, ]) + gamma_lambda * (inprod(betaL1[nindtime1], Xv1[k, ]) + a[k, 1]) +
+          gamma_pi * (inprod(betaL2[nindtime2], Xv2[k, ]) + b[k])
+      }else{
+        Alpha0[k] <- inprod(betaS[], XS[k, ]) + gamma_lambda * (inprod(betaL1[nindtime1], Xv1[k, ]) + a[k, 1]) +
+          gamma_pi * (inprod(betaL2[nindtime2], Xv2[k, ]) + b[k, 1])
+      }
     }
 
+    if(dim(Z2)[2]==1){
+      Alpha1[k] <- gamma_lambda * (betaL1[indtime1] + a[k, 2]) + gamma_pi * (betaL2[indtime2])
+    } else{
+      Alpha1[k] <- gamma_lambda * (betaL1[indtime1] + a[k, 2]) + gamma_pi * (betaL2[indtime2] + b[k, 2])
+    }
 
-    Alpha1[k] <- gamma_lambda * (betaL1[indtime1] + a[k, 2]) + gamma_pi * (betaL2[indtime2] + b[k, 2])
 
 
     xk11 <- wk11 <- c()

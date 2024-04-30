@@ -4857,14 +4857,15 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
         Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        Nb1 = Nb1, mub1 = rep(0, Nb1),  V1 = diag(1, Nb1), id = id_prim,
         XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
         s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
       )
     }
+
 
 
 
@@ -5142,10 +5143,10 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
         Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        Nb1 = Nb1, mub1 = rep(0, Nb1),  V1 = diag(1, Nb1), id = id_prim,
         XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
         s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
       )
@@ -5425,10 +5426,10 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
         Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        Nb1 = Nb1, mub1 = rep(0, Nb1),  V1 = diag(1, Nb1), id = id_prim,
         XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
         s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
       )
@@ -5711,10 +5712,10 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
         Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        Nb1 = Nb1, mub1 = rep(0, Nb1),  V1 = diag(1, Nb1), id = id_prim,
         XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
         s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
       )
@@ -5982,10 +5983,10 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
         Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        Nb1 = Nb1, mub1 = rep(0, Nb1),  V1 = diag(1, Nb1), id = id_prim,
         XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
         s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
       )
@@ -6266,10 +6267,10 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
         Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        Nb1 = Nb1, mub1 = rep(0, Nb1),  V1 = diag(1, Nb1), id = id_prim,
         XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
         s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
       )
@@ -6532,14 +6533,15 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
         Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        Nb1 = Nb1, mub1 = rep(0, Nb1),  V1 = diag(1, Nb1), id = id_prim,
         XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
         s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
       )
     }
+
     sim1 <- jagsUI::jags(
       data = d.jags,
       parameters.to.save = parameters,
@@ -6793,10 +6795,10 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
         Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        Nb1 = Nb1, mub1 = rep(0, Nb1),  V1 = diag(1, Nb1), id = id_prim,
         XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
         s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
       )
@@ -7066,10 +7068,10 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
         Xv1 = Xv1, Xv2 = Xv2,
-        Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
+        Nb1 = Nb1, mub1 = rep(0, Nb1),  V1 = diag(1, Nb1), id = id_prim,
         XS = XS, nindtime1 = nindtime1, nindtime2 = nindtime2,
         s = peice, J = length(peice) + 1, xk = xk, wk = wk, K = K
       )
@@ -7329,8 +7331,9 @@ if (is.matrix(XS) == FALSE) {
 
     if(dim(Z2)[2]==1){
       d.jags <- list(
-        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time,
+        death = death, KF1 = 100000, KF2 = 100000,
+        indtime1 = indtime1,indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
         Xv1 = Xv1, Xv2 = Xv2,
         Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
@@ -7611,7 +7614,7 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1,indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
         Xv1 = Xv1, Xv2 = Xv2,
         Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
@@ -7890,7 +7893,7 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2,
         Xv1 = Xv1, Xv2 = Xv2,
         Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
