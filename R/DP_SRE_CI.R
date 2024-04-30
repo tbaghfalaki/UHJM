@@ -1086,7 +1086,7 @@ for(k in 1:n2){
   }
   }
 
-  if (family == "binomial") {
+  if (family == "Binomial") {
 
     Nb1 <- dim(Z1)[2]
     Nb2 <- dim(Z2)[2]

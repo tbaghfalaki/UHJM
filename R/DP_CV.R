@@ -1835,7 +1835,6 @@ ll[i] <- (1-z[i])*(logdensity.gamma(y[i],sigma1, mu1[i]))+z[i]*log(muz[i])+(1-z[
 }
 
 
-  sigma1<-1/sigma
 
 
 }"
@@ -1903,7 +1902,6 @@ ll[i] <- (1-z[i])*(logdensity.gamma(y[i],sigma1, mu1[i]))+z[i]*log(muz[i])+(1-z[
 
 
 
-  sigma1<-1/sigma
 
 
 }"
@@ -2039,14 +2037,6 @@ Weibulltb <- "model{
 
 
 
-  for(l in 1:Nbeta1){
-    betaL1[l]~dnorm(0,0.001)
-  }
-
-  for(l in 1:Nbeta2){
-    betaL2[l]~dnorm(0,0.001)
-  }
-
 
 
 
@@ -2117,7 +2107,6 @@ ll[i] <- (1-z[i])*(logdensity.exp(y[i],mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-m
 }
 
 
-  lambda<-1/sigma
 
 }"
 
@@ -2181,7 +2170,6 @@ ll[i] <- (1-z[i])*(logdensity.exp(y[i],mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-m
 }
 
 
-  lambda<-1/sigma
 
 
 }"
@@ -2248,7 +2236,6 @@ IGauss1tb <- "model{
     zeros2[k]~dpois(phi2[k])
 }
 
-  lambda<-1/sigma
 
 
 }"
@@ -2314,7 +2301,6 @@ IGausstb <- "model{
 }
 
 
-  lambda<-1/sigma
 
 }"
 
@@ -2376,7 +2362,7 @@ ll[i] <- (1-z[i])*(logdensity.norm(y[i], mu[i],tau))+z[i]*log(muz[i])+
     zeros2[k]~dpois(phi2[k])
 }
 
-tau<-1/sigma
+
 
 }"
 
@@ -2440,7 +2426,7 @@ Gaussiantb <- "model{
 }
 
 
-tau<-1/sigma
+
 
 
 }"
@@ -3609,13 +3595,13 @@ Bellwctb <- "model{
     if (is.matrix(XS) == FALSE) {
       model.file <- textConnection(Weibull1b)
       betaS <- mean(object$MCMC$beta3)
-      if(dim(Z2)[2]==1){model.file <- textConnection(Weibull1b)
+      if(dim(Z2)[2]==1){model.file <- textConnection(Weibull1tb)
       Omegab = 1/Sigmab
       }
     } else {
       model.file <- textConnection(Weibullb)
       betaS <- apply(object$MCMC$beta3, 2, mean)
-      if(dim(Z2)[2]==1){model.file <- textConnection(Weibullb)
+      if(dim(Z2)[2]==1){model.file <- textConnection(Weibulltb)
       Omegab = 1/Sigmab
       }
     }
@@ -3975,7 +3961,7 @@ Bellwctb <- "model{
   }
 
 
-  if (family == "binomial") {
+  if (family == "Binomial") {
     Nb1 <- dim(Z1)[2]
     Nb2 <- dim(Z2)[2]
 

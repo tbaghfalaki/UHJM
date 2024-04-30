@@ -1834,7 +1834,6 @@ ll[i] <- (1-z[i])*(logdensity.gamma(y[i],sigma1, mu1[i]))+z[i]*log(muz[i])+(1-z[
 }
 
 
-  sigma1<-1/sigma
 
 
 }"
@@ -1902,7 +1901,6 @@ ll[i] <- (1-z[i])*(logdensity.gamma(y[i],sigma1, mu1[i]))+z[i]*log(muz[i])+(1-z[
 
 
 
-  sigma1<-1/sigma
 
 
 }"
@@ -2038,13 +2036,6 @@ Weibulltb <- "model{
 
 
 
-  for(l in 1:Nbeta1){
-    betaL1[l]~dnorm(0,0.001)
-  }
-
-  for(l in 1:Nbeta2){
-    betaL2[l]~dnorm(0,0.001)
-  }
 
 
 
@@ -2116,7 +2107,6 @@ ll[i] <- (1-z[i])*(logdensity.exp(y[i],mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-m
 }
 
 
-  lambda<-1/sigma
 
 }"
 
@@ -2180,7 +2170,6 @@ ll[i] <- (1-z[i])*(logdensity.exp(y[i],mu[i]))+z[i]*log(muz[i])+(1-z[i])*log(1-m
 }
 
 
-  lambda<-1/sigma
 
 
 }"
@@ -2247,7 +2236,6 @@ IGauss1tb <- "model{
     zeros2[k]~dpois(phi2[k])
 }
 
-  lambda<-1/sigma
 
 
 }"
@@ -2313,7 +2301,6 @@ IGausstb <- "model{
 }
 
 
-  lambda<-1/sigma
 
 }"
 
@@ -2375,7 +2362,6 @@ ll[i] <- (1-z[i])*(logdensity.norm(y[i], mu[i],tau))+z[i]*log(muz[i])+
     zeros2[k]~dpois(phi2[k])
 }
 
-tau<-1/sigma
 
 }"
 
@@ -2439,7 +2425,6 @@ Gaussiantb <- "model{
 }
 
 
-tau<-1/sigma
 
 
 }"
@@ -4295,7 +4280,7 @@ Bellwctb <- "model{
   }
 
 
-  if (family == "binomial") {
+  if (family == "Binomial") {
     Nb1 <- dim(Z1)[2]
     Nb2 <- dim(Z2)[2]
 
@@ -4497,7 +4482,7 @@ Bellwctb <- "model{
       h <- hs[ttt,]
 
 
-      #Omegab = solve(Sigmab)
+      Omegab = solve(Sigmab)
       if (is.matrix(XS) == FALSE) {
         model.file <- textConnection(Bell1b)
         betaS <- betaSs[ttt]
@@ -4506,7 +4491,7 @@ Bellwctb <- "model{
         }
         if(dim(Z2)[2]==1){
           model.file <- textConnection(Bell1tb)
-          #Omegab = 1/Sigmab
+          Omegab = 1/Sigmab
           if (is.infinite(numbers::bell(max(y))) == TRUE) {
             model.file <- textConnection(Bell1wctb)
           }
@@ -4520,7 +4505,7 @@ Bellwctb <- "model{
         }
         if(dim(Z2)[2]==1){
           model.file <- textConnection(Belltb)
-          #Omegab = 1/Sigmab
+          Omegab = 1/Sigmab
           if (is.infinite(numbers::bell(max(y))) == TRUE) {
             model.file <- textConnection(Bellwctb)
           }

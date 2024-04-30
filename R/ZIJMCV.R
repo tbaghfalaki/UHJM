@@ -6759,13 +6759,12 @@ if (is.matrix(XS) == FALSE) {
   }
 
 
-  if (family == "binomial") {
+  if (family == "Binomial") {
     model.file <- textConnection(binomial1)
     if(dim(Z2)[2]==1)(model.file <- textConnection(binomial1t))
 
     Nbeta1 <- dim(X1)[2]
     Nbeta2 <- dim(X2)[2]
-
 
 
     Nb1 <- dim(Z1)[2]
@@ -8176,7 +8175,7 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
         Xv1 = Xv1, Xv2 = Xv2,
         Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
@@ -8465,7 +8464,7 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
         Xv1 = Xv1, Xv2 = Xv2,
         Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
@@ -8749,7 +8748,7 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
         Xv1 = Xv1, Xv2 = Xv2,
         Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
@@ -9033,7 +9032,7 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
         Xv1 = Xv1, Xv2 = Xv2,
         Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
@@ -9302,7 +9301,7 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
         Xv1 = Xv1, Xv2 = Xv2,
         Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
@@ -9584,7 +9583,7 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
         Xv1 = Xv1, Xv2 = Xv2,
         Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
@@ -9845,7 +9844,7 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
         Xv1 = Xv1, Xv2 = Xv2,
         Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
@@ -10069,7 +10068,7 @@ if (is.matrix(XS) == FALSE) {
     ### @@@@@@@@@@@@
   }
 
-  if (family == "binomial") {
+  if (family == "Binomial") {
     model.file <- textConnection(binomial)
     if(dim(Z2)[2]==1)(model.file <- textConnection(binomialt))
 
@@ -10105,7 +10104,7 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
         Xv1 = Xv1, Xv2 = Xv2,
         Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
@@ -10366,7 +10365,7 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
         Xv1 = Xv1, Xv2 = Xv2,
         Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
@@ -10392,7 +10391,7 @@ if (is.matrix(XS) == FALSE) {
       if(dim(Z2)[2]==1){
         d.jags <- list(
           n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-          indtime1 = indtime1,
+          indtime1 = indtime1, indtime2 = indtime2,
           X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
           Xv1 = Xv1, Xv2 = Xv2,
           Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
@@ -10658,7 +10657,7 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
         Xv1 = Xv1, Xv2 = Xv2,
         Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
@@ -10940,7 +10939,7 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
         Xv1 = Xv1, Xv2 = Xv2,
         Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,
@@ -11221,7 +11220,7 @@ if (is.matrix(XS) == FALSE) {
     if(dim(Z2)[2]==1){
       d.jags <- list(
         n = n1, zeros = rep(0, n1), n2 = n2, zeros2 = rep(0, n2), y = y, Time = Time, death = death, KF1 = 100000, KF2 = 100000,
-        indtime1 = indtime1,
+        indtime1 = indtime1, indtime2 = indtime2,
         X1 = X1, X2 = X2, Z1 = Z1,  z = z, Nbeta1 = Nbeta1, Nbeta2 = Nbeta2, NbetaS = NbetaS,
         Xv1 = Xv1, Xv2 = Xv2,
         Nb1 = Nb1,  mub1 = rep(0, Nb1), V1 = diag(1, Nb1),  id = id_prim,

@@ -2707,7 +2707,7 @@ gamma[k]~dnorm(0,0.001)
     ###############################################
   }
 
-  if (family == "binomial") {
+  if (family == "Binomial") {
     model.file <- textConnection(binomial)
 
     Nbeta1 <- dim(X1)[2]

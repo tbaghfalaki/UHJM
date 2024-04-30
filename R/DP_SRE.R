@@ -910,7 +910,7 @@ for(k in 1:n2){
     b_sim <- sim1$sims.list$b
   }
 
-  if (family == "binomial") {
+  if (family == "Binomial") {
     model.file <- textConnection(binomialb)
 
     Nb1 <- dim(Z1)[2]
