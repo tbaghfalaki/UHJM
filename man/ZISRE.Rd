@@ -12,6 +12,7 @@ ZISRE(
   RandomZ,
   GroupZ,
   formSurv,
+  IStructure,
   dataLong,
   dataSurv,
   n.chains = n.chains,
@@ -37,6 +38,8 @@ ZISRE(
 \item{GroupZ}{formula specifying the cluster variable for Z (e.g. = ~ subject)}
 
 \item{formSurv}{formula for survival model}
+
+\item{IStructure}{logical, if IStructure is TRUE, the random effects are treated as independent.}
 
 \item{dataLong}{data set of observed longitudinal variables.}
 
@@ -86,7 +89,7 @@ library(survival)
  Z1 <- ZISRE(
    FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
    FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
-   formSurv = Surv(survtime, death) ~ w1,
+   formSurv = Surv(survtime, death) ~ w1, IStructure=TRUE,
    obstime = "obstime", offset = NULL,
    dataLong = long_data_nb, dataSurv = surv_data_nb,
    n.chains = 2,
@@ -97,7 +100,7 @@ library(survival)
  Z2 <- ZISRE(
    FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
    FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
-   formSurv = Surv(survtime, death) ~ w1,
+   formSurv = Surv(survtime, death) ~ w1, IStructure=TRUE,
    obstime = "obstime", offset = NULL,
    dataLong = long_data_nb, dataSurv = surv_data_nb,
    n.chains = 2,
@@ -107,7 +110,7 @@ library(survival)
  Z3 <- ZISRE(
    FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
    FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
-   formSurv = Surv(survtime, death) ~ w1,
+   formSurv = Surv(survtime, death) ~ w1, IStructure=TRUE,
    obstime = "obstime", offset = NULL,
    dataLong = long_data_nb, dataSurv = surv_data_nb,
    n.chains = 2,
@@ -118,7 +121,7 @@ library(survival)
  Z4 <- ZISRE(
    FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
    FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
-   formSurv = Surv(survtime, death) ~ w1,
+   formSurv = Surv(survtime, death) ~ w1, IStructure=TRUE,
    obstime = "obstime", offset = NULL,
    dataLong = long_data_nb, dataSurv = surv_data_nb,
    n.chains = 2,
@@ -128,7 +131,7 @@ library(survival)
  Z5 <- ZISRE(
    FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
    FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
-   formSurv = Surv(survtime, death) ~ w1,
+   formSurv = Surv(survtime, death) ~ w1, IStructure=TRUE,
    obstime = "obstime", offset = NULL,
    dataLong = long_data_nb, dataSurv = surv_data_nb,
    n.chains = 2,
@@ -139,7 +142,7 @@ library(survival)
  Z6 <- ZISRE(
    FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
    FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
-   formSurv = Surv(survtime, death) ~ w1,
+   formSurv = Surv(survtime, death) ~ w1, IStructure=TRUE,
    obstime = "obstime", offset = NULL,
    dataLong = long_data_nb, dataSurv = surv_data_nb,
    n.chains = 2,
@@ -158,7 +161,7 @@ data(surv_data_n)
 Z1 <- ZISRE(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
-  formSurv = Surv(survtime, death) ~ w1,
+  formSurv = Surv(survtime, death) ~ w1, IStructure=TRUE,
   obstime = "obstime", offset = NULL,
   dataLong = long_data_n, dataSurv = surv_data_n,
   n.chains = 2,
@@ -170,7 +173,7 @@ data(surv_data_b)
 Z2 <- ZISRE(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
-  formSurv = Surv(survtime, death) ~ w1,
+  formSurv = Surv(survtime, death) ~ w1, IStructure=TRUE,
   obstime = "obstime", offset = NULL,
   dataLong = long_data_b, dataSurv = surv_data_b,
   n.chains = 2,
@@ -182,7 +185,7 @@ data(surv_data_e)
 Z3 <- ZISRE(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
-  formSurv = Surv(survtime, death) ~ w1,
+  formSurv = Surv(survtime, death) ~ w1, IStructure=TRUE,
   obstime = "obstime", offset = NULL,
   dataLong = long_data_e, dataSurv = surv_data_e,
   n.chains = 2,
@@ -193,7 +196,7 @@ Z3 <- ZISRE(
 Z4 <- ZISRE(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
-  formSurv = Surv(survtime, death) ~ w1,
+  formSurv = Surv(survtime, death) ~ w1, IStructure=TRUE,
   obstime = "obstime", offset = NULL,
   dataLong = long_data_e, dataSurv = surv_data_e,
   n.chains = 2,
@@ -203,7 +206,7 @@ Z4 <- ZISRE(
 Z5 <- ZISRE(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
-  formSurv = Surv(survtime, death) ~ w1,
+  formSurv = Surv(survtime, death) ~ w1, IStructure=TRUE,
   obstime = "obstime", offset = NULL,
   dataLong = long_data_e, dataSurv = surv_data_e,
   n.chains = 2,
@@ -214,7 +217,7 @@ Z5 <- ZISRE(
 Z6 <- ZISRE(
   FixedY = Y1 ~ x1 + x2 + obstime, RandomY = ~obstime, GroupY = ~id,
   FixedZ = ~ x1 + x2 + obstime, RandomZ = ~obstime, GroupZ = ~id,
-  formSurv = Surv(survtime, death) ~ w1,
+  formSurv = Surv(survtime, death) ~ w1, IStructure=TRUE,
   obstime = "obstime", offset = NULL,
   dataLong = long_data_e, dataSurv = surv_data_e,
   n.chains = 2,

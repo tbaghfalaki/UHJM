@@ -43,6 +43,8 @@ DP_SRE <- function(object, s = s, t = t, n.chains = n.chains, n.iter = n.iter, n
   FixedZ <- object$FixedZ
   RandomY <- object$RandomY
   RandomZ <- object$RandomZ
+  IStructure <-  object$IStructure
+
 
   GroupY <- object$GroupY
   GroupZ <- object$GroupZ
@@ -492,7 +494,23 @@ for(k in 1:n2){
     betaL1 <- apply(object$MCMC$beta1, 2, mean)
     betaL2 <- apply(object$MCMC$beta2, 2, mean)
     betaS <- apply(object$MCMC$beta3, 2, mean)
+
+    if(IStructure==FALSE){
     Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+    }else{
+if(dim(Z2)[2]>1){
+  Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),apply(object$MCMC$D2, c(2, 3), mean))
+}
+if(dim(Z2)[2]==1){
+
+  Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),mean(object$MCMC$D2))
+
+}
+
+}
+
+
+
     gamma <- apply(object$MCMC$gamma, 2, mean)
     p <- mean(object$MCMC$p)
 
@@ -540,7 +558,19 @@ for(k in 1:n2){
     betaL1 <- apply(object$MCMC$beta1, 2, mean)
     betaL2 <- apply(object$MCMC$beta2, 2, mean)
     betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+
+    if(IStructure==FALSE){
+      Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+    }else{
+      if(dim(Z2)[2]>1){
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),apply(object$MCMC$D2, c(2, 3), mean))
+      }
+      if(dim(Z2)[2]==1){
+
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),mean(object$MCMC$D2))
+
+      }
+}
     gamma <- apply(object$MCMC$gamma, 2, mean)
     p <- mean(object$MCMC$p)
     phi1 <- mean(object$MCMC$phi)
@@ -587,7 +617,19 @@ for(k in 1:n2){
     betaL1 <- apply(object$MCMC$beta1, 2, mean)
     betaL2 <- apply(object$MCMC$beta2, 2, mean)
     betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+
+    if(IStructure==FALSE){
+      Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+    }else{
+      if(dim(Z2)[2]>1){
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),apply(object$MCMC$D2, c(2, 3), mean))
+      }
+      if(dim(Z2)[2]==1){
+
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),mean(object$MCMC$D2))
+
+      }
+}
     gamma <- apply(object$MCMC$gamma, 2, mean)
     p <- mean(object$MCMC$p)
     kappa <- mean(object$MCMC$kappa)
@@ -634,7 +676,19 @@ for(k in 1:n2){
     betaL1 <- apply(object$MCMC$beta1, 2, mean)
     betaL2 <- apply(object$MCMC$beta2, 2, mean)
     betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+
+    if(IStructure==FALSE){
+      Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+    }else{
+      if(dim(Z2)[2]>1){
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),apply(object$MCMC$D2, c(2, 3), mean))
+      }
+      if(dim(Z2)[2]==1){
+
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),mean(object$MCMC$D2))
+
+      }
+}
     gamma <- apply(object$MCMC$gamma, 2, mean)
     p <- mean(object$MCMC$p)
     sigma <- mean(object$MCMC$sigma)
@@ -681,7 +735,17 @@ for(k in 1:n2){
     betaL1 <- apply(object$MCMC$beta1, 2, mean)
     betaL2 <- apply(object$MCMC$beta2, 2, mean)
     betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+
+    if(IStructure==FALSE){
+      Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+    }else{
+      if(dim(Z2)[2]>1){
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),apply(object$MCMC$D2, c(2, 3), mean))
+      }
+      if(dim(Z2)[2]==1){
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),mean(object$MCMC$D2))
+      }
+}
     gamma <- apply(object$MCMC$gamma, 2, mean)
     p <- mean(object$MCMC$p)
     sigma <- mean(object$MCMC$sigma)
@@ -728,7 +792,19 @@ for(k in 1:n2){
     betaL1 <- apply(object$MCMC$beta1, 2, mean)
     betaL2 <- apply(object$MCMC$beta2, 2, mean)
     betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+
+    if(IStructure==FALSE){
+      Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+    }else{
+      if(dim(Z2)[2]>1){
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),apply(object$MCMC$D2, c(2, 3), mean))
+      }
+      if(dim(Z2)[2]==1){
+
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),mean(object$MCMC$D2))
+
+      }
+}
     gamma <- apply(object$MCMC$gamma, 2, mean)
     p <- mean(object$MCMC$p)
     sigma <- mean(object$MCMC$sigma)
@@ -775,7 +851,19 @@ for(k in 1:n2){
     betaL1 <- apply(object$MCMC$beta1, 2, mean)
     betaL2 <- apply(object$MCMC$beta2, 2, mean)
     betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+
+    if(IStructure==FALSE){
+      Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+    }else{
+      if(dim(Z2)[2]>1){
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),apply(object$MCMC$D2, c(2, 3), mean))
+      }
+      if(dim(Z2)[2]==1){
+
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),mean(object$MCMC$D2))
+
+      }
+}
     gamma <- apply(object$MCMC$gamma, 2, mean)
     p <- mean(object$MCMC$p)
 
@@ -831,7 +919,19 @@ for(k in 1:n2){
     betaL1 <- apply(object$MCMC$beta1, 2, mean)
     betaL2 <- apply(object$MCMC$beta2, 2, mean)
     betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+
+    if(IStructure==FALSE){
+      Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+    }else{
+      if(dim(Z2)[2]>1){
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),apply(object$MCMC$D2, c(2, 3), mean))
+      }
+      if(dim(Z2)[2]==1){
+
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),mean(object$MCMC$D2))
+}
+      }
+
     gamma <- apply(object$MCMC$gamma, 2, mean)
     p <- mean(object$MCMC$p)
 
@@ -880,7 +980,19 @@ for(k in 1:n2){
     betaL1 <- apply(object$MCMC$beta1, 2, mean)
     betaL2 <- apply(object$MCMC$beta2, 2, mean)
     betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+
+    if(IStructure==FALSE){
+      Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+    }else{
+      if(dim(Z2)[2]>1){
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),apply(object$MCMC$D2, c(2, 3), mean))
+      }
+      if(dim(Z2)[2]==1){
+
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),mean(object$MCMC$D2))
+
+      }}
+
     gamma <- apply(object$MCMC$gamma, 2, mean)
     p <- mean(object$MCMC$p)
 
@@ -926,7 +1038,19 @@ for(k in 1:n2){
     betaL1 <- apply(object$MCMC$beta1, 2, mean)
     betaL2 <- apply(object$MCMC$beta2, 2, mean)
     betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+
+    if(IStructure==FALSE){
+      Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+    }else{
+      if(dim(Z2)[2]>1){
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),apply(object$MCMC$D2, c(2, 3), mean))
+      }
+      if(dim(Z2)[2]==1){
+
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),mean(object$MCMC$D2))
+
+      }}
+
     gamma <- apply(object$MCMC$gamma, 2, mean)
     p <- mean(object$MCMC$p)
 
@@ -972,7 +1096,19 @@ for(k in 1:n2){
     betaL1 <- apply(object$MCMC$beta1, 2, mean)
     betaL2 <- apply(object$MCMC$beta2, 2, mean)
     betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+
+    if(IStructure==FALSE){
+      Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+    }else{
+      if(dim(Z2)[2]>1){
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),apply(object$MCMC$D2, c(2, 3), mean))
+      }
+      if(dim(Z2)[2]==1){
+
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),mean(object$MCMC$D2))
+
+      }
+}
     gamma <- apply(object$MCMC$gamma, 2, mean)
     p <- mean(object$MCMC$p)
     r <- mean(object$MCMC$r)
@@ -1021,7 +1157,17 @@ for(k in 1:n2){
     betaL1 <- apply(object$MCMC$beta1, 2, mean)
     betaL2 <- apply(object$MCMC$beta2, 2, mean)
     betaS <- apply(object$MCMC$beta3, 2, mean)
-    Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+    if(IStructure==FALSE){
+      Sigma <- apply(object$MCMC$Sigma, c(2, 3), mean)
+    }else{
+      if(dim(Z2)[2]>1){
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),apply(object$MCMC$D2, c(2, 3), mean))
+      }
+      if(dim(Z2)[2]==1){
+
+        Sigma <- Matrix::bdiag(apply(object$MCMC$D1, c(2, 3), mean),mean(object$MCMC$D2))
+}
+      }
     gamma <- apply(object$MCMC$gamma, 2, mean)
     p <- mean(object$MCMC$p)
     phiz <- mean(object$MCMC$r)

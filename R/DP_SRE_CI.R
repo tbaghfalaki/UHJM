@@ -44,6 +44,7 @@ DP_SRE_CI <- function(object, s = s, t = t, mi=10, n.chains = n.chains, n.iter =
   FixedZ <- object$FixedZ
   RandomY <- object$RandomY
   RandomZ <- object$RandomZ
+  IStructure <-  object$IStructure
 
   GroupY <- object$GroupY
   GroupZ <- object$GroupZ
@@ -497,7 +498,25 @@ for(k in 1:n2){
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     betaSs <-   object$MCMC$beta3[SAMPLE,]
-    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        #object$MCMC$D1[SAMPLE,,]
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE,,]
+      }
+      if(dim(Z2)[2]==1){
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE]
+        #Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
+
+
+
+
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
 
@@ -508,7 +527,23 @@ for(k in 1:n2){
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       betaS <-  betaSs[ttt,]
-      Sigma <- Sigmas[ttt,,]
+
+      if(IStructure==FALSE){
+        Sigma <- object$MCMC$Sigma[ttt,,]
+      }else{
+        if(dim(Z2)[2]>1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt,,])
+        }
+        if(dim(Z2)[2]==1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt])
+        }
+      }
+
+
+
+
+
+
       gamma <- gammas[ttt,]
       p <- ps[ttt]
 
@@ -533,7 +568,7 @@ for(k in 1:n2){
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -566,7 +601,20 @@ for(k in 1:n2){
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     betaSs <-   object$MCMC$beta3[SAMPLE,]
-    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        object$MCMC$D1[SAMPLE,,]
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE,,])
+      }
+      if(dim(Z2)[2]==1){
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
+
+
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
     phi1s <- object$MCMC$phi[SAMPLE]
@@ -577,7 +625,19 @@ for(k in 1:n2){
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       betaS <-  betaSs[ttt,]
-      Sigma <- Sigmas[ttt,,]
+
+      if(IStructure==FALSE){
+        Sigma <- object$MCMC$Sigma[ttt,,]
+      }else{
+        if(dim(Z2)[2]>1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt,,])
+        }
+        if(dim(Z2)[2]==1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt])
+        }
+      }
+
+
       gamma <- gammas[ttt,]
       p <- ps[ttt]
       phi1 <- phi1s[ttt]
@@ -604,7 +664,7 @@ for(k in 1:n2){
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -633,7 +693,19 @@ for(k in 1:n2){
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     betaSs <-   object$MCMC$beta3[SAMPLE,]
-    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        object$MCMC$D1[SAMPLE,,]
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE,,])
+      }
+      if(dim(Z2)[2]==1){
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
+
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
     kappas <- object$MCMC$kappa[SAMPLE]
@@ -644,7 +716,19 @@ for(k in 1:n2){
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       betaS <-  betaSs[ttt,]
-      Sigma <- Sigmas[ttt,,]
+
+      if(IStructure==FALSE){
+        Sigma <- object$MCMC$Sigma[ttt,,]
+      }else{
+        if(dim(Z2)[2]>1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt,,])
+        }
+        if(dim(Z2)[2]==1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt])
+        }
+      }
+
+
       gamma <- gammas[ttt,]
       p <- ps[ttt]
       kappa <- kappas[ttt]
@@ -670,7 +754,7 @@ for(k in 1:n2){
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -701,7 +785,21 @@ for(k in 1:n2){
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     betaSs <-   object$MCMC$beta3[SAMPLE,]
-    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+
+
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        object$MCMC$D1[SAMPLE,,]
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE,,])
+      }
+      if(dim(Z2)[2]==1){
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
+
+
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
     sigmas <- object$MCMC$sigma[SAMPLE]
@@ -712,7 +810,18 @@ for(k in 1:n2){
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       betaS <-  betaSs[ttt,]
-      Sigma <- Sigmas[ttt,,]
+
+      if(IStructure==FALSE){
+        Sigma <- object$MCMC$Sigma[ttt,,]
+      }else{
+        if(dim(Z2)[2]>1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt,,])
+        }
+        if(dim(Z2)[2]==1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt])
+        }
+      }
+
       gamma <- gammas[ttt,]
       p <- ps[ttt]
       sigma <- sigmas[ttt]
@@ -739,7 +848,7 @@ for(k in 1:n2){
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -770,7 +879,19 @@ for(k in 1:n2){
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     betaSs <-   object$MCMC$beta3[SAMPLE,]
-    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        object$MCMC$D1[SAMPLE,,]
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE,,])
+      }
+      if(dim(Z2)[2]==1){
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
+
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
     sigmas <- object$MCMC$sigma[SAMPLE]
@@ -781,7 +902,18 @@ for(k in 1:n2){
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       betaS <-  betaSs[ttt,]
-      Sigma <- Sigmas[ttt,,]
+
+      if(IStructure==FALSE){
+        Sigma <- object$MCMC$Sigma[ttt,,]
+      }else{
+        if(dim(Z2)[2]>1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt,,])
+        }
+        if(dim(Z2)[2]==1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt])
+        }
+      }
+
       gamma <- gammas[ttt,]
       p <- ps[ttt]
       sigma <- sigmas[ttt]
@@ -808,7 +940,7 @@ for(k in 1:n2){
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -837,7 +969,19 @@ for(k in 1:n2){
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     betaSs <-   object$MCMC$beta3[SAMPLE,]
-    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        object$MCMC$D1[SAMPLE,,]
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE,,])
+      }
+      if(dim(Z2)[2]==1){
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
+
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
     sigmas <- object$MCMC$sigma[SAMPLE]
@@ -848,7 +992,19 @@ for(k in 1:n2){
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       betaS <-  betaSs[ttt,]
-      Sigma <- Sigmas[ttt,,]
+
+      if(IStructure==FALSE){
+        Sigma <- object$MCMC$Sigma[ttt,,]
+      }else{
+        if(dim(Z2)[2]>1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt,,])
+        }
+        if(dim(Z2)[2]==1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt])
+        }
+      }
+
+
       gamma <- gammas[ttt,]
       p <- ps[ttt]
       sigma <- sigmas[ttt]
@@ -873,7 +1029,7 @@ for(k in 1:n2){
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -903,7 +1059,19 @@ for(k in 1:n2){
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     betaSs <-   object$MCMC$beta3[SAMPLE,]
-    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        object$MCMC$D1[SAMPLE,,]
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE,,])
+      }
+      if(dim(Z2)[2]==1){
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
+
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
 
@@ -913,7 +1081,19 @@ for(k in 1:n2){
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       betaS <-  betaSs[ttt,]
-      Sigma <- Sigmas[ttt,,]
+
+      if(IStructure==FALSE){
+        Sigma <- object$MCMC$Sigma[ttt,,]
+      }else{
+        if(dim(Z2)[2]>1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt,,])
+        }
+        if(dim(Z2)[2]==1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt])
+        }
+      }
+
+
       gamma <- gammas[ttt,]
       p <- ps[ttt]
 
@@ -937,7 +1117,7 @@ for(k in 1:n2){
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -973,7 +1153,19 @@ for(k in 1:n2){
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     betaSs <-   object$MCMC$beta3[SAMPLE,]
-    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        object$MCMC$D1[SAMPLE,,]
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE,,])
+      }
+      if(dim(Z2)[2]==1){
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
+
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
 
@@ -983,7 +1175,19 @@ for(k in 1:n2){
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       betaS <-  betaSs[ttt,]
-      Sigma <- Sigmas[ttt,,]
+
+      if(IStructure==FALSE){
+        Sigma <- object$MCMC$Sigma[ttt,,]
+      }else{
+        if(dim(Z2)[2]>1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt,,])
+        }
+        if(dim(Z2)[2]==1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt])
+        }
+      }
+
+
       gamma <- gammas[ttt,]
       p <- ps[ttt]
 
@@ -1011,7 +1215,7 @@ for(k in 1:n2){
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -1041,7 +1245,19 @@ for(k in 1:n2){
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     betaSs <-   object$MCMC$beta3[SAMPLE,]
-    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        object$MCMC$D1[SAMPLE,,]
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE,,])
+      }
+      if(dim(Z2)[2]==1){
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
+
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
 
@@ -1051,7 +1267,19 @@ for(k in 1:n2){
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       betaS <-  betaSs[ttt,]
-      Sigma <- Sigmas[ttt,,]
+
+      if(IStructure==FALSE){
+        Sigma <- object$MCMC$Sigma[ttt,,]
+      }else{
+        if(dim(Z2)[2]>1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt,,])
+        }
+        if(dim(Z2)[2]==1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt])
+        }
+      }
+
+
       gamma <- gammas[ttt,]
       p <- ps[ttt]
 
@@ -1075,7 +1303,7 @@ for(k in 1:n2){
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -1103,7 +1331,19 @@ for(k in 1:n2){
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     betaSs <-   object$MCMC$beta3[SAMPLE,]
-    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        object$MCMC$D1[SAMPLE,,]
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE,,])
+      }
+      if(dim(Z2)[2]==1){
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
+
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
 
@@ -1113,7 +1353,19 @@ for(k in 1:n2){
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       betaS <-  betaSs[ttt,]
-      Sigma <- Sigmas[ttt,,]
+
+      if(IStructure==FALSE){
+        Sigma <- object$MCMC$Sigma[ttt,,]
+      }else{
+        if(dim(Z2)[2]>1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt,,])
+        }
+        if(dim(Z2)[2]==1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt])
+        }
+      }
+
+
       gamma <- gammas[ttt,]
       p <- ps[ttt]
 
@@ -1137,7 +1389,7 @@ for(k in 1:n2){
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -1168,7 +1420,19 @@ for(k in 1:n2){
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     betaSs <-   object$MCMC$beta3[SAMPLE,]
-    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        object$MCMC$D1[SAMPLE,,]
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE,,])
+      }
+      if(dim(Z2)[2]==1){
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
+
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
     rs <- object$MCMC$r[SAMPLE]
@@ -1179,7 +1443,19 @@ for(k in 1:n2){
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       betaS <-  betaSs[ttt,]
-      Sigma <- Sigmas[ttt,,]
+
+      if(IStructure==FALSE){
+        Sigma <- object$MCMC$Sigma[ttt,,]
+      }else{
+        if(dim(Z2)[2]>1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt,,])
+        }
+        if(dim(Z2)[2]==1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt])
+        }
+      }
+
+
       gamma <- gammas[ttt,]
       p <- ps[ttt]
       r <- rs[ttt]
@@ -1206,7 +1482,7 @@ for(k in 1:n2){
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
 
@@ -1237,7 +1513,20 @@ for(k in 1:n2){
     betaL1s <- object$MCMC$beta1[SAMPLE,]
     betaL2s <- object$MCMC$beta2[SAMPLE,]
     betaSs <-   object$MCMC$beta3[SAMPLE,]
-    Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        object$MCMC$D1[SAMPLE,,]
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE,,])
+      }
+      if(dim(Z2)[2]==1){
+        Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
+
+
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
     phizs <- object$MCMC$r[SAMPLE]
@@ -1248,7 +1537,19 @@ for(k in 1:n2){
       betaL1 <- betaL1s[ttt,]
       betaL2 <- betaL2s[ttt,]
       betaS <-  betaSs[ttt,]
-      Sigma <- Sigmas[ttt,,]
+
+      if(IStructure==FALSE){
+        Sigma <- object$MCMC$Sigma[ttt,,]
+      }else{
+        if(dim(Z2)[2]>1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt,,])
+        }
+        if(dim(Z2)[2]==1){
+          Sigma <- Matrix::bdiag(D1s[ttt,,],D2s[ttt])
+        }
+      }
+
+
       gamma <- gammas[ttt,]
       p <- ps[ttt]
       phiz <- phizs[ttt]
@@ -1273,7 +1574,7 @@ for(k in 1:n2){
       n.adapt = FALSE,
       n.iter = n.iter,
       n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.thin = 1,
       DIC = FALSE
     )
     b_hat <- sim1$mean$b
