@@ -9,8 +9,10 @@ DPplot2(
   s = s,
   id_new = id_new,
   mi = mi,
+  digits = 1,
   Marker_lab = "Marker",
   Time_lab = "Time",
+  offset = "lLibrarySize",
   by = 0.1,
   n.chains = n.chains,
   n.iter = n.iter,
@@ -27,6 +29,8 @@ DPplot2(
 \item{id_new}{id number for individual who want to plot his/her DP}
 
 \item{mi}{the number of multiple imputation for Monte-Carlo approximation; default is 10.}
+
+\item{digits}{integer indicating the number of decimal places for Time axis}
 
 \item{Marker_lab}{the label for the response axis}
 
@@ -95,13 +99,18 @@ rm(list=ls())
 
 
   DD <- DP_SRE(Z1,
-    s = 0.1, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 1000,
+    s = 0.1, t = 0.5, n.chains = 1, offset = NULL, n.iter = 2000, n.burnin = 1000,
     n.thin = 1, dataLong = dataLong_v, dataSurv = dataSurv_v
   )
 
 
+  DD <- DP_SRE_CI(Z1,
+               s = 0.1, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 1000,
+               n.thin = 1, dataLong = dataLong_v, dataSurv = dataSurv_v
+  )
+
   DPplot2(Z1,
-  s = 0.4, id_new = 498, by = 0.2, mi = 2,
+  s = 0.4, id_new = 498, by = 0.1, mi = 2,digits=1,
   Marker_lab="Biomarker", Time_lab="Time (week)",
   n.chains = 1, n.iter = 20, n.burnin = 10,
   dataLong = dataLong_v, dataSurv = dataSurv_v

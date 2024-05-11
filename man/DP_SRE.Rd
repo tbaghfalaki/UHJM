@@ -8,6 +8,7 @@ DP_SRE(
   object,
   s = s,
   t = t,
+  offset = NULL,
   n.chains = n.chains,
   n.iter = n.iter,
   n.burnin = floor(n.iter/2),
@@ -22,6 +23,8 @@ DP_SRE(
 \item{s}{the landmark time for prediction}
 
 \item{t}{the window of prediction for prediction}
+
+\item{offset}{the offset or library size for discrete response. If offset=NULL, it is considered without an offset.}
 
 \item{n.chains}{the number of parallel chains for the model; default is 1.}
 
@@ -90,13 +93,18 @@ rm(list=ls())
 
 
   DD <- DP_SRE(Z1,
-    s = 0.1, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 1000,
+    s = 0.1, t = 0.5, n.chains = 1, offset = NULL, n.iter = 2000, n.burnin = 1000,
     n.thin = 1, dataLong = dataLong_v, dataSurv = dataSurv_v
   )
 
 
+  DD <- DP_SRE_CI(Z1,
+               s = 0.1, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 1000,
+               n.thin = 1, dataLong = dataLong_v, dataSurv = dataSurv_v
+  )
+
   DPplot2(Z1,
-  s = 0.4, id_new = 498, by = 0.2, mi = 2,
+  s = 0.4, id_new = 498, by = 0.1, mi = 2,digits=1,
   Marker_lab="Biomarker", Time_lab="Time (week)",
   n.chains = 1, n.iter = 20, n.burnin = 10,
   dataLong = dataLong_v, dataSurv = dataSurv_v

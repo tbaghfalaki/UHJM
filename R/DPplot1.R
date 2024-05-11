@@ -16,6 +16,7 @@
 #' @param by number: increment of the sequence of DP.
 #' @param Marker_lab the label for the response axis
 #' @param Time_lab the label for the time axis
+#' @param digits integer indicating the number of decimal places for Time axis
 #' @param n.chains the number of parallel chains for the model; default is 1.
 #' @param n.iter integer specifying the total number of iterations; default is 1000.
 #' @param n.burnin integer specifying how many of n.iter to discard as burn-in ; default is 5000.
@@ -32,7 +33,7 @@
 #' @export
 #'
 DPplot1 <- function(object, s = s, id_new = id_new, mi = mi,
-                    Marker_lab="Marker", Time_lab="Time",
+                    Marker_lab="Marker", Time_lab="Time",digits=digits,
                     by = 0.1, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
                     dataLong, dataSurv) {
 
@@ -77,7 +78,7 @@ DPplot1 <- function(object, s = s, id_new = id_new, mi = mi,
 
   for (kk in 1:length(Dt)) {
     DD <- DP_CV_CI(
-      object = object, s = s, t = Dt[kk], mi = mi, n.chains = 1, n.iter = n.iter, n.burnin = n.burnin,
+      object = object, s = s, t = Dt[kk]-s, mi = mi, n.chains = 1, n.iter = n.iter, n.burnin = n.burnin,
       n.thin = 1, dataLong = dataLong, dataSurv = dataSurv
     )
 
@@ -98,10 +99,12 @@ DPplot1 <- function(object, s = s, id_new = id_new, mi = mi,
   par(mar = c(5, 5, 2, 5))
 
   plot(TT[, 1], TT[, 5],
-    type = "p", pch = 20, xaxt = "n", col = "black", ylab = Marker_lab, xlab = Time_lab,
-    main = ""
+       type = "p", pch = 20, xaxt = "n", col = "black", xlim=c(0,max(time_new)),
+       ylab = Marker_lab, xlab = Time_lab,
+       main = ""
   )
-  axis(side = 1, xlab, labels = TRUE)
+  axis(side = 1, round(xlab, digits =digits), labels = TRUE)
+
   abline(v = surt, col = "red", lty = 3)
   abline(v = s, col = "blue", lty = 3)
 

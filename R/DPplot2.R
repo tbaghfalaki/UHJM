@@ -15,6 +15,7 @@
 #' @param mi the number of multiple imputation for Monte-Carlo approximation; default is 10.
 #' @param by number: increment of the sequence of DP.
 #' @param Marker_lab the label for the response axis
+#' @param digits integer indicating the number of decimal places for Time axis
 #' @param Time_lab the label for the time axis
 #' @param n.chains the number of parallel chains for the model; default is 1.
 #' @param n.iter integer specifying the total number of iterations; default is 1000.
@@ -31,11 +32,10 @@
 #' @md
 #' @export
 #'
-DPplot2 <- function(object, s = s, id_new = id_new, mi = mi,
-                    Marker_lab="Marker", Time_lab="Time",
+DPplot2 <- function(object, s = s, id_new = id_new, mi = mi, digits=1,
+                    Marker_lab="Marker", Time_lab="Time", offset = "lLibrarySize",
                     by = 0.1, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
                     dataLong, dataSurv) {
-  time_new <- dataLong["obstime"]
 
   FixedY <- object$FixedY
   FixedZ <- object$FixedZ
@@ -43,8 +43,9 @@ DPplot2 <- function(object, s = s, id_new = id_new, mi = mi,
   RandomZ <- object$RandomZ
   GroupY <- object$GroupY
   GroupZ <- object$GroupZ
-
-
+  obstime <- object$obstime
+  #offset=dataLong[offset]
+  time_new <- dataLong[obstime]
 
   data_Long_s <- dataLong[time_new <= s, ]
   data_long <- data_Long_s[unique(c(
@@ -53,14 +54,14 @@ DPplot2 <- function(object, s = s, id_new = id_new, mi = mi,
   ))]
   y <- data_long[all.vars(FixedY)][, 1]
   id_prime <- as.integer(data_long[all.vars(GroupY)][, 1])
-  time_new <- as.numeric(dataLong["obstime"][, 1])
+  time_new <- as.numeric(dataLong[obstime][, 1])
 
   Data_new <- data_long[id_prime == id_new, ]
 
   y_new <- Data_new[all.vars(FixedY)][, 1]
-  time_y <- as.numeric(Data_new["obstime"][, 1])
+  time_y <- as.numeric(Data_new[obstime][, 1])
 
-  #################### survival time #########
+    #################### survival time #########
   formSurv <- object$formSurv
   tmp <- dataSurv[all.vars(formSurv)]
   Time <- tmp[all.vars(formSurv)][, 1] # matrix of observed time such as Time=min(Tevent,Tcens)
@@ -71,18 +72,26 @@ DPplot2 <- function(object, s = s, id_new = id_new, mi = mi,
   surt <- Time_new[Time_new$id == id_new, ][2]
 
 
+
   Dt <- seq(s, max(time_new), by = by)
 
   est_M <- matrix(0, length(Dt), 4)
 
   for (kk in 1:length(Dt)) {
     DD <- DP_SRE_CI(
-      object = object, s = s, t = Dt[kk], mi = mi, n.chains = 1, n.iter = n.iter, n.burnin = n.burnin,
+      object = object, s = s, t = Dt[kk]-s, mi = mi, n.chains = 1, n.iter = n.iter,
+      n.burnin = n.burnin, offset=offset,
       n.thin = 1, dataLong = dataLong, dataSurv = dataSurv
     )
 
     est_M[kk, ] <- as.numeric(DD$DP[DD$DP$id == id_new, ])
   }
+
+
+
+
+
+
 
   Tab1 <- cbind(Dt, 1 - est_M[, -1])
   colnames(Tab1) <- c("obstime", "mean", "uzi", "l")
@@ -98,15 +107,17 @@ DPplot2 <- function(object, s = s, id_new = id_new, mi = mi,
   par(mar = c(5, 5, 2, 5))
 
   plot(TT[, 1], TT[, 5],
-    type = "p", pch = 20, xaxt = "n", col = "black", ylab = Marker_lab, xlab = Time_lab,
-    main = ""
+       type = "p", pch = 20, xaxt = "n", col = "black", xlim=c(0,max(time_new)),
+       ylab = Marker_lab, xlab = Time_lab,
+       main = ""
   )
-  axis(side = 1, xlab, labels = TRUE)
+  axis(side = 1, round(xlab, digits =digits), labels = TRUE)
+
   abline(v = surt, col = "red", lty = 3)
   abline(v = s, col = "blue", lty = 3)
 
   par(new = T)
-  plot(TT[, 1:2], type = "l", pch = 16, col = "purple3", axes=F, xlab = NA, ylab = NA, cex = 1, ylim = c(0, 1))
+  plot(TT[, 1:2], type = "l", pch = 16, col = "purple3", axes=F, xlab = NA, ylab = NA, cex = 1, ylim = c(0, 1)) # axes=F,
   lines(TT[, c(1, 3)], type = "l", col = "purple3", lty = 2, pch = 16, xlab = NA, ylab = NA, cex = 1)
   lines(TT[, c(1, 4)], type = "l", col = "purple3", lty = 2, pch = 16, xlab = NA, ylab = NA, cex = 1)
 

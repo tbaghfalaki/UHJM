@@ -12,6 +12,7 @@
 #' @param dataSurv data set of observed survival variables.
 #' @param s the landmark time for prediction
 #' @param t the window of prediction for prediction
+#' @param offset the offset or library size for discrete response. If offset=NULL, it is considered without an offset.
 #' @param n.chains the number of parallel chains for the model; default is 1.
 #' @param n.iter integer specifying the total number of iterations; default is 1000.
 #' @param n.burnin integer specifying how many of n.iter to discard as burn-in ; default is 5000.
@@ -34,7 +35,7 @@
 #' @md
 #' @export
 
-DP_SRE <- function(object, s = s, t = t, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
+DP_SRE <- function(object, s = s, t = t, offset = NULL, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
                    n.thin = max(1, floor((n.iter - n.burnin) / 1000)), dataLong, dataSurv) {
   Dt <- t
   KK <- 1000000
@@ -53,6 +54,10 @@ DP_SRE <- function(object, s = s, t = t, n.chains = n.chains, n.iter = n.iter, n
   obstime <- object$obstime
   peice <- object$peice
   family <- object$family
+
+  #offset=dataLong[offset]
+
+
   ###########
   NBb <- "model{
 
@@ -63,7 +68,7 @@ DP_SRE <- function(object, s = s, t = t, n.chains = n.chains, n.iter = n.iter, n
     ll[i]<-z[i]*log(pi[i]) +
  (1-z[i])*(log(1-pi[i])+loggam(r+y[i])-loggam(r)-loggam(y[i]+1)+r*log(r/(r+lambda[i]))+y[i]*log(lambda[i]/(lambda[i]+r))-log(1-pow(r/(r+lambda[i]),r)))
 
-      log(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(b[id[i],1:Nb1],Z1[i,])
+      log(lambda[i]) <- offset[i]+inprod(betaL1[],X1[i,])+inprod(b[id[i],1:Nb1],Z1[i,])
       logit(pi[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],(Nb1+1):(Nb1+Nb2)],Z2[i,])
   }
     #####
@@ -89,7 +94,7 @@ DP_SRE <- function(object, s = s, t = t, n.chains = n.chains, n.iter = n.iter, n
  (1-z[i])*(log(1-pi[i])+y[i]*log(lambda[i])-lambda[i] - loggam(y[i]+1)-log(1-exp(-lambda[i])))
 
 
-     log(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(b[id[i],1:Nb1],Z1[i,])
+     log(lambda[i]) <- offset[i]+inprod(betaL1[],X1[i,])+inprod(b[id[i],1:Nb1],Z1[i,])
       logit(pi[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],(Nb1+1):(Nb1+Nb2)],Z2[i,])
 
 
@@ -116,7 +121,7 @@ for(k in 1:n2){
        ll[i]<-(1-z[i])*(y[i]*log(theta[i])+1-exp(theta[i])+C[i]-(log(1-exp(1-exp(theta[i])))))+z[i]*log(muz[i])+
 (1-z[i])*log(1-muz[i])
 
-     log(theta[i]) <- inprod(betaL1[],X1[i,])+inprod(b[id[i],1:Nb1],Z1[i,])
+     log(theta[i]) <- offset[i]+inprod(betaL1[],X1[i,])+inprod(b[id[i],1:Nb1],Z1[i,])
       logit(muz[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],(Nb1+1):(Nb1+Nb2)],Z2[i,])
 
 
@@ -144,7 +149,7 @@ for(k in 1:n2){
        ll[i]<-(1-z[i])*(y[i]*log(theta[i])+1-exp(theta[i])-(log(1-exp(1-exp(theta[i])))))+z[i]*log(muz[i])+
 (1-z[i])*log(1-muz[i])
 
-     log(theta[i]) <- inprod(betaL1[],X1[i,])+inprod(b[id[i],1:Nb1],Z1[i,])
+     log(theta[i]) <- offset[i]+inprod(betaL1[],X1[i,])+inprod(b[id[i],1:Nb1],Z1[i,])
       logit(muz[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],(Nb1+1):(Nb1+Nb2)],Z2[i,])
 
 
@@ -171,7 +176,7 @@ for(k in 1:n2){
 ll[i]<-(1-z[i])*(log(-1/log(1-pi[i]))+y[i]*log(pi[i])-log(y[i]))+z[i]*log(lambda[i])+
   (1-z[i])*log(1-lambda[i])
 
-     logit(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(b[id[i],1:Nb1],Z1[i,])
+     logit(lambda[i]) <- offset[i]+inprod(betaL1[],X1[i,])+inprod(b[id[i],1:Nb1],Z1[i,])
       logit(pi[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],(Nb1+1):(Nb1+Nb2)],Z2[i,])
 
 
@@ -204,7 +209,7 @@ ll[i]<-(1-z[i])*(loggam(m+1)-loggam(y[i]+1)-loggam(m-y[i]+1)+y[i]*log(pi[i])+(m-
                    log(1-pow(1-pi[i],m)))+z[i]*log(lambda[i])+(1-z[i])*log(1-lambda[i])
 
 
-     logit(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(b[id[i],1:Nb1],Z1[i,])
+     logit(lambda[i]) <- offset[i]+inprod(betaL1[],X1[i,])+inprod(b[id[i],1:Nb1],Z1[i,])
       logit(pi[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],(Nb1+1):(Nb1+Nb2)],Z2[i,])
 
 
@@ -232,7 +237,7 @@ for(k in 1:n2){
  (1-z[i])*(log(1-pi[i])+y[i]*log(lambda[i])-y[i]*log(1+phiz*lambda[i])+(y[i]-1)*log(1+phiz*y[i])- loggam(y[i]+1)-
         lambda[i]*(1+phiz*y[i])/(1+phiz*lambda[i])-log(1-exp(-lambda[i]/(1+phiz*lambda[i]))))
 
-      log(lambda[i]) <- inprod(betaL1[],X1[i,])+inprod(b[id[i],1:Nb1],Z1[i,])
+      log(lambda[i]) <- offset[i]+inprod(betaL1[],X1[i,])+inprod(b[id[i],1:Nb1],Z1[i,])
       logit(pi[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],(Nb1+1):(Nb1+Nb2)],Z2[i,])
 
     }
@@ -408,6 +413,8 @@ for(k in 1:n2){
   }"
 
   ############################
+
+
   time_new=dataLong[obstime]
   data_Long_s <- dataLong[time_new <= s, ]
   data_long <- data_Long_s[unique(c(
@@ -441,7 +448,11 @@ for(k in 1:n2){
   Nbeta2 <- dim(X2)[2]
 
 
-
+  if (length(offset) == 0) {
+    offset <- rep(0, n1)
+  } else {
+    offset <- dataLong[offset][, 1]
+  }
 
   Obstime <- obstime
   Xvtime1 <- cbind(id_prim, X1[, colnames(X1) %in% setdiff(colnames(X1), Obstime)])
@@ -871,7 +882,7 @@ if(dim(Z2)[2]==1){
     d.jags <- list(
       betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omega = solve(Sigma), gamma = gamma,
       p = p,
-      n = n1, zeros = rep(0, n1), n2 = n2, y = y, Time = rep(s, n2), surt.cen = surt.cen, K = 100000,
+      n = n1, zeros = rep(0, n1), n2 = n2,  y = y, offset = offset, Time = rep(s, n2), surt.cen = surt.cen, K = 100000,
       X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
       Nb1 = Nb1, Nb2 = Nb2, mub = rep(0, Nb1 + Nb2), id = id_prim,
       XS = XS
@@ -938,7 +949,7 @@ if(dim(Z2)[2]==1){
     d.jags <- list(
       betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omega = solve(Sigma), gamma = gamma,
       p = p,
-      n = n1, zeros = rep(0, n1), n2 = n2, y = y, Time = rep(s, n2), surt.cen = surt.cen, K = 100000,
+      n = n1, zeros = rep(0, n1), n2 = n2,  y = y, offset = offset, Time = rep(s, n2), surt.cen = surt.cen, K = 100000,
       X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
       C = C,
       Nb1 = Nb1, Nb2 = Nb2, mub = rep(0, Nb1 + Nb2), id = id_prim,
@@ -999,7 +1010,7 @@ if(dim(Z2)[2]==1){
     d.jags <- list(
       betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omega = solve(Sigma), gamma = gamma,
       p = p,
-      n = n1, zeros = rep(0, n1), n2 = n2, y = y, Time = rep(s, n2), surt.cen = surt.cen, K = 100000,
+      n = n1, zeros = rep(0, n1), n2 = n2,  y = y, offset = offset, Time = rep(s, n2), surt.cen = surt.cen, K = 100000,
       X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
       Nb1 = Nb1, Nb2 = Nb2, mub = rep(0, Nb1 + Nb2), id = id_prim,
       XS = XS
@@ -1057,7 +1068,7 @@ if(dim(Z2)[2]==1){
     d.jags <- list(
       betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omega = solve(Sigma), gamma = gamma,
       p = p,
-      n = n1, zeros = rep(0, n1), n2 = n2, y = y, Time = rep(s, n2), surt.cen = surt.cen, K = 100000,
+      n = n1, zeros = rep(0, n1), n2 = n2,  y = y, offset = offset, Time = rep(s, n2), surt.cen = surt.cen, K = 100000,
       X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
       Nb1 = Nb1, Nb2 = Nb2, mub = rep(0, Nb1 + Nb2), id = id_prim,
       XS = XS
@@ -1116,7 +1127,7 @@ if(dim(Z2)[2]==1){
     d.jags <- list(
       betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omega = solve(Sigma), gamma = gamma,
       p = p, r = r,
-      n = n1, zeros = rep(0, n1), n2 = n2, y = y, Time = rep(s, n2), surt.cen = surt.cen, K = 100000,
+      n = n1, zeros = rep(0, n1), n2 = n2,  y = y, offset = offset, Time = rep(s, n2), surt.cen = surt.cen, K = 100000,
       X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
       Nb1 = Nb1, Nb2 = Nb2, mub = rep(0, Nb1 + Nb2), id = id_prim,
       XS = XS
@@ -1175,7 +1186,7 @@ if(dim(Z2)[2]==1){
     d.jags <- list(
       betaL1 = betaL1, betaL2 = betaL2, betaS = betaS, Omega = solve(Sigma), gamma = gamma,
       p = p, phiz = phiz,
-      n = n1, zeros = rep(0, n1), n2 = n2, y = y, Time = rep(s, n2), surt.cen = surt.cen, K = 100000,
+      n = n1, zeros = rep(0, n1), n2 = n2,  y = y, offset = offset, Time = rep(s, n2), surt.cen = surt.cen, K = 100000,
       X1 = X1, X2 = X2, Z1 = Z1, Z2 = Z2, z = z,
       Nb1 = Nb1, Nb2 = Nb2, mub = rep(0, Nb1 + Nb2), id = id_prim,
       XS = XS

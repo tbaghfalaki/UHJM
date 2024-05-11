@@ -100,7 +100,7 @@ rm(list=ls())
 
   DPplot1(Z2,
   s = 1.1, id_new = 167, by = 0.1, mi = 5,
-  Marker_lab="Marker", Time_lab="Time",
+  Marker_lab="Marker", Time_lab="Time",digits=0,
   n.chains = 1, n.iter = 20, n.burnin = 10,
   dataLong = dataLong_v, dataSurv = dataSurv_v
  )
@@ -151,7 +151,7 @@ rm(list=ls())
 
  DPplot1(Z1,
          s = 0.6, id_new = 490, by = 0.2, mi = 5,
-         Marker_lab="Marker", Time_lab="Time",
+         Marker_lab="Marker", Time_lab="Time", digits=1,
          n.chains = 1, n.iter = 20, n.burnin = 10,
          dataLong = dataLong_v, dataSurv = dataSurv_v
  )

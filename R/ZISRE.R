@@ -10502,8 +10502,9 @@ if (family == "Gaussian0") {
   list(
     FixedY = FixedY, FixedZ = FixedZ, formSurv = formSurv, IStructure=IStructure,
     RandomY = RandomY, RandomZ = RandomZ, GroupY = GroupY, GroupZ = GroupZ, id = id,
-    obstime = obstime,
+    obstime = obstime, offset=offset,
     family = family, MCMC = MCMC, Estimation = results,
     DIC = DIC, LPML = LPML
   )
 }
+
