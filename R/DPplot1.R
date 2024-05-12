@@ -94,12 +94,14 @@ DPplot1 <- function(object, s = s, id_new = id_new, mi = mi,
 
   TT <- merge(Tab1, ytab1, by = "obstime", all = TRUE)
 
-  xlab <- seq(from = min(time_new), to = max(time_new), length = 5)
+  #xlab <- seq(from = min(time_new), to = max(time_new), length = 5)
+  xlab <- seq(from = floor(min(time_y)), to = ceiling(max(time_new)), length = 5)
 
   par(mar = c(5, 5, 2, 5))
 
   plot(TT[, 1], TT[, 5],
-       type = "p", pch = 20, xaxt = "n", col = "black", xlim=c(0,max(time_new)),
+       type = "p", pch = 20, xaxt = "n", col = "black",
+       xlim=c(min(time_y),max(time_new)),
        ylab = Marker_lab, xlab = Time_lab,
        main = ""
   )

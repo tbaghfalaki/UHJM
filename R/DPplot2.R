@@ -88,11 +88,6 @@ DPplot2 <- function(object, s = s, id_new = id_new, mi = mi, digits=1,
   }
 
 
-
-
-
-
-
   Tab1 <- cbind(Dt, 1 - est_M[, -1])
   colnames(Tab1) <- c("obstime", "mean", "uzi", "l")
 
@@ -102,12 +97,13 @@ DPplot2 <- function(object, s = s, id_new = id_new, mi = mi, digits=1,
 
   TT <- merge(Tab1, ytab1, by = "obstime", all = TRUE)
 
-  xlab <- seq(from = min(time_new), to = max(time_new), length = 5)
+  xlab <- seq(from = floor(min(time_y)), to = ceiling(max(time_new)), length = 5)
 
   par(mar = c(5, 5, 2, 5))
 
   plot(TT[, 1], TT[, 5],
-       type = "p", pch = 20, xaxt = "n", col = "black", xlim=c(0,max(time_new)),
+       type = "p", pch = 20, xaxt = "n", col = "black",
+       xlim=c(min(time_y),max(time_new)),
        ylab = Marker_lab, xlab = Time_lab,
        main = ""
   )
@@ -117,7 +113,8 @@ DPplot2 <- function(object, s = s, id_new = id_new, mi = mi, digits=1,
   abline(v = s, col = "blue", lty = 3)
 
   par(new = T)
-  plot(TT[, 1:2], type = "l", pch = 16, col = "purple3", axes=F, xlab = NA, ylab = NA, cex = 1, ylim = c(0, 1)) # axes=F,
+  plot(TT[, 1:2], type = "l", pch = 16, col = "purple3", axes=F,
+       xlab = NA, ylab = NA, cex = 1, ylim = c(0, 1)) # axes=F,
   lines(TT[, c(1, 3)], type = "l", col = "purple3", lty = 2, pch = 16, xlab = NA, ylab = NA, cex = 1)
   lines(TT[, c(1, 4)], type = "l", col = "purple3", lty = 2, pch = 16, xlab = NA, ylab = NA, cex = 1)
 

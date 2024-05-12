@@ -8008,6 +8008,11 @@ if (is.matrix(XS) == FALSE) {
       D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab,Rhat=sim1$Rhat$Sigmab)
 
 
+      names(sim1$mean$phiz) <-
+        names(sim1$sd$phiz) <-
+        names(sim1$q2.5$phiz) <-
+        names(sim1$q97.5$phiz) <-
+        names(sim1$Rhat$phiz) <- "Dispersion"
 
       MM <- rbind(
         cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1, sim1$Rhat$betaL1),
@@ -8016,11 +8021,7 @@ if (is.matrix(XS) == FALSE) {
 
       colnames(MM) <- c("Est", "SD", "L_CI", "U_CI", "Rhat")
 
-      names(sim1$mean$phiz) <-
-        names(sim1$sd$phiz) <-
-        names(sim1$q2.5$phiz) <-
-        names(sim1$q97.5$phiz) <-
-        names(sim1$Rhat$phiz) <- "Dispersion"
+
 
       SM <- rbind(
         cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS, sim1$Rhat$betaS),
@@ -8104,6 +8105,12 @@ if (is.matrix(XS) == FALSE) {
       D22 <- list(est=sim1$mean$Sigmab,sd=sim1$sd$Sigmab,L=sim1$q2.5$Sigmab,U=sim1$q97.5$Sigmab)
 
 
+      names(sim1$mean$phiz) <-
+        names(sim1$sd$phiz) <-
+        names(sim1$q2.5$phiz) <-
+        names(sim1$q97.5$phiz) <-
+        names(sim1$Rhat$phiz) <- "Dispersion"
+
 
       MM <- rbind(
         cbind(sim1$mean$betaL1, sim1$sd$betaL1, sim1$q2.5$betaL1, sim1$q97.5$betaL1),
@@ -8112,11 +8119,7 @@ if (is.matrix(XS) == FALSE) {
       colnames(MM) <- c("Est", "SD", "L_CI", "U_CI")
 
 
-      names(sim1$mean$phiz) <-
-        names(sim1$sd$phiz) <-
-        names(sim1$q2.5$phiz) <-
-        names(sim1$q97.5$phiz) <-
-        names(sim1$Rhat$phiz) <- "Dispersion"
+
 
       SM <- rbind(
         cbind(sim1$mean$betaS, sim1$sd$betaS, sim1$q2.5$betaS, sim1$q97.5$betaS),
