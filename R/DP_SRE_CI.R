@@ -552,6 +552,8 @@ for(k in 1:n2){
 
 
 
+
+
       gamma <- gammas[ttt,]
       p <- ps[ttt]
 
@@ -621,6 +623,23 @@ for(k in 1:n2){
         Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
       }
     }
+
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        #object$MCMC$D1[SAMPLE,,]
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE,,]
+      }
+      if(dim(Z2)[2]==1){
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE]
+        #Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
+
+
 
 
     gammas <- object$MCMC$gamma[SAMPLE,]
@@ -711,6 +730,22 @@ for(k in 1:n2){
       }
       if(dim(Z2)[2]==1){
         Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
+
+
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        #object$MCMC$D1[SAMPLE,,]
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE,,]
+      }
+      if(dim(Z2)[2]==1){
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE]
+        #Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
       }
     }
 
@@ -808,6 +843,21 @@ for(k in 1:n2){
     }
 
 
+
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        #object$MCMC$D1[SAMPLE,,]
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE,,]
+      }
+      if(dim(Z2)[2]==1){
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE]
+        #Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
     sigmas <- object$MCMC$sigma[SAMPLE]
@@ -897,6 +947,21 @@ for(k in 1:n2){
       }
       if(dim(Z2)[2]==1){
         Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
+
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        #object$MCMC$D1[SAMPLE,,]
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE,,]
+      }
+      if(dim(Z2)[2]==1){
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE]
+        #Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
       }
     }
 
@@ -990,6 +1055,21 @@ for(k in 1:n2){
       }
     }
 
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        #object$MCMC$D1[SAMPLE,,]
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE,,]
+      }
+      if(dim(Z2)[2]==1){
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE]
+        #Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
+
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
     sigmas <- object$MCMC$sigma[SAMPLE]
@@ -1080,6 +1160,21 @@ for(k in 1:n2){
       }
     }
 
+
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        #object$MCMC$D1[SAMPLE,,]
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE,,]
+      }
+      if(dim(Z2)[2]==1){
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE]
+        #Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
 
@@ -1174,6 +1269,21 @@ for(k in 1:n2){
       }
     }
 
+
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        #object$MCMC$D1[SAMPLE,,]
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE,,]
+      }
+      if(dim(Z2)[2]==1){
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE]
+        #Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
 
@@ -1266,6 +1376,21 @@ for(k in 1:n2){
       }
     }
 
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        #object$MCMC$D1[SAMPLE,,]
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE,,]
+      }
+      if(dim(Z2)[2]==1){
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE]
+        #Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
+
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
 
@@ -1352,6 +1477,21 @@ for(k in 1:n2){
       }
     }
 
+
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        #object$MCMC$D1[SAMPLE,,]
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE,,]
+      }
+      if(dim(Z2)[2]==1){
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE]
+        #Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
 
@@ -1441,6 +1581,20 @@ for(k in 1:n2){
       }
     }
 
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        #object$MCMC$D1[SAMPLE,,]
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE,,]
+      }
+      if(dim(Z2)[2]==1){
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE]
+        #Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
     rs <- object$MCMC$r[SAMPLE]
@@ -1534,7 +1688,20 @@ for(k in 1:n2){
       }
     }
 
-
+    if(IStructure==FALSE){
+      Sigmas <- object$MCMC$Sigma[SAMPLE,,]
+    }else{
+      if(dim(Z2)[2]>1){
+        #object$MCMC$D1[SAMPLE,,]
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE,,]
+      }
+      if(dim(Z2)[2]==1){
+        D1s <- object$MCMC$D1[SAMPLE,,]
+        D2s <- object$MCMC$D2[SAMPLE]
+        #Sigmas <- Matrix::bdiag(object$MCMC$D1[SAMPLE,,],object$MCMC$D2[SAMPLE])
+      }
+    }
     gammas <- object$MCMC$gamma[SAMPLE,]
     ps <- object$MCMC$p[SAMPLE]
     phizs <- object$MCMC$r[SAMPLE]

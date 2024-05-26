@@ -542,6 +542,7 @@ gamma[k]~dnorm(0,0.001)
  (1-z[i])*(log(1-pi[i])+y[i]*log(lambda[i])-y[i]*log(1+phiz*lambda[i])+(y[i]-1)*log(1+phiz*y[i])- loggam(y[i]+1)-
         lambda[i]*(1+phiz*y[i])/(1+phiz*lambda[i])-log(1-exp(-lambda[i]/(1+phiz*lambda[i]))))
 
+
       log(lambda[i]) <- offset[i]+inprod(betaL1[],X1[i,])+inprod(b[id[i],1:Nb1],Z1[i,])
       logit(pi[i]) <-  inprod(betaL2[],X2[i,])+inprod(b[id[i],(Nb1+1):(Nb1+Nb2)],Z2[i,])
 
