@@ -20,7 +20,7 @@ This will seamlessly fetch and install the most up-to-date version of UHJM for y
 This analysis is presented [here](/Exam1.md)
 
 ### Reference 
-Ganjali, M., Baghfalaki, T., Balakrishnan, N. and Jacqmin-Gadda, H. (2024). A Unified Joint Modeling of Zero-Inflated Longitudinal Measurements and Time-to-Event Outcome. *Submitted*.
+Ganjali, M., Baghfalaki, T., Balakrishnan, N. and Jacqmin-Gadda, H. (2024). A Unified Joint Modeling of Zero-Inflated Longitudinal Measurements and Time-to-Event Outcomes with Applications to HIV and Colorectal Cancer Data. *Submitted*.
 
 
 
