@@ -52,7 +52,7 @@ This versatile package supports a wide range of distributional assumptions, enco
 
 These joint models are operationalized through two pivotal functions: (1) "ZIJMCV", facilitating joint modeling with a proportional hazard sub-model and a piecewise constant baseline hazard, considering associations based on the current values, and (2) "ZISRE," enabling joint modeling with a Weibull sub-model by incorporating a shared random effects model. At first, we consider the first one:
 
-Finally, we have to use the VS function with the following arguments:
+Finally, we have to use the ZIJMCV function with the following arguments:
 
 -  FixedY formula for fixed part of longitudinal count model
 -  RandomY formula for random part of longitudinal count model
