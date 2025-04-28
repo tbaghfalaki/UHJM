@@ -368,7 +368,7 @@ DPplot1(Z2,
 To compute dynamic predictions (DP), various functions are available. 
 
 The initial method involves computing DP through a first-order approximation utilizing the *DP_SRE* function, which requires the following arguments:
--  object an object inheriting from class VS
+-  object an object inheriting from class DP_SRE
 -  dataLong data set of observed longitudinal variables.
 -  dataSurv data set of observed survival variables.
 -  s the landmark time for prediction
