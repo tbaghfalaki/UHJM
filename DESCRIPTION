@@ -1,7 +1,7 @@
 Package: UHJM
 Type: Package
 Title: Unified Zero-Inflated Hurdle Joint Modeling
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: c(
   person("Taban", "Baghfalaki", email = "t.baghfalaki@gmail.com", role =c("cre","aut"), comment = c(ORCID = "0000-0002-2100-4532")),
   person("Mojtaba", "Ganjali", email = "m-Ganjali@sbu.ac.ir", role = "aut", comment = c(ORCID = "0000-0002-8574-1750")),
