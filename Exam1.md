@@ -380,7 +380,7 @@ The initial method involves computing DP through a first-order approximation uti
 
 The second approach entails computing DP via an MCMC approximation, enabling the computation of credible intervals. This is achieved using the *DP_SRE_CI* function, which necessitates the following arguments:
 
--  object an object inheriting from class VS
+-  object an object inheriting from class DP_SRE
 -  dataLong data set of observed longitudinal variables.
 -  dataSurv data set of observed survival variables.
 -  s the landmark time for prediction
